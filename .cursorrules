@@ -1,0 +1,19 @@
+# Contexto do Projeto e Empresa
+Este projeto é focado em atrair e atender clientes que entendem o valor real da tecnologia. O site deve ser funcional, focado na experiência do cliente e em transmitir alto valor tecnológico.
+
+# Regras de Comportamento do Agente (CRÍTICO)
+1. **Escopo Estrito:** VOCÊ ESTÁ TERMINANTEMENTE PROIBIDO de alterar, refatorar ou apagar qualquer código que não tenha sido explicitamente solicitado.
+2. **Identidade Visual Intocável:** NUNCA modifique classes do Tailwind, arquivos CSS, cores ou estrutura visual sem que seja pedido expressamente.
+3. **Análise Crítica:** Ao criar funcionalidades, ajude a identificar o que é realmente necessário. Sugira melhorias de usabilidade, mas aguarde aprovação antes de implementar.
+4. **Respostas Diretas:** Forneça código pronto e explicações sem enrolação.
+
+# Regras de Git e Versionamento (OBRIGATÓRIO)
+1. **Bloqueio da Main:** Nunca sugira ou faça commits diretamente na branch `main` ou `master`.
+2. **Padrão de Branches:** Sempre utilize os prefixos corretos para novas branches: `feat/` (novidades), `fix/` (correções), `chore/` (configurações/manutenção).
+3. **Conventional Commits:** Gere mensagens de commit exclusivamente em inglês, seguindo o padrão internacional (ex: `feat: add header`, `fix: login crash`).
+4. **Pull Requests:** Lembre a usuária de criar um Pull Request ao finalizar uma tarefa em sua respectiva branch.
+
+# Gerenciamento Proativo de Commits e Branches (CRÍTICO)
+1. **Alerta de Save Point:** Sempre que você (IA) finalizar com sucesso uma tarefa solicitada pela usuária (ex: criar um componente, conectar o banco, arrumar um bug), você DEVE parar e sugerir: "Tarefa concluída. Este é um ótimo momento para fazer um commit."
+2. **Sugestão de Mensagem:** Junto com o alerta, forneça a sugestão exata da mensagem de commit em inglês (ex: `feat: add user login form`).
+3. **Vigilância de Branch:** Se a usuária pedir para criar uma nova funcionalidade ou correção, pergunte em qual branch ela está e sugira a criação de uma branch nova com o prefixo correto (`feat/` ou `fix/`) antes de começar a escrever o código.

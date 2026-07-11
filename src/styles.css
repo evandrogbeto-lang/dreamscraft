@@ -1,0 +1,545 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+/* Cascadia Code — fonte primária da marca Dreamscraft */
+@import "@fontsource/cascadia-code/300.css";
+@import "@fontsource/cascadia-code/400.css";
+@import "@fontsource/cascadia-code/500.css";
+@import "@fontsource/cascadia-code/600.css";
+@import "@fontsource/cascadia-code/700.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Cascadia Code", ui-monospace, monospace;
+  --font-sans: "Cascadia Code", ui-monospace, monospace;
+  --font-mono: "Cascadia Code", ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-glow: var(--primary-glow);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+
+  /* Brand accent tokens — Dreamscraft.code oficial */
+  --color-brand-roxo: #21104E;
+  --color-brand-rosa: #AF66F9;
+  --color-brand-azul: #6A78F6;
+  --color-brand-amarelo: #F0D071;
+  --color-brand-branco: #EFE5FD;
+  --color-brand-glow: #C99BFB;
+
+  /* Legacy aliases → sempre mapeiam para a paleta oficial */
+  --color-brand-amber: #F0D071;
+  --color-brand-cornflower: #6A78F6;
+  --color-brand-lavender: #EFE5FD;
+  --color-brand-indigo: #21104E;
+  --color-brand-orchid: #AF66F9;
+
+
+  --shadow-glow: 0 0 80px -10px color-mix(in oklab, var(--primary) 65%, transparent);
+  --shadow-card: 0 1px 0 0 color-mix(in oklab, var(--foreground) 6%, transparent) inset,
+                  0 30px 80px -30px color-mix(in oklab, var(--primary) 50%, transparent);
+  /* Soft, diffuse drop shadows for premium depth */
+  --shadow-soft-sm: 0 4px 20px -8px color-mix(in oklab, var(--primary) 28%, transparent);
+  --shadow-soft-md: 0 18px 50px -20px color-mix(in oklab, var(--primary) 35%, transparent);
+  --shadow-soft-lg: 0 40px 90px -30px color-mix(in oklab, var(--primary) 45%, transparent),
+                    0 12px 32px -16px color-mix(in oklab, var(--foreground) 18%, transparent);
+  --shadow-soft-xl: 0 60px 120px -40px color-mix(in oklab, var(--primary) 55%, transparent),
+                    0 20px 50px -20px color-mix(in oklab, var(--foreground) 20%, transparent);
+
+  /* Natural easing curves — corporate, never abrupt */
+  --ease-natural: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Brand: Code Roxo #21104E */
+  --background: #21104E;
+  --foreground: #EFE5FD;
+
+  --surface: #2A1A5C;
+  --surface-elevated: #34226E;
+
+  --card: color-mix(in oklab, #2A1A5C 70%, transparent);
+  --card-foreground: #EFE5FD;
+
+  --popover: #2A1A5C;
+  --popover-foreground: #EFE5FD;
+
+  /* Code Rosa #AF66F9 — destaque principal */
+  --primary: #AF66F9;
+  --primary-foreground: #21104E;
+  --primary-glow: #C99BFB;
+
+  /* Code Azul #6A78F6 — secundária */
+  --secondary: #6A78F6;
+  --secondary-foreground: #EFE5FD;
+
+  --muted: #2A1A5C;
+  --muted-foreground: #B8A8D4;
+
+  /* Code Amarelo #F0D071 — acento dourado */
+  --accent: #F0D071;
+  --accent-foreground: #21104E;
+
+  --destructive: oklch(0.65 0.24 25);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: color-mix(in oklab, #AF66F9 30%, transparent);
+  --input: #2A1A5C;
+  --ring: #AF66F9;
+
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  /* Consistent, accessible focus ring across the entire app */
+  :focus { outline: none; }
+  :focus-visible {
+    outline: 2px solid oklch(0.68 0.25 305);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* Respect users that prefer less motion — universally */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-feature-settings: "ss01", "cv11";
+    font-feature-settings: "ss01", "cv11", "kern", "liga";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    line-height: 1.65;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in oklab, var(--primary) 35%, transparent), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 100% 100%, color-mix(in oklab, var(--primary-glow) 18%, transparent), transparent 60%),
+      radial-gradient(ellipse 120% 100% at 50% 50%, var(--surface) 0%, var(--background) 60%, oklch(0.18 0.08 285) 100%);
+    background-attachment: fixed;
+  }
+
+  /* Corpo/parágrafos/UI usam SEMPRE Cascadia Code. */
+  p, li, span, a, button, input, textarea, select, label, dd, dt, blockquote, figcaption {
+    font-family: var(--font-sans);
+  }
+
+  /* Noise grain overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    font-weight: 300;
+  }
+  /* Brand: h1/h2 leves com tracking levemente negativo.
+     !important para vencer utilities font-bold/font-semibold legados. */
+  h1 { font-weight: 300 !important; letter-spacing: -0.035em; }
+  h2 { font-weight: 300 !important; letter-spacing: -0.03em; line-height: 1.08; }
+  h3, h4 { font-weight: 400; }
+  h5, h6 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em; }
+  p { line-height: 1.7; }
+
+  /* Brand weight cap — Cascadia Code só vai até 500 no site.
+     Neutraliza utilities font-semibold/bold/extrabold/black em todo lugar. */
+  .font-semibold { font-weight: 500 !important; }
+  .font-bold,
+  .font-extrabold,
+  .font-black { font-weight: 500 !important; }
+  /* Em headings, qualquer utility é ignorada — h1/h2 ficam Light. */
+  h1.font-semibold, h1.font-bold, h1.font-extrabold, h1.font-black,
+  h2.font-semibold, h2.font-bold, h2.font-extrabold, h2.font-black {
+    font-weight: 300 !important;
+  }
+  h3.font-bold, h3.font-extrabold, h3.font-black,
+  h4.font-bold, h4.font-extrabold, h4.font-black {
+    font-weight: 500 !important;
+  }
+
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+    letter-spacing: 0;
+  }
+
+  ::selection {
+    background: oklch(0.50 0.27 305 / 40%);
+    color: oklch(0.985 0.005 285);
+    -webkit-text-fill-color: oklch(0.985 0.005 285);
+  }
+  ::-moz-selection {
+    background: oklch(0.50 0.27 305 / 40%);
+    color: oklch(0.985 0.005 285);
+  }
+  .text-gradient::selection {
+    background: oklch(0.50 0.27 305 / 55%);
+    -webkit-text-fill-color: #ffffff;
+    color: #ffffff;
+  }
+  .text-gradient::-moz-selection {
+    background: oklch(0.50 0.27 305 / 55%);
+    color: #ffffff;
+  }
+}
+
+@layer utilities {
+  /* Hero title — soft white glow */
+  .text-soft-glow {
+    color: var(--color-foreground);
+    text-shadow:
+      0 0 18px color-mix(in oklab, var(--foreground) 30%, transparent),
+      0 0 60px color-mix(in oklab, var(--primary) 45%, transparent),
+      0 0 120px color-mix(in oklab, var(--primary-glow) 25%, transparent);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--foreground) 0%, var(--primary-glow) 55%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    /* Avoid inheriting text-shadow halos (e.g. from .text-soft-glow) that
+       render behind transparent text and make it look blurry. */
+    text-shadow: none;
+  }
+
+  /* Cyber grid backdrop */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--primary) 18%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--primary) 18%, transparent) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 85%);
+  }
+
+  /* Glassmorphism module card with neon purple border */
+  .glass-card {
+    background: linear-gradient(180deg,
+      color-mix(in oklab, var(--surface) 55%, transparent) 0%,
+      color-mix(in oklab, var(--background) 60%, transparent) 100%);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid color-mix(in oklab, var(--primary) 38%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in oklab, var(--foreground) 6%, transparent) inset,
+      var(--shadow-soft-md);
+    transition:
+      border-color .5s var(--ease-natural),
+      box-shadow .5s var(--ease-natural),
+      transform .5s var(--ease-natural),
+      background .5s var(--ease-natural);
+  }
+  .glass-card:hover {
+    border-color: color-mix(in oklab, var(--primary-glow) 70%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in oklab, var(--primary-glow) 30%, transparent) inset,
+      0 0 60px -10px color-mix(in oklab, var(--primary) 55%, transparent),
+      var(--shadow-soft-xl);
+    transform: translateY(-4px) scale(1.005);
+  }
+
+  .glow-ring {
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent),
+      0 0 40px -5px color-mix(in oklab, var(--primary) 70%, transparent),
+      0 25px 60px -20px color-mix(in oklab, var(--primary) 65%, transparent);
+  }
+
+  .glass {
+    background: color-mix(in oklab, var(--surface) 60%, transparent);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+  }
+
+  /* Refined hover utilities */
+  .hover-lift {
+    transition: transform .45s var(--ease-natural), box-shadow .45s var(--ease-natural);
+  }
+  .hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-soft-lg);
+  }
+
+  .btn-glow {
+    position: relative;
+    transition: transform .35s var(--ease-natural), filter .35s var(--ease-natural);
+  }
+  .btn-glow:hover {
+    transform: translateY(-2px) scale(1.02);
+    filter: brightness(1.08);
+  }
+  .btn-glow:active { transform: translateY(0) scale(0.99); }
+
+  /* Underline reveal for nav links */
+  .nav-underline {
+    position: relative;
+  }
+  .nav-underline::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 6px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary-glow), transparent);
+    transform: scaleX(0);
+    transform-origin: 0% 50%;
+    transition: transform .4s var(--ease-natural);
+  }
+  .nav-underline:hover::after,
+  .nav-underline[data-active="true"]::after { transform: scaleX(1); }
+
+  /* Scroll reveal keyframes (CSS fallback) */
+  @keyframes reveal-up {
+    from { opacity: 0; transform: translate3d(0, 24px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  .animate-reveal { animation: reveal-up .7s var(--ease-natural) both; }
+
+  /* Data-flow scanline animation */
+  @keyframes scanline {
+    0% { transform: translateY(-100%); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+  .scanline {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 0%,
+      color-mix(in oklab, var(--primary-glow) 22%, transparent) 50%, transparent 100%);
+    height: 200px;
+    animation: scanline 7s linear infinite;
+  }
+
+  @keyframes pulse-node {
+    0%, 100% { opacity: .35; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+  .node-pulse { animation: pulse-node 2.6s ease-in-out infinite; }
+
+  /* Brand "chuva de colunas" — candlestick bars */
+  @keyframes code-rain-fall {
+    0%   { transform: translateY(-12%); opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { transform: translateY(8%); opacity: 0; }
+  }
+  .code-rain-bar {
+    animation-name: code-rain-fall;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    animation-iteration-count: infinite;
+    will-change: transform, opacity;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .code-rain-bar { animation: none; opacity: 0.7; }
+  }
+
+  /* Floating label input */
+  .float-field {
+    position: relative;
+  }
+  .float-field > input,
+  .float-field > textarea {
+    width: 100%;
+    background: color-mix(in oklab, var(--surface) 50%, transparent);
+    border: 1px solid color-mix(in oklab, var(--primary) 25%, transparent);
+    border-radius: 8px;
+    padding: 18px 14px 8px;
+    color: var(--foreground);
+    font: inherit;
+    outline: none;
+    transition: border-color .25s var(--ease-natural), box-shadow .25s var(--ease-natural), background .25s var(--ease-natural);
+  }
+  .float-field > textarea { min-height: 110px; resize: vertical; padding-top: 22px; }
+  .float-field > label {
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    font-size: 14px;
+    color: var(--muted-foreground);
+    pointer-events: none;
+    transition: transform .2s var(--ease-natural), font-size .2s var(--ease-natural), color .2s var(--ease-natural);
+    transform-origin: 0 0;
+    background: transparent;
+    padding: 0 2px;
+  }
+  .float-field > input:focus,
+  .float-field > textarea:focus {
+    border-color: var(--primary-glow);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary-glow) 30%, transparent),
+                0 0 40px -8px color-mix(in oklab, var(--primary) 70%, transparent);
+    background: color-mix(in oklab, var(--surface) 70%, transparent);
+  }
+  .float-field > input:focus + label,
+  .float-field > input:not(:placeholder-shown) + label,
+  .float-field > textarea:focus + label,
+  .float-field > textarea:not(:placeholder-shown) + label {
+    transform: translateY(-10px) scale(0.78);
+    color: var(--primary-glow);
+  }
+}
+
+/* MagneticButton — cursor-tracked light sheen */
+.magnetic-sheen {
+  --mx: 50%;
+  --my: 50%;
+}
+.magnetic-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,0.08), transparent 60%);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.magnetic-sheen:hover::after {
+  opacity: 1;
+}
+
+@layer utilities {
+  /* Animated underline that grows from center on hover */
+  .link-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -2px;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: center;
+    transition: transform .35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+}
+
+/* Terminal-style Sonner toasts */
+.term-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: #0a0a0f;
+  color: oklch(0.985 0.005 285);
+  border: 1px solid oklch(0.25 0.02 285);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: "Cascadia Code", ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 0 30px -10px rgb(255 255 255 / 0.1);
+}
+.term-toast__title { font-family: inherit; font-size: inherit; font-weight: 500; }
+.term-toast__desc { font-family: inherit; font-size: 11px; opacity: 0.7; }
+.term-toast--success {
+  border-color: rgb(52 211 153 / 0.5);
+  color: rgb(110 231 183);
+  box-shadow: 0 0 30px -10px rgb(52 211 153 / 0.4);
+}
+.term-toast--error {
+  border-color: rgb(248 113 113 / 0.5);
+  color: rgb(252 165 165);
+  box-shadow: 0 0 30px -10px rgb(248 113 113 / 0.4);
+}
+.term-toast--warning {
+  border-color: rgb(250 204 21 / 0.5);
+  color: rgb(253 224 71);
+  box-shadow: 0 0 30px -10px rgb(250 204 21 / 0.4);
+}
+.term-toast--info {
+  border-color: oklch(0.50 0.27 305 / 0.5);
+  color: oklch(0.75 0.18 305);
+  box-shadow: 0 0 30px -10px oklch(0.50 0.27 305 / 0.4);
+}
+.term-toast--loading {
+  border-color: oklch(0.50 0.27 305 / 0.4);
+  color: oklch(0.85 0.05 285);
+  box-shadow: 0 0 30px -10px oklch(0.50 0.27 305 / 0.3);
+}
+
+/* TiltCard glow overlay */
+.tilt-card { position: relative; }
+.tilt-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--glow-x, 50%) var(--glow-y, 50%),
+    color-mix(in oklab, var(--glow-color, var(--primary)) 12%, transparent),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 250ms ease;
+  z-index: 1;
+}
+.tilt-card:hover::after { opacity: 1; }

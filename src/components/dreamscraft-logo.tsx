@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import logoBranco from "@/assets/logo-branco.png.asset.json";
-import logoRoxo from "@/assets/logo-roxo.png.asset.json";
+import logoBranco from "@/assets/logo-branco.png";
+import logoRoxo from "@/assets/logo-roxo.png";
 
 type Variant = "dark" | "light";
 
@@ -23,7 +23,7 @@ export function DreamscraftLogo({
   className,
   symbolClassName = "h-8",
 }: DreamscraftLogoProps) {
-  const src = variant === "dark" ? logoBranco.url : logoRoxo.url;
+  const src = variant === "dark" ? logoBranco : logoRoxo;
   return (
     <img
       src={src}

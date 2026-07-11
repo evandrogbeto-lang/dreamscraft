@@ -45,7 +45,7 @@ export const Route = createFileRoute("/blog/$slug")({
                   name: "Dreamscraft Code",
                   logo: {
                     "@type": "ImageObject",
-                    url: "https://dreamscraftcode.com.br/__l5e/assets-v1/e6e1358f-ecd3-40e5-bdae-7256f1be7f46/icone-roxo.png",
+                    url: "https://dreamscraftcode.com.br/icone-roxo.png",
                   },
                 },
                 mainEntityOfPage: `https://dreamscraftcode.com.br/blog/${params.slug}`,

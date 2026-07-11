@@ -88,11 +88,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Dreamscraft Code" },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "pt_BR" },
-      { property: "og:image", content: "/__l5e/assets-v1/e6e1358f-ecd3-40e5-bdae-7256f1be7f46/icone-roxo.png" },
+      { property: "og:image", content: "/og-image.png" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "/__l5e/assets-v1/e6e1358f-ecd3-40e5-bdae-7256f1be7f46/icone-roxo.png" },
+      { name: "twitter:image", content: "/og-image.png" },
       { property: "og:title", content: "Dreamscraft Code — Software sob medida" },
       { name: "twitter:title", content: "Dreamscraft Code — Software sob medida" },
       { property: "og:description", content: "Forjamos apps, sistemas web e automações com IA. Da ideia ao deploy, com design, código e manutenção." },
@@ -100,9 +100,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/png", sizes: "512x512", href: "/__l5e/assets-v1/e6e1358f-ecd3-40e5-bdae-7256f1be7f46/icone-roxo.png" },
-      { rel: "icon", type: "image/x-icon", href: "/__l5e/assets-v1/5aebb159-8bcf-47dd-8463-18903590764c/favicon.ico" },
-      { rel: "apple-touch-icon", href: "/__l5e/assets-v1/e6e1358f-ecd3-40e5-bdae-7256f1be7f46/icone-roxo.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icone-roxo.png" },
+      { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+      { rel: "apple-touch-icon", href: "/icone-roxo.png" },
     ],
     scripts: [
       {
@@ -112,7 +112,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@type": "Organization",
           name: "Dreamscraft Code",
           url: "https://dreamscraftcode.com.br",
-          logo: "https://dreamscraftcode.com.br/__l5e/assets-v1/e6e1358f-ecd3-40e5-bdae-7256f1be7f46/icone-roxo.png",
+          logo: "https://dreamscraftcode.com.br/icone-roxo.png",
 
           sameAs: [
             "https://www.instagram.com/dreamscraftcode",

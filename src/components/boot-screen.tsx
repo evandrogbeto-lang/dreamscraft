@@ -1,89 +1,61 @@
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
-type Line = { at: number; text: string };
+const BRAND = "DREAMSCRAFT.CODE";
+const TYPE_SPEED = 45; // ms por caractere
+const TYPE_START = 350; // digitação começa junto com o traço do "c"
+const SCAN_AT = 1250; // scanline varre a tela
+const SCAN_DURATION = 350;
+const CLOSE_AT = SCAN_AT + SCAN_DURATION; // ~1.6s; overlay some por completo em ~2s
 
-const LINES: Line[] = [
-  { at: 0,    text: "DREAMSCRAFT OS v3.1 — initializing..." },
-  { at: 300,  text: "→ loading core modules" },
-  { at: 550,  text: "  [✓] React 19 · TypeScript · Framer Motion" },
-  { at: 800,  text: "  [✓] Supabase · TanStack Router · Tailwind" },
-  { at: 1050, text: "→ connecting services..." },
-  { at: 1300, text: "  [✓] AI estimate engine online" },
-  { at: 1500, text: "✓ All systems operational. Welcome." },
-];
-
-const TYPE_SPEED = 15; // ms per char
-const POST_DELAY = 400;
-const SCAN_DURATION = 400;
-
+/**
+ * Boot "compilando a marca": o símbolo c/ se desenha com brilho suave,
+ * DREAMSCRAFT.CODE é digitado ao lado, uma scanline passa e o site aparece.
+ * Roda uma vez por sessão; pulável com Esc ou clique.
+ */
 export function BootScreen() {
+  const reduce = useReducedMotion();
   const [show, setShow] = useState(false);
-  const [visibleLines, setVisibleLines] = useState<string[]>([]);
+  const [typedCount, setTypedCount] = useState(0);
   const [scanning, setScanning] = useState(false);
   const [closing, setClosing] = useState(false);
-  const [showSkip, setShowSkip] = useState(false);
 
-  // Decide on mount if we should boot
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (reduce) return;
     if (sessionStorage.getItem("booted") === "1") return;
     setShow(true);
+  }, [reduce]);
+
+  const skip = useCallback(() => {
+    sessionStorage.setItem("booted", "1");
+    setClosing(true);
   }, []);
 
-  // Show skip button after 300 ms
-  useEffect(() => {
-    if (!show) return;
-    const t = setTimeout(() => setShowSkip(true), 300);
-    return () => clearTimeout(t);
-  }, [show]);
-
-  // Esc key skips boot
+  // Esc pula
   useEffect(() => {
     if (!show) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        sessionStorage.setItem("booted", "1");
-        setClosing(true);
-      }
+      if (e.key === "Escape") skip();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [show]);
+  }, [show, skip]);
 
-  // Run the sequence
+  // Sequência: digitação → scanline → fechamento
   useEffect(() => {
     if (!show) return;
     const timers: ReturnType<typeof setTimeout>[] = [];
 
-    LINES.forEach((line, idx) => {
-      // Schedule typewriter for each line
-      timers.push(
-        setTimeout(() => {
-          let i = 0;
-          const id = setInterval(() => {
-            i++;
-            setVisibleLines((prev) => {
-              const next = [...prev];
-              next[idx] = line.text.slice(0, i);
-              return next;
-            });
-            if (i >= line.text.length) clearInterval(id);
-          }, TYPE_SPEED);
-        }, line.at),
-      );
-    });
-
-    const last = LINES[LINES.length - 1];
-    const finishAt = last.at + last.text.length * TYPE_SPEED + POST_DELAY;
-
-    timers.push(setTimeout(() => setScanning(true), finishAt));
-    timers.push(setTimeout(() => setClosing(true), finishAt + SCAN_DURATION));
+    for (let i = 1; i <= BRAND.length; i++) {
+      timers.push(setTimeout(() => setTypedCount(i), TYPE_START + i * TYPE_SPEED));
+    }
+    timers.push(setTimeout(() => setScanning(true), SCAN_AT));
     timers.push(
       setTimeout(() => {
         sessionStorage.setItem("booted", "1");
-        setShow(false);
-      }, finishAt + SCAN_DURATION + 450),
+        setClosing(true);
+      }, CLOSE_AT),
     );
 
     return () => timers.forEach(clearTimeout);
@@ -95,54 +67,80 @@ export function BootScreen() {
         <motion.div
           key="boot"
           initial={{ clipPath: "inset(0 0 0% 0)" }}
-          animate={{
-            clipPath: closing ? "inset(0 0 100% 0)" : "inset(0 0 0% 0)",
+          animate={{ clipPath: closing ? "inset(0 0 100% 0)" : "inset(0 0 0% 0)" }}
+          transition={{ duration: 0.4, ease: [0.7, 0, 0.3, 1] }}
+          onAnimationComplete={() => {
+            if (closing) setShow(false);
           }}
-          transition={{ duration: 0.45, ease: [0.7, 0, 0.3, 1] }}
-          className="fixed inset-0 z-[9999] bg-black text-primary-glow overflow-hidden"
+          onClick={skip}
+          role="presentation"
+          aria-label="Carregando Dreamscraft Code — Esc ou clique para pular"
+          className="fixed inset-0 z-[9999] overflow-hidden cursor-pointer select-none"
           style={{
-            fontFamily:
-              "'Cascadia Code', ui-monospace, SFMono-Regular, Menlo, monospace",
+            background: "#180B3E",
+            fontFamily: "'Cascadia Code', ui-monospace, SFMono-Regular, Menlo, monospace",
           }}
         >
-          {/* CRT scanlines ambient */}
+          {/* scanlines ambiente (CRT sutil) */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-[0.06]"
+            className="pointer-events-none absolute inset-0 opacity-[0.05]"
             style={{
               backgroundImage:
                 "repeating-linear-gradient(0deg, rgba(255,255,255,0.6) 0 1px, transparent 1px 3px)",
             }}
           />
 
-          {/* Content */}
-          <div className="relative h-full w-full px-6 sm:px-10 py-10 sm:py-14 text-[13px] sm:text-sm leading-relaxed">
-            {LINES.map((_, i) => (
-              <div key={i} className="min-h-[1.6em] whitespace-pre">
-                {visibleLines[i] ?? ""}
-                {i === visibleLines.length - 1 &&
-                  visibleLines[i] &&
-                  visibleLines[i].length < LINES[i].text.length && (
-                    <span className="inline-block w-[0.5ch] h-[1em] align-middle bg-primary-glow ml-0.5 animate-pulse" />
-                  )}
-              </div>
-            ))}
+          <div className="h-full w-full flex items-center justify-center px-6">
+            <div className="flex items-center gap-4 sm:gap-6">
+              {/* símbolo c/ desenhado em traço, com brilho rosa suave */}
+              <svg
+                viewBox="0 0 72 64"
+                className="h-12 w-[3.4rem] sm:h-16 sm:w-[4.5rem] shrink-0"
+                style={{
+                  filter:
+                    "drop-shadow(0 0 6px rgba(175,102,249,0.9)) drop-shadow(0 0 22px rgba(175,102,249,0.45))",
+                }}
+                aria-hidden
+              >
+                <motion.path
+                  d="M 46 22 A 17 17 0 1 0 46 42"
+                  fill="none"
+                  stroke="#C99BFB"
+                  strokeWidth={6}
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.15, duration: 0.45, ease: "easeOut" }}
+                />
+                <motion.path
+                  d="M 52 48 L 66 16"
+                  fill="none"
+                  stroke="#AF66F9"
+                  strokeWidth={6}
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.55, duration: 0.3, ease: "easeOut" }}
+                />
+              </svg>
+
+              {/* marca digitada + cursor piscando */}
+              <p className="text-lg sm:text-2xl tracking-[0.18em] text-[#EFE5FD] whitespace-nowrap">
+                {BRAND.slice(0, typedCount)}
+                <span
+                  className="inline-block w-[0.55ch] h-[1.05em] ml-1 align-middle bg-[#C99BFB] animate-pulse"
+                  aria-hidden
+                />
+              </p>
+            </div>
           </div>
 
-          {/* Skip button */}
-          {showSkip && !closing && (
-            <button
-              onClick={() => {
-                sessionStorage.setItem("booted", "1");
-                setClosing(true);
-              }}
-              className="absolute bottom-6 right-6 font-mono text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            >
-              skip →
-            </button>
-          )}
+          <p className="absolute bottom-6 inset-x-0 text-center text-[11px] text-[#EFE5FD]/35">
+            Esc ou clique para pular
+          </p>
 
-          {/* Scan line de saída */}
+          {/* scanline de saída */}
           {scanning && (
             <motion.div
               initial={{ y: "-2px" }}
@@ -151,7 +149,7 @@ export function BootScreen() {
               className="absolute left-0 right-0 h-[2px] bg-white"
               style={{
                 boxShadow:
-                  "0 0 12px rgba(255,255,255,0.9), 0 0 32px hsl(var(--primary) / 0.6)",
+                  "0 0 12px rgba(255,255,255,0.9), 0 0 32px rgba(175,102,249,0.6)",
               }}
             />
           )}

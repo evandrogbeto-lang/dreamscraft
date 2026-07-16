@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 import { Clock, Zap, MessageSquare, Mail, Calendar, CircleDot } from "lucide-react";
 import { LiveTerminal } from "@/components/live-terminal";
-import { PinnedBuild } from "@/components/pinned-build";
 import { PipelineScroll } from "@/components/pipeline-scroll";
 import { ProjectStory } from "@/components/project-story";
 import { ProofOfWork } from "@/components/proof-of-work";
@@ -16,8 +15,8 @@ export const Route = createFileRoute("/")({
     const title = "Dreamscraft Code — Codificamos sua visão";
     const description =
       "Engenharia digital de elite: apps, sistemas web, SaaS e automação com IA. Codificamos sua visão da arquitetura ao deploy.";
-    const url = "https://dreamscraftcode.com.br/";
-    const image = "https://dreamscraftcode.com.br/og-image.png";
+    const url = "https://dreamscraftcode.com/";
+    const image = "https://dreamscraftcode.com/og-image.png";
     return {
       meta: [
         { title },
@@ -373,11 +372,8 @@ function HomePage() {
       {/* PIPELINE — horizontal scroll */}
       <PipelineScroll />
 
-      {/* PROJECT STORY — scroll-driven */}
+      {/* PROJECT STORY */}
       <ProjectStory />
-
-      {/* PINNED BUILD — sticky scroll-driven */}
-      <PinnedBuild />
 
       {/* PROOF OF WORK — live demo */}
       <ProofOfWork />

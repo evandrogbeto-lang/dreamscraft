@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import { MessageSquare, Smartphone } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const cards = [
   { id: 1, label: "Client", tag: "// client" },
@@ -210,17 +211,19 @@ export function PipelineScroll() {
     offset: ["start start", "end end"],
   });
 
-  // 5 cards (40vw) + 4 gaps (2vw) + pl 30vw + pr 30vw = 268vw de track.
-  // Padding lateral 30vw centraliza cada card (50vw - 40vw/2 = 30vw).
-  // Primeiro card centralizado: x=0. Último card centralizado: x = -(4 * 42) = -168vw.
+  // Card width is responsive: 40vw on desktop, 84vw on mobile (readable cards).
+  // Track math: side padding = (100 - cardW) / 2 centers each card;
+  // travel per card = cardW + 2vw gap; total = 4 * travel.
   // Hold the first card briefly at the start and the last card at the end
   // so users have time to read both before the section releases.
-  // Travel covers almost the full scroll range so all 5 cards (01→05) are
-  // active during scroll, with only a tiny tail before releasing the sticky.
+  const isMobile = useIsMobile();
+  const cardW = isMobile ? 84 : 40;
+  const sidePad = (100 - cardW) / 2;
+  const travel = (cardW + 2) * (cards.length - 1);
   const x = useTransform(
     scrollYProgress,
     [0, 0.04, 0.94, 1],
-    ["0vw", "0vw", "-168vw", "-168vw"],
+    ["0vw", "0vw", `-${travel}vw`, `-${travel}vw`],
   );
   const [activeIdx, setActiveIdx] = useState(0);
 
@@ -287,7 +290,10 @@ export function PipelineScroll() {
 
         {/* horizontal track */}
         <div className="h-full flex items-center">
-          <motion.div style={{ x }} className="flex items-center gap-[2vw] pl-[30vw] pr-[30vw]">
+          <motion.div
+            style={{ x, paddingLeft: `${sidePad}vw`, paddingRight: `${sidePad}vw` }}
+            className="flex items-center gap-[2vw]"
+          >
             {cards.map((c, i) => {
               const Renderer = renderers[i];
               const isActive = i === activeIdx;
@@ -299,7 +305,8 @@ export function PipelineScroll() {
                     opacity: isActive ? 1 : 0.55,
                   }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className="shrink-0 w-[40vw] h-[60vh] rounded-2xl border border-border/60 bg-background/70 backdrop-blur p-8 shadow-soft-lg relative overflow-hidden"
+                  style={{ width: `${cardW}vw` }}
+                  className="shrink-0 h-[60vh] rounded-2xl border border-border/60 bg-background/70 backdrop-blur p-6 sm:p-8 shadow-soft-lg relative overflow-hidden"
                 >
                   <div className="absolute top-5 left-6 flex items-center gap-3">
                     <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-primary-glow">

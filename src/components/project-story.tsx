@@ -262,29 +262,20 @@ export function ProjectStory() {
           ASSIM ESTRUTURAMOS UM PROJETO
         </h2>
         <p className="mt-4 text-xs font-mono text-muted-foreground">
-          ← demonstração técnica · não é case real →
+          demonstração técnica · não é case real
         </p>
       </div>
 
-      <div
-        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden"
-        style={{ scrollbarWidth: "none" }}
-      >
-        <div className="snap-start shrink-0 w-screen">
-          <Frame index="01" label="Ideia" caption="Exemplo: uma mensagem chega. Sem briefing formal. Só um problema.">
-            <WhatsAppMock />
-          </Frame>
-        </div>
-        <div className="snap-start shrink-0 w-screen">
-          <Frame index="02" label="Estrutura" caption="Arquitetura de referência desenhada em 48h.">
-            <ArchitectureDiagram />
-          </Frame>
-        </div>
-        <div className="snap-start shrink-0 w-screen">
-          <Frame index="03" label="Entrega" caption="Demonstração de como fica em produção.">
-            <PhoneMockup />
-          </Frame>
-        </div>
+      <div>
+        <Frame index="01" label="Ideia" caption="Exemplo: uma mensagem chega. Sem briefing formal. Só um problema.">
+          <WhatsAppMock />
+        </Frame>
+        <Frame index="02" label="Estrutura" caption="Arquitetura de referência desenhada em 48h.">
+          <ArchitectureDiagram />
+        </Frame>
+        <Frame index="03" label="Entrega" caption="Demonstração de como fica em produção.">
+          <PhoneMockup />
+        </Frame>
       </div>
 
       <div className="flex justify-center pb-8 pt-2">

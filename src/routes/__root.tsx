@@ -17,7 +17,6 @@ import { CookieConsentBanner } from "@/components/cookie-consent";
 import { NotFoundTerminal } from "@/components/not-found-terminal";
 import { CustomCursor } from "@/components/CustomCursor";
 import { PageTransitions } from "@/components/PageTransitions";
-import { ScrollProgress } from "@/components/scroll-progress";
 import { ScrollProgressCircle } from "@/components/scroll-progress-circle";
 import { BootScreen } from "@/components/boot-screen";
 import { CodeRainBackground } from "@/components/code-rain-background";
@@ -111,8 +110,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "Dreamscraft Code",
-          url: "https://dreamscraftcode.com.br",
-          logo: "https://dreamscraftcode.com.br/icone-roxo.png",
+          url: "https://dreamscraftcode.com",
+          logo: "https://dreamscraftcode.com/icone-roxo.png",
 
           sameAs: [
             "https://www.instagram.com/dreamscraftcode",
@@ -121,7 +120,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           contactPoint: {
             "@type": "ContactPoint",
             contactType: "customer support",
-            email: "contato@dreamscraftcode.com.br",
+            email: "contato@dreamscraftcode.com",
             areaServed: "BR",
             availableLanguage: ["Portuguese"],
           },
@@ -157,7 +156,6 @@ function RootComponent() {
       <AuthListener />
       <BootScreen />
       <CustomCursor />
-      <ScrollProgress />
       <ScrollProgressCircle />
       <div className="flex min-h-screen flex-col">
         <SiteHeader />

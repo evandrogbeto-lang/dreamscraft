@@ -43,7 +43,7 @@ const COMMANDS: Record<string, () => Line[]> = {
   ],
   contact: () => [
     { text: "✓ Contact info", color: "text-brand-amarelo" },
-    { text: "email:    contato@dreamscraftcode.com.br", color: "text-brand-amarelo" },
+    { text: "email:    contato@dreamscraftcode.com", color: "text-brand-amarelo" },
     { text: "whatsapp: +55 61 99174-8651", color: "text-brand-amarelo" },
     { text: "Or run any of the above. We reply within 1 business day.", color: "text-foreground" },
   ],

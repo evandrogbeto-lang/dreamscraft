@@ -20,7 +20,7 @@ export const Route = createFileRoute("/blog")({
         content:
           "Decisões técnicas reais, guias de preço, escolha de stack e estratégia de produto.",
       },
-      { property: "og:url", content: "https://dreamscraftcode.com.br/blog" },
+      { property: "og:url", content: "https://dreamscraftcode.com/blog" },
     ],
   }),
   component: BlogIndex,

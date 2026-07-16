@@ -24,7 +24,7 @@ export const Route = createFileRoute("/portfolio")({
     const title = "Portfolio — Produtos próprios em construção · Dreamscraft Code";
     const description =
       "Os 4 SaaS que estamos construindo internamente: NutrIAprova, FYNK, OURleads e Secretária Virtual com IA. Nada de case de cliente inventado — só o que a gente está de fato codando.";
-    const url = "https://dreamscraftcode.com.br/portfolio";
+    const url = "https://dreamscraftcode.com/portfolio";
     return {
       meta: [
         { title },

@@ -44,7 +44,7 @@ export const Route = createFileRoute("/solucoes")({
         content:
           "Apps mobile, sistemas web e SaaS, automação com IA e consultoria. Conheça cada serviço da Dreamscraft Code.",
       },
-      { property: "og:url", content: "https://dreamscraftcode.com.br/solucoes" },
+      { property: "og:url", content: "https://dreamscraftcode.com/solucoes" },
     ],
     scripts: [
       {

@@ -51,7 +51,7 @@ export const Route = createFileRoute("/parceiros")({
         content:
           "Indique projetos de software e ganhe até 10% de comissão. Para agências, designers, consultores e devs freelancers.",
       },
-      { property: "og:url", content: "https://dreamscraftcode.com.br/parceiros" },
+      { property: "og:url", content: "https://dreamscraftcode.com/parceiros" },
     ],
     scripts: [
       {

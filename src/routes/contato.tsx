@@ -21,7 +21,7 @@ export const Route = createFileRoute("/contato")({
         property: "og:description",
         content: "Fale com a Dreamscraft Code. Conte sobre seu projeto e receba um orçamento.",
       },
-      { property: "og:url", content: "https://dreamscraftcode.com.br/contato" },
+      { property: "og:url", content: "https://dreamscraftcode.com/contato" },
     ],
   }),
   component: ContatoPage,
@@ -149,8 +149,8 @@ function ContatoPage() {
           <Channel
             icon={Mail}
             title="Email"
-            value="contato@dreamscraftcode.com.br"
-            href="mailto:contato@dreamscraftcode.com.br"
+            value="contato@dreamscraftcode.com"
+            href="mailto:contato@dreamscraftcode.com"
           />
           <Channel
             icon={MessageCircle}

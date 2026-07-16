@@ -81,8 +81,8 @@ function PrivacidadePage() {
         </ul>
         <p>
           Para exercer seus direitos:{" "}
-          <a href="mailto:privacidade@dreamscraftcode.com.br" className="text-primary hover:underline">
-            privacidade@dreamscraftcode.com.br
+          <a href="mailto:privacidade@dreamscraftcode.com" className="text-primary hover:underline">
+            privacidade@dreamscraftcode.com
           </a>
           . Respondemos em até 15 dias.
         </p>
@@ -112,7 +112,7 @@ function PrivacidadePage() {
 
       <Section title="9. Canais de atendimento (DPO)">
         <p>
-          📧 dpo@dreamscraftcode.com.br
+          📧 dpo@dreamscraftcode.com
           <br />
           📞 (61) 99174-8651
           <br />

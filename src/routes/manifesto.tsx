@@ -10,8 +10,8 @@ export const Route = createFileRoute("/manifesto")({
     const title = "Manifesto — Dreamscraft Code";
     const description =
       "Os cinco princípios que guiam a engenharia da Dreamscraft Code. Código é arquitetura. Clareza é respeito.";
-    const url = "https://dreamscraftcode.com.br/manifesto";
-    const image = "https://dreamscraftcode.com.br/og-image.png";
+    const url = "https://dreamscraftcode.com/manifesto";
+    const image = "https://dreamscraftcode.com/og-image.png";
     return {
       meta: [
         { title },

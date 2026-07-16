@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { posts } from "@/lib/blog-posts";
 
-const BASE_URL = "https://dreamscraftcode.com.br";
+const BASE_URL = "https://dreamscraftcode.com";
 
 const staticEntries = [
   { path: "/", changefreq: "weekly", priority: "1.0" },

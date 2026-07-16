@@ -1,7 +1,7 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ClientOnly } from "@tanstack/react-router";
-import { Play, CheckCircle2, User, Flame, Sparkles } from "lucide-react";
+import { ClientOnly, Link } from "@tanstack/react-router";
+import { Play, CheckCircle2, User, Flame, Sparkles, PencilLine, ArrowRight } from "lucide-react";
 
 const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 
@@ -68,10 +68,10 @@ export const estimateProject = createServerFn({ method: "POST" })
 
 type TabKey = "useAuth" | "roast" | "estimateAI";
 
-const TABS: { key: TabKey; label: string; code: string }[] = [
-  { key: "useAuth",    label: "useAuth.ts",    code: CODE_AUTH },
-  { key: "roast",      label: "fynk/roast.ts", code: CODE_ROAST },
-  { key: "estimateAI", label: "estimateAI.ts", code: CODE_ESTIMATE },
+const TABS: { key: TabKey; label: string; code: string; badge: string }[] = [
+  { key: "useAuth",    label: "useAuth.ts",    code: CODE_AUTH,     badge: "demo interativa" },
+  { key: "roast",      label: "fynk/roast.ts", code: CODE_ROAST,    badge: "produto próprio" },
+  { key: "estimateAI", label: "estimateAI.ts", code: CODE_ESTIMATE, badge: "trecho deste site" },
 ];
 
 // ---------- Previews ----------
@@ -79,25 +79,50 @@ const TABS: { key: TabKey; label: string; code: string }[] = [
 function AuthPreview({
   running,
   user,
+  logs,
 }: {
   running: boolean;
   user: { name: string; email: string } | null;
+  logs: string[];
 }) {
-  if (!user && !running) {
+  if (!user && !running && logs.length === 0) {
     return (
-      <p className="font-mono text-sm text-muted-foreground text-center">
-        Clique em <span className="text-primary">▶️ Executar</span> para rodar o hook.
-      </p>
-    );
-  }
-  if (running) {
-    return (
-      <div className="font-mono text-sm text-muted-foreground flex items-center gap-3">
-        <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-        supabase.auth.signInWithOtp(...)
+      <div className="text-center space-y-3">
+        <p className="font-mono text-sm text-muted-foreground">
+          Clique em <span className="text-primary">▶ Executar</span> para rodar o hook.
+        </p>
+        <p className="font-mono text-xs text-muted-foreground/70 flex items-center justify-center gap-1.5">
+          <PencilLine className="h-3 w-3" />
+          Dica: troque o e-mail em <span className="text-primary-glow">login(...)</span> no editor e rode de novo.
+        </p>
       </div>
     );
   }
+  return (
+    <div className="w-full max-w-sm space-y-4">
+      {/* log de execução */}
+      <div className="rounded-xl border border-border/60 bg-background/60 p-4 font-mono text-xs space-y-1.5">
+        {logs.map((line, i) => (
+          <motion.div
+            key={`${i}-${line}`}
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2 }}
+            className={line.startsWith("✓") ? "text-brand-amarelo" : "text-muted-foreground"}
+          >
+            {line}
+          </motion.div>
+        ))}
+        {running && (
+          <span className="inline-block w-2 h-3.5 bg-primary-glow animate-pulse align-middle" />
+        )}
+      </div>
+      {user && <AuthSessionCard user={user} />}
+    </div>
+  );
+}
+
+function AuthSessionCard({ user }: { user: { name: string; email: string } }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -114,9 +139,9 @@ function AuthPreview({
             sessão ativa
           </p>
           <p className="mt-1 text-lg font-semibold text-soft-glow truncate">
-            Usuário logado: {user!.name}
+            Usuário logado: {user.name}
           </p>
-          <p className="font-mono text-xs text-muted-foreground truncate">{user!.email}</p>
+          <p className="font-mono text-xs text-muted-foreground truncate">{user.email}</p>
         </div>
       </div>
       <div className="mt-5 pt-5 border-t border-border/60 flex items-center gap-2 font-mono text-xs text-brand-amarelo">
@@ -136,6 +161,12 @@ function RoastPreview({ code }: { code: string }) {
         <Flame className="h-3.5 w-3.5" />
         FYNK · copiloto sarcástico
       </div>
+
+      <p className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground/80">
+        <PencilLine className="h-3 w-3 shrink-0" />
+        Edite <span className="text-primary-glow">monthTotal</span> ou{" "}
+        <span className="text-primary-glow">amount</span> no editor — o preview reage na hora.
+      </p>
 
       {!sample && (
         <div className="rounded-xl border border-border/60 bg-card/60 p-4 font-mono text-xs text-muted-foreground">
@@ -224,6 +255,12 @@ function EstimatePreview() {
       <p className="mt-3 font-mono text-[11px] text-muted-foreground">
         // resposta gerada em 1.2s · servidor TanStack + Lovable AI
       </p>
+      <Link
+        to="/estimar"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2.5 text-xs font-mono font-semibold text-primary-glow uppercase tracking-wider transition hover:bg-primary/20"
+      >
+        Testar o estimador de verdade <ArrowRight className="h-3.5 w-3.5" />
+      </Link>
     </div>
   );
 }
@@ -251,28 +288,48 @@ export function ProofOfWork() {
   });
   const [running, setRunning] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [logs, setLogs] = useState<string[]>([]);
+  const runTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const currentCode = codeByTab[tab];
-  const currentLabel = TABS.find((t) => t.key === tab)!.label;
+  const currentTab = TABS.find((t) => t.key === tab)!;
+  const currentLabel = currentTab.label;
 
+  // O e-mail é lido do código no editor — editar o login(...) muda o resultado.
   const handleRun = () => {
-    if (tab !== "useAuth") {
-      // Other tabs are reactive (Roast) or pre-computed (Estimate); flash status only.
-      setRunning(true);
-      setTimeout(() => setRunning(false), reduce ? 0 : 600);
-      return;
-    }
+    runTimers.current.forEach(clearTimeout);
+    runTimers.current = [];
     setRunning(true);
     setUser(null);
-    setTimeout(
-      () => {
-        const match = currentCode.match(/login\(\s*["']([^"']+)["']/);
-        const email = match?.[1] ?? "ana@dreamscraft.dev";
-        const name = email.split("@")[0].replace(/^./, (c) => c.toUpperCase());
+    setLogs([]);
+
+    const match = currentCode.match(/login\(\s*["']([^"']+)["']/);
+    const email = match?.[1] ?? "ana@dreamscraft.dev";
+    const name = email.split("@")[0].replace(/^./, (c) => c.toUpperCase());
+    const steps = [
+      `> useAuth().login("${email}")`,
+      "→ supabase.auth.signInWithOtp(...)",
+      "→ sessão criada · token emitido",
+      "✓ autenticado em 312ms",
+    ];
+
+    if (reduce) {
+      setLogs(steps);
+      setUser({ name, email });
+      setRunning(false);
+      return;
+    }
+
+    steps.forEach((s, i) => {
+      runTimers.current.push(
+        setTimeout(() => setLogs((prev) => [...prev, s]), 320 * (i + 1)),
+      );
+    });
+    runTimers.current.push(
+      setTimeout(() => {
         setUser({ name, email });
         setRunning(false);
-      },
-      reduce ? 0 : 900,
+      }, 320 * steps.length + 350),
     );
   };
 
@@ -323,7 +380,7 @@ export function ProofOfWork() {
                     : "border-border/60 text-muted-foreground"
                 }`}
               >
-                código real · em produção
+                {t.badge}
               </span>
             </button>
           );
@@ -346,16 +403,23 @@ export function ProofOfWork() {
               <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
               <span className="ml-3">{currentLabel}</span>
             </div>
-            <button
-              type="button"
-              onClick={handleRun}
-              disabled={running}
-              aria-label="Executar código"
-              className="group inline-flex items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-mono text-primary-glow transition hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
-            >
-              <Play className="h-3.5 w-3.5" />
-              {running ? "Executando..." : "Executar"}
-            </button>
+            {tab === "useAuth" ? (
+              <button
+                type="button"
+                onClick={handleRun}
+                disabled={running}
+                aria-label="Executar código"
+                className="group inline-flex items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-mono text-primary-glow transition hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+              >
+                <Play className="h-3.5 w-3.5" />
+                {running ? "Executando..." : "Executar"}
+              </button>
+            ) : (
+              <span className="inline-flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
+                <PencilLine className="h-3.5 w-3.5" />
+                editável — o preview reage
+              </span>
+            )}
           </div>
 
           <ClientOnly
@@ -444,7 +508,7 @@ export function ProofOfWork() {
                 transition={{ duration: 0.2 }}
                 className="w-full flex items-center justify-center"
               >
-                {tab === "useAuth" && <AuthPreview running={running} user={user} />}
+                {tab === "useAuth" && <AuthPreview running={running} user={user} logs={logs} />}
                 {tab === "roast" && <RoastPreview code={currentCode} />}
                 {tab === "estimateAI" && <EstimatePreview />}
               </motion.div>
@@ -460,8 +524,8 @@ export function ProofOfWork() {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-10 text-center text-base sm:text-lg text-muted-foreground"
       >
-        Cada detalhe que você viu aqui está{" "}
-        <span className="text-primary-glow font-medium">em produção</span>.
+        Código de verdade, escrito por nós — o estimador desta página{" "}
+        <span className="text-primary-glow font-medium">roda em produção neste site</span>.
       </motion.p>
     </section>
   );

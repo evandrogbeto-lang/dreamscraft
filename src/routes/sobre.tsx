@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Reveal, RevealGroup, RevealItem } from "@/components/reveal";
 import { SplitReveal } from "@/components/split-reveal";
 import { MagneticButton } from "@/components/MagneticButton";
-import { DreamscraftLogo } from "@/components/dreamscraft-logo";
 import { ArrowRight, Code2, Eye, Heart, Layers, MessageSquare, RefreshCw, ShieldCheck, Target, Zap } from "lucide-react";
 import { CodeRainBackground } from "@/components/code-rain-background";
 
@@ -11,8 +10,8 @@ export const Route = createFileRoute("/sobre")({
     const title = "Sobre — Dreamscraft Code";
     const description =
       "Quem somos, por que existimos, nossa visão, missão e valores. Três engenheiros construindo software que dura.";
-    const url = "https://dreamscraftcode.com.br/sobre";
-    const image = "https://dreamscraftcode.com.br/og-image.png";
+    const url = "https://dreamscraftcode.com/sobre";
+    const image = "https://dreamscraftcode.com/og-image.png";
     return {
       meta: [
         { title },
@@ -325,9 +324,9 @@ function SobrePage() {
         </RevealGroup>
       </section>
 
-      {/* Nosso jeito de trabalhar */}
-      <section className="relative py-20 bg-brand-lavender text-brand-indigo">
-        <div className="mx-auto max-w-6xl px-6">
+      {/* Nosso jeito de trabalhar — painel claro emoldurado sobre o fundo escuro */}
+      <section className="relative py-12 px-4 sm:px-6">
+        <div className="mx-auto max-w-6xl rounded-3xl bg-brand-lavender text-brand-indigo py-14 px-6 sm:px-10 shadow-soft-lg">
           <div className="flex items-start justify-between gap-6">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.4em] opacity-60">
@@ -341,7 +340,6 @@ function SobrePage() {
                 desde o primeiro commit até o deploy em produção.
               </p>
             </div>
-            <DreamscraftLogo variant="light" className="hidden sm:block shrink-0 opacity-80" />
           </div>
 
           <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">

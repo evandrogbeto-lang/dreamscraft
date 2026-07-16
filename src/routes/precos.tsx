@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import { Reveal } from "@/components/reveal";
 import { TiltCard } from "@/components/TiltCard";
-import { DreamscraftLogo } from "@/components/dreamscraft-logo";
 import { CodeRainBackground } from "@/components/code-rain-background";
 
 type BillingMode = "total" | "monthly";
@@ -79,8 +78,8 @@ export const Route = createFileRoute("/precos")({
     const title = "Tabela de Preços — Dreamscraft Code";
     const description =
       "Tabela transparente de preços: sites, e-commerce, apps mobile, bots, redes sociais, pacotes completos, parcerias e planos de manutenção.";
-    const url = "https://dreamscraftcode.com.br/precos";
-    const image = "https://dreamscraftcode.com.br/og-image.png";
+    const url = "https://dreamscraftcode.com/precos";
+    const image = "https://dreamscraftcode.com/og-image.png";
     return {
       meta: [
         { title },
@@ -105,7 +104,7 @@ export const Route = createFileRoute("/precos")({
             provider: {
               "@type": "Organization",
               name: "Dreamscraft Code",
-              url: "https://dreamscraftcode.com.br",
+              url: "https://dreamscraftcode.com",
             },
             itemListElement: [
               {
@@ -478,11 +477,9 @@ function PricingCardsSection() {
   const [mode, setMode] = useState<BillingMode>("total");
 
   return (
-    <section className="relative bg-[#EFE5FD] text-[#21104E] py-16">
-      <div className="absolute top-6 right-6">
-        <DreamscraftLogo variant="light" />
-      </div>
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="relative py-12 px-4 sm:px-6">
+      <div className="relative mx-auto max-w-7xl rounded-3xl bg-[#EFE5FD] text-[#21104E] py-14 shadow-soft-lg">
+        <div className="px-6 sm:px-10">
         <div className="flex flex-col items-start gap-4 mb-8">
           <h2 className="text-3xl sm:text-4xl">Pacotes principais</h2>
           <div
@@ -567,6 +564,7 @@ function PricingCardsSection() {
               </TiltCard>
             );
           })}
+          </div>
         </div>
       </div>
     </section>

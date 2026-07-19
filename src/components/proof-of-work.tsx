@@ -39,6 +39,7 @@ o gasto com a meta declarada do usuário. Fecha com uma ação de 1 linha.
 export const sample = {
   monthTotal: 6420,
   topCategory: { name: "iFood",   amount: 1180 },
+  budget: 5000,
   goal:        "Guardar R$ 1.000 por mês para reserva de emergência",
 };
 `;
@@ -69,9 +70,9 @@ export const estimateProject = createServerFn({ method: "POST" })
 type TabKey = "useAuth" | "roast" | "estimateAI";
 
 const TABS: { key: TabKey; label: string; code: string; badge: string }[] = [
-  { key: "useAuth",    label: "useAuth.ts",    code: CODE_AUTH,     badge: "demo interativa" },
-  { key: "roast",      label: "fynk/roast.ts", code: CODE_ROAST,    badge: "produto próprio" },
-  { key: "estimateAI", label: "estimateAI.ts", code: CODE_ESTIMATE, badge: "trecho deste site" },
+  { key: "useAuth",    label: "Login ao vivo",     code: CODE_AUTH,     badge: "mexa e rode" },
+  { key: "roast",      label: "FYNK · copiloto",   code: CODE_ROAST,    badge: "produto próprio" },
+  { key: "estimateAI", label: "Estimador",         code: CODE_ESTIMATE, badge: "abre o real" },
 ];
 
 // ---------- Previews ----------
@@ -154,7 +155,20 @@ function AuthSessionCard({ user }: { user: { name: string; email: string } }) {
 
 function RoastPreview({ code }: { code: string }) {
   const sample = parseRoastSample(code);
-  const gap = sample ? Math.max(0, sample.monthTotal - 5000) : 0;
+  const goal = sample?.goalSave ?? 1000;
+  const budget = sample?.budget ?? 5000;
+  const overBudget = sample ? sample.monthTotal - budget : 0;
+  const mode =
+    !sample
+      ? "empty"
+      : sample.monthTotal === 0
+        ? "zero"
+        : sample.topCategory.amount === 0
+          ? "noCategory"
+          : sample.monthTotal <= budget
+            ? "onTrack"
+            : "overspent";
+
   return (
     <div className="w-full max-w-sm space-y-3">
       <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-primary-glow">
@@ -164,8 +178,9 @@ function RoastPreview({ code }: { code: string }) {
 
       <p className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground/80">
         <PencilLine className="h-3 w-3 shrink-0" />
-        Edite <span className="text-primary-glow">monthTotal</span> ou{" "}
-        <span className="text-primary-glow">amount</span> no editor — o preview reage na hora.
+        Edite <span className="text-primary-glow">monthTotal</span>,{" "}
+        <span className="text-primary-glow">amount</span> ou a meta em{" "}
+        <span className="text-primary-glow">goal</span> — o preview reage na hora.
       </p>
 
       {!sample && (
@@ -193,7 +208,7 @@ function RoastPreview({ code }: { code: string }) {
           </div>
 
           <motion.div
-            key={`${sample.monthTotal}-${sample.topCategory.amount}`}
+            key={`${sample.monthTotal}-${sample.topCategory.amount}-${goal}-${mode}`}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35 }}
@@ -203,15 +218,59 @@ function RoastPreview({ code }: { code: string }) {
               // roast → você
             </p>
             <p className="text-sm text-foreground leading-relaxed">
-              R$ {sample.monthTotal.toLocaleString("pt-BR")} no mês e{" "}
-              <span className="text-brand-rosa">
-                R$ {sample.topCategory.amount.toLocaleString("pt-BR")} em {sample.topCategory.name}
-              </span>
-              . Sua meta era guardar R$ 1.000 e você estourou o orçamento em R$ {gap.toLocaleString("pt-BR")}.
-              Boa sorte pedindo a reserva emprestada pro entregador.
+              {mode === "zero" && (
+                <>
+                  R$ 0 no mês. Ou você virou monge, ou esqueceu de importar a fatura.
+                  Meta de guardar R$ {goal.toLocaleString("pt-BR")} continua de pé —
+                  sem gasto não tem roast, tem suspeita.
+                </>
+              )}
+              {mode === "noCategory" && (
+                <>
+                  Mês em R$ {sample.monthTotal.toLocaleString("pt-BR")}, mas a categoria
+                  top está em R$ 0. Ou categorizou tudo como “outros”, ou está me testando.
+                </>
+              )}
+              {mode === "overspent" && (
+                <>
+                  R$ {sample.monthTotal.toLocaleString("pt-BR")} no mês e{" "}
+                  <span className="text-brand-rosa">
+                    R$ {sample.topCategory.amount.toLocaleString("pt-BR")} em{" "}
+                    {sample.topCategory.name}
+                  </span>
+                  . Orçamento era R$ {budget.toLocaleString("pt-BR")} (meta: guardar R${" "}
+                  {goal.toLocaleString("pt-BR")}) e você estourou em R${" "}
+                  {Math.max(0, overBudget).toLocaleString("pt-BR")}. Boa sorte pedindo a
+                  reserva emprestada pro entregador.
+                </>
+              )}
+              {mode === "onTrack" && (
+                <>
+                  R$ {sample.monthTotal.toLocaleString("pt-BR")} no mês
+                  {sample.topCategory.amount > 0 && (
+                    <>
+                      {" "}
+                      (maior fatia:{" "}
+                      <span className="text-brand-rosa">
+                        R$ {sample.topCategory.amount.toLocaleString("pt-BR")} em{" "}
+                        {sample.topCategory.name}
+                      </span>
+                      )
+                    </>
+                  )}
+                  . Dentro do orçamento de R$ {budget.toLocaleString("pt-BR")} e a meta de
+                  guardar R$ {goal.toLocaleString("pt-BR")} ainda respira. Não acostuma —
+                  eu ainda estou de olho.
+                </>
+              )}
             </p>
             <p className="mt-3 font-mono text-[11px] text-brand-amarelo">
-              → ação: corta {sample.topCategory.name} pela metade na próxima semana.
+              {mode === "zero" && "→ ação: importa o extrato ou admite o jejum."}
+              {mode === "noCategory" && "→ ação: categoriza direito antes do próximo roast."}
+              {mode === "onTrack" &&
+                `→ ação: mantém ${sample.topCategory.name} no limite e fecha a meta.`}
+              {mode === "overspent" &&
+                `→ ação: corta ${sample.topCategory.name} pela metade na próxima semana.`}
             </p>
           </motion.div>
         </>
@@ -221,45 +280,28 @@ function RoastPreview({ code }: { code: string }) {
 }
 
 function EstimatePreview() {
-  const lines = [
-    { sign: "+", text: 'priceBRL: 28000,' },
-    { sign: "+", text: 'weeks: 7,' },
-    { sign: "+", text: 'confidence: 0.86,' },
-    { sign: "+", text: 'breakdown: ["Discovery", "Arquitetura", "Build", "QA", "Deploy"],' },
-    { sign: "-", text: '// previous: priceBRL: 32000, weeks: 9' },
-  ];
   return (
-    <div className="w-full max-w-md">
-      <div className="flex items-center gap-2 mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-primary-glow">
+    <div className="w-full max-w-md space-y-4">
+      <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-brand-azul">
         <Sparkles className="h-3.5 w-3.5" />
-        estimateProject() → output
+        Estimador de projeto
       </div>
-      <div className="rounded-xl border border-border/60 bg-[#0A0620] font-mono text-[12.5px] overflow-hidden">
-        {lines.map((l, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.08 }}
-            className={`flex gap-3 px-4 py-1.5 ${
-              l.sign === "+"
-                ? "bg-brand-amarelo/[0.06] text-brand-amarelo"
-                : "bg-brand-rosa/[0.05] text-brand-rosa/70 line-through"
-            }`}
-          >
-            <span className="w-3 select-none opacity-60">{l.sign}</span>
-            <span className="whitespace-pre">{l.text}</span>
-          </motion.div>
-        ))}
-      </div>
-      <p className="mt-3 font-mono text-[11px] text-muted-foreground">
-        // resposta gerada em 1.2s · servidor TanStack + Lovable AI
+      <p className="text-sm text-foreground/90 leading-relaxed">
+        À esquerda está um trecho do código que alimenta nosso estimador.
+        O preview aqui é ilustrativo — o fluxo de verdade é um terminal em que você
+        descreve a ideia e recebe faixa de prazo e investimento.
       </p>
+      <div className="rounded-xl border border-border/60 bg-[#0A0620] p-4 font-mono text-xs space-y-2">
+        <p className="text-muted-foreground">// exemplo de saída (não é orçamento final)</p>
+        <p className="text-brand-amarelo">faixa · R$ 12k–28k</p>
+        <p className="text-brand-azul">prazo · 3–7 semanas</p>
+        <p className="text-foreground/80">escopo · MVP web com auth + 1 integração</p>
+      </div>
       <Link
         to="/estimar"
-        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2.5 text-xs font-mono font-semibold text-primary-glow uppercase tracking-wider transition hover:bg-primary/20"
+        className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2.5 text-xs font-mono font-semibold text-primary-glow uppercase tracking-wider transition hover:bg-primary/20"
       >
-        Testar o estimador de verdade <ArrowRight className="h-3.5 w-3.5" />
+        Descrever minha ideia <ArrowRight className="h-3.5 w-3.5" />
       </Link>
     </div>
   );
@@ -267,12 +309,17 @@ function EstimatePreview() {
 
 function parseRoastSample(code: string) {
   const total = code.match(/monthTotal:\s*(\d+)/);
-  const catName = code.match(/name:\s*"([^"]+)"/);
-  const catAmt = code.match(/amount:\s*(\d+)/);
-  if (!total || !catName || !catAmt) return null;
+  const amount = code.match(/amount:\s*(\d+)/);
+  const name = code.match(/name:\s*["']([^"']+)["']/);
+  const budgetMatch = code.match(/budget:\s*(\d+)/);
+  const goalMatch = code.match(/Guardar\s*R\$\s*([\d.]+)/i);
+  if (!total || !amount || !name) return null;
+  const goalRaw = goalMatch?.[1]?.replace(/\./g, "") ?? "1000";
   return {
     monthTotal: Number(total[1]),
-    topCategory: { name: catName[1], amount: Number(catAmt[1]) },
+    topCategory: { name: name[1], amount: Number(amount[1]) },
+    budget: budgetMatch ? Number(budgetMatch[1]) : 5000,
+    goalSave: Number(goalRaw) || 1000,
   };
 }
 
@@ -345,12 +392,16 @@ export function ProofOfWork() {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="mb-10"
       >
-        <p className="text-[11px] uppercase tracking-[0.32em] text-primary-glow font-mono">
-          // live_demo
+        <p className="text-[11px] uppercase tracking-[0.32em] text-brand-azul font-mono">
+          // prova.de.trabalho
         </p>
         <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-light text-soft-glow">
-          Proof of Work <span className="font-mono text-primary">(live)</span>
+          Código rodando <span className="font-mono text-primary">ao vivo</span>
         </h2>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+          Três demos do que a gente constrói: um login que você executa, o copiloto
+          do FYNK (produto nosso) e o caminho para estimar o seu projeto.
+        </p>
       </motion.div>
 
       {/* Tabs */}
@@ -524,8 +575,11 @@ export function ProofOfWork() {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-10 text-center text-base sm:text-lg text-muted-foreground"
       >
-        Código de verdade, escrito por nós — o estimador desta página{" "}
-        <span className="text-primary-glow font-medium">roda em produção neste site</span>.
+        Código de verdade, escrito por nós — o estimador em{" "}
+        <Link to="/estimar" className="text-primary-glow underline-offset-2 hover:underline">
+          /estimar
+        </Link>{" "}
+        roda em produção neste site.
       </motion.p>
     </section>
   );

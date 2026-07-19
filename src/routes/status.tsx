@@ -1,13 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2 } from "lucide-react";
+import { BrandPictogram } from "@/components/brand-pictogram";
+import { CodeRainBackground } from "@/components/code-rain-background";
 
 export const Route = createFileRoute("/status")({
   head: () => ({
     meta: [
       { title: "Status — Dreamscraft Code" },
-      { name: "description", content: "Status operacional dos serviços da Dreamscraft Code: uptime, latência e histórico de incidentes." },
+      {
+        name: "description",
+        content:
+          "Onde o site da Dreamscraft Code roda hoje e como falamos de incidentes — sem métrica inventada.",
+      },
       { property: "og:title", content: "Status — Dreamscraft Code" },
-      { property: "og:description", content: "Status operacional em tempo real." },
+      {
+        property: "og:description",
+        content:
+          "Infra deste site e política de transparência operacional.",
+      },
     ],
   }),
   component: StatusPage,
@@ -15,85 +24,79 @@ export const Route = createFileRoute("/status")({
 
 type Service = {
   name: string;
-  status: "operational" | "degraded" | "down";
-  uptime: string;
-  latency: string;
+  role: string;
+  note: string;
 };
 
+/** Só o que de fato sustenta este site — sem uptime/% inventados. */
 const services: Service[] = [
-  { name: "Lovable Cloud (Supabase)", status: "operational", uptime: "99.99%", latency: "42ms" },
-  { name: "Vercel (Frontend)", status: "operational", uptime: "99.98%", latency: "88ms" },
-  { name: "Cloudflare Workers (Edge)", status: "operational", uptime: "100.00%", latency: "21ms" },
-];
-
-type Incident = {
-  date: string;
-  title: string;
-  resolution: string;
-  duration: string;
-};
-
-const incidents: Incident[] = [
   {
-    date: "2026-04-18",
-    title: "Latência elevada no edge (us-east)",
-    resolution: "Failover automático para região secundária. Sem perda de dados.",
-    duration: "12 min",
+    name: "Cloudflare Workers",
+    role: "Edge / frontend",
+    note: "Deploy e entrega deste site.",
   },
   {
-    date: "2026-02-03",
-    title: "Manutenção programada do banco",
-    resolution: "Upgrade de versão concluído com sucesso fora do horário comercial.",
-    duration: "8 min",
+    name: "Supabase",
+    role: "Auth · Postgres · storage",
+    note: "Leads, admin e dados do site.",
+  },
+  {
+    name: "Domínio dreamscraftcode.com",
+    role: "DNS",
+    note: "Aponta para a stack acima.",
   },
 ];
 
 function StatusPage() {
-  const allOperational = services.every((s) => s.status === "operational");
-
   return (
-    <main id="main-content" className="min-h-screen bg-background pt-32 pb-24">
-      <div className="container max-w-4xl mx-auto px-6">
+    <main id="main-content" className="relative min-h-screen bg-background pt-32 pb-24 overflow-hidden">
+      <CodeRainBackground seed={15} palette="azul" className="opacity-25" />
+      <div className="relative container max-w-4xl mx-auto px-6">
         <header className="mb-12">
+          <p className="text-sm font-mono text-brand-azul mb-3">// status</p>
           <h1 className="text-4xl md:text-5xl font-display font-light tracking-[-0.03em] mb-6 text-foreground">
             Status do sistema
           </h1>
 
-          {allOperational && (
-            <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full border border-brand-amarelo/30 bg-brand-amarelo/10">
-              <CheckCircle2 className="w-5 h-5 text-brand-amarelo" />
-              <span className="text-brand-amarelo font-medium">
-                Todos os sistemas operacionais
-              </span>
-            </div>
-          )}
+          <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full border border-brand-amarelo/30 bg-brand-amarelo/10">
+            <BrandPictogram name="cadeado" color="amarelo" size={18} />
+            <span className="text-brand-amarelo font-medium font-mono text-sm">
+              site no ar · monitoramento manual por enquanto
+            </span>
+          </div>
+          <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
+            Ainda não temos painel de uptime público automatizado. Quando houver
+            incidente relevante neste site, publicamos aqui — sem inventar número.
+          </p>
         </header>
 
-        {/* Services Table */}
         <section className="mb-16">
-          <h2 className="text-xl font-semibold mb-4 text-foreground">Serviços</h2>
-          <div className="overflow-hidden border border-border rounded-lg">
+          <h2 className="text-xl font-semibold mb-4 text-foreground font-mono text-brand-azul">
+            // o que sustenta este site
+          </h2>
+          <div className="overflow-hidden border border-border rounded-2xl bg-surface/50">
             <table className="w-full text-sm">
-              <thead className="bg-muted/40">
+              <thead className="bg-surface-elevated/60">
                 <tr className="text-left text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">Serviço</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Uptime (90d)</th>
-                  <th className="px-4 py-3 font-medium">Latência</th>
+                  <th className="px-4 py-3 font-medium font-mono text-xs uppercase tracking-wider">
+                    Serviço
+                  </th>
+                  <th className="px-4 py-3 font-medium font-mono text-xs uppercase tracking-wider">
+                    Papel
+                  </th>
+                  <th className="px-4 py-3 font-medium font-mono text-xs uppercase tracking-wider">
+                    Nota
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {services.map((s) => (
                   <tr key={s.name} className="border-t border-border">
-                    <td className="px-4 py-3 text-foreground">{s.name}</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center gap-2 text-brand-amarelo">
-                        <span className="w-2 h-2 rounded-full bg-brand-amarelo" />
-                        Operacional
-                      </span>
+                    <td className="px-4 py-3 text-foreground font-medium">{s.name}</td>
+                    <td className="px-4 py-3 text-brand-azul font-mono text-xs">
+                      {s.role}
                     </td>
-                    <td className="px-4 py-3 text-foreground tabular-nums">{s.uptime}</td>
-                    <td className="px-4 py-3 text-foreground tabular-nums">{s.latency}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{s.note}</td>
                   </tr>
                 ))}
               </tbody>
@@ -101,43 +104,18 @@ function StatusPage() {
           </div>
         </section>
 
-        {/* Incidents */}
         <section>
-          <h2 className="text-xl font-semibold mb-4 text-foreground">Histórico de incidentes</h2>
-          <div className="overflow-hidden border border-border rounded-lg">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40">
-                <tr className="text-left text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">Data</th>
-                  <th className="px-4 py-3 font-medium">Incidente</th>
-                  <th className="px-4 py-3 font-medium">Duração</th>
-                </tr>
-              </thead>
-              <tbody>
-                {incidents.length === 0 ? (
-                  <tr>
-                    <td colSpan={3} className="px-4 py-6 text-center text-muted-foreground">
-                      Nenhum incidente registrado.
-                    </td>
-                  </tr>
-                ) : (
-                  incidents.map((i) => (
-                    <tr key={i.date + i.title} className="border-t border-border align-top">
-                      <td className="px-4 py-3 text-muted-foreground tabular-nums whitespace-nowrap">{i.date}</td>
-                      <td className="px-4 py-3 text-foreground">
-                        <div className="font-medium">{i.title}</div>
-                        <div className="text-muted-foreground mt-1">{i.resolution}</div>
-                      </td>
-                      <td className="px-4 py-3 text-foreground tabular-nums whitespace-nowrap">{i.duration}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          <h2 className="text-xl font-semibold mb-4 text-foreground font-mono text-brand-rosa">
+            // histórico de incidentes
+          </h2>
+          <div className="rounded-2xl border border-border bg-surface/50 px-6 py-10 text-center">
+            <p className="text-muted-foreground text-sm">
+              Nenhum incidente publicado ainda.
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground/80 font-mono">
+              // quando houver, a descrição e a duração vão aparecer aqui
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            Dados atualizados manualmente. Métricas de uptime e latência são representativas.
-          </p>
         </section>
       </div>
     </main>

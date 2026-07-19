@@ -1,10 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Smartphone, Globe, Bot, Wrench, Check, ArrowRight, Package, Repeat, ChevronDown } from "lucide-react";
+import { Check, ArrowRight, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { RoiCalculator } from "@/components/roi-calculator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CodeRainBackground } from "@/components/code-rain-background";
+import {
+  BrandPictogram,
+  type PictogramName,
+} from "@/components/brand-pictogram";
 
 const solucoesFaqs = [
   {
@@ -64,9 +68,16 @@ export const Route = createFileRoute("/solucoes")({
   component: SolucoesPage,
 });
 
-const services = [
+const services: {
+  icon: PictogramName;
+  tag: string;
+  title: string;
+  para: string;
+  delivers: string[];
+  examples: string[];
+}[] = [
   {
-    icon: Smartphone,
+    icon: "celular",
     tag: "Mobile",
     title: "Apps mobile (iOS + Android)",
     para: "Para empresas que querem ampliar alcance e estar no bolso do cliente.",
@@ -74,7 +85,7 @@ const services = [
     examples: ["App de fretes", "Apps de delivery", "Programas de fidelidade"],
   },
   {
-    icon: Globe,
+    icon: "tabela",
     tag: "Web",
     title: "Sistemas web e SaaS",
     para: "Para empresas que querem digitalizar processos e escalar operações.",
@@ -82,7 +93,7 @@ const services = [
     examples: ["ERP customizado", "Dashboards analíticos", "Gestão de pedidos"],
   },
   {
-    icon: Bot,
+    icon: "link",
     tag: "IA",
     title: "Automação com IA e bots",
     para: "Para empresas com muito atendimento manual e processos repetitivos.",
@@ -90,7 +101,7 @@ const services = [
     examples: ["Bot WhatsApp", "Automação de email", "Agentes IA personalizados"],
   },
   {
-    icon: Wrench,
+    icon: "cadeado",
     tag: "Consultoria",
     title: "Consultoria e integração",
     para: "Para empresas com sistemas legados que precisam conversar entre si.",
@@ -103,8 +114,8 @@ function SolucoesPage() {
   return (
     <div>
       <section className="relative overflow-hidden mx-auto max-w-7xl px-6 pt-20 pb-12">
-        <CodeRainBackground seed={5} className="opacity-30" />
-        <p className="text-sm text-primary font-medium">Soluções</p>
+        <CodeRainBackground seed={5} palette="rosa-azul" className="opacity-30" />
+        <p className="text-sm font-mono text-brand-azul">// solucoes</p>
         <h1 className="mt-2 text-5xl sm:text-6xl font-light tracking-[-0.03em] max-w-3xl text-gradient">
           Tecnologia que se adapta ao seu negócio
         </h1>
@@ -125,9 +136,8 @@ function SolucoesPage() {
             className="glass-card rounded-3xl p-8 lg:p-12 grid lg:grid-cols-12 gap-8"
           >
             <div className="lg:col-span-4">
-              <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-primary-glow text-primary-foreground">
-                <s.icon className="h-6 w-6" strokeWidth={1.5} />
-              </div>
+              <BrandPictogram name={s.icon} color="azul" size={40} />
+
               <p className="mt-6 text-xs uppercase tracking-widest text-muted-foreground">
                 0{i + 1} · {s.tag}
               </p>
@@ -190,9 +200,15 @@ function SolucoesPage() {
   );
 }
 
-const modelos = [
+const modelos: {
+  icon: PictogramName;
+  tag: string;
+  title: string;
+  bullets: string[];
+  bestWhen: string;
+}[] = [
   {
-    icon: Package,
+    icon: "documento",
     tag: "Modelo A",
     title: "Projeto fechado",
     bullets: [
@@ -203,7 +219,7 @@ const modelos = [
     bestWhen: "você tem uma ideia clara do que quer",
   },
   {
-    icon: Repeat,
+    icon: "seta",
     tag: "Modelo B",
     title: "Retainer mensal",
     bullets: [
@@ -235,7 +251,7 @@ function ComoTrabalhamos() {
   return (
     <section className="mx-auto max-w-7xl px-6 pb-20">
       <div className="mb-10 text-center">
-        <p className="text-sm text-primary font-medium font-mono uppercase tracking-wider">// modelos</p>
+        <p className="text-sm text-brand-azul font-medium font-mono uppercase tracking-wider">// modelos</p>
         <h2 className="mt-2 text-4xl sm:text-5xl font-light tracking-[-0.03em] text-gradient">Como trabalhamos</h2>
         <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
           Dois modelos de engajamento. Escolha o que faz sentido pro momento do seu produto.
@@ -253,9 +269,7 @@ function ComoTrabalhamos() {
             className="glass-card rounded-3xl p-8 lg:p-10 flex flex-col"
           >
             <div className="flex items-center gap-3">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-glow text-primary-foreground">
-                <m.icon className="h-5 w-5" strokeWidth={1.5} />
-              </div>
+              <BrandPictogram name={m.icon} color="azul" size={36} />
               <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
                 {m.tag}
               </span>

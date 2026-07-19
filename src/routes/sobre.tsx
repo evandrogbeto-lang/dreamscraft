@@ -2,8 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Reveal, RevealGroup, RevealItem } from "@/components/reveal";
 import { SplitReveal } from "@/components/split-reveal";
 import { MagneticButton } from "@/components/MagneticButton";
-import { ArrowRight, Code2, Eye, Heart, Layers, MessageSquare, RefreshCw, ShieldCheck, Target, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { CodeRainBackground } from "@/components/code-rain-background";
+import {
+  BrandPictogram,
+  type PictogramName,
+} from "@/components/brand-pictogram";
 
 export const Route = createFileRoute("/sobre")({
   head: () => {
@@ -77,24 +81,24 @@ const partners: Partner[] = [
   },
 ];
 
-const values = [
+const values: { icon: PictogramName; title: string; text: string }[] = [
   {
-    icon: Code2,
+    icon: "tabela",
     title: "Engenharia, não digitação",
     text: "Cada decisão técnica é justificada. Não escrevemos linhas; resolvemos problemas com a stack certa para o momento.",
   },
   {
-    icon: Heart,
+    icon: "documento",
     title: "Clareza acima de apresentação",
     text: "Sem slide bonito escondendo prazo furado. Falamos o que sabemos, admitimos o que não sabemos e atualizamos toda semana.",
   },
   {
-    icon: Zap,
+    icon: "seta",
     title: "Velocidade com responsabilidade",
     text: "MVP em semanas, não em meses. Mas nunca entregamos tech debt como produto final. Feito e bem feito.",
   },
   {
-    icon: Target,
+    icon: "grafico",
     title: "Resultado mensurável",
     text: "Software que serve negócio. Métrica, retorno, retenção. Se não move ponteiro, não construímos.",
   },
@@ -121,9 +125,9 @@ function SobrePage() {
     <div className="mx-auto max-w-6xl px-6">
       {/* Hero / Apresentação */}
       <section className="relative overflow-hidden pt-24 pb-20">
-        <CodeRainBackground seed={2} className="opacity-30" />
+        <CodeRainBackground seed={2} palette="rosa" className="opacity-30" />
         <Reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.4em] text-primary-glow">
+          <p className="font-mono text-xs uppercase tracking-[0.4em] text-brand-rosa">
             // quem.somos
           </p>
         </Reveal>
@@ -240,9 +244,7 @@ function SobrePage() {
             <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
             <div className="relative">
               <div className="flex items-center gap-3">
-                <span className="grid place-items-center h-10 w-10 rounded-xl bg-primary/15 text-primary-glow">
-                  <Eye className="h-5 w-5" strokeWidth={1.5} />
-                </span>
+                <BrandPictogram name="lupa" color="rosa" size={28} />
                 <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
                   visão
                 </p>
@@ -265,9 +267,7 @@ function SobrePage() {
             <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-primary-glow/20 blur-3xl" />
             <div className="relative">
               <div className="flex items-center gap-3">
-                <span className="grid place-items-center h-10 w-10 rounded-xl bg-primary/15 text-primary-glow">
-                  <Target className="h-5 w-5" strokeWidth={1.5} />
-                </span>
+                <BrandPictogram name="seta" color="rosa" size={28} />
                 <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
                   missão
                 </p>
@@ -289,7 +289,7 @@ function SobrePage() {
       {/* Valores */}
       <section className="py-20 border-t border-border">
         <Reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.4em] text-primary-glow">
+          <p className="font-mono text-xs uppercase tracking-[0.4em] text-brand-azul">
             // valores
           </p>
           <h2 className="mt-3 text-4xl sm:text-5xl font-display font-light tracking-[-0.03em]">
@@ -309,9 +309,8 @@ function SobrePage() {
           {values.map((v) => (
             <RevealItem key={v.title}>
               <div className="group h-full rounded-2xl border border-border/60 bg-surface/40 p-6 hover:border-primary/40 hover:bg-surface-elevated/50 transition">
-                <span className="inline-grid place-items-center h-11 w-11 rounded-xl bg-primary/15 text-primary-glow group-hover:bg-primary/25 transition">
-                  <v.icon className="h-5 w-5" strokeWidth={1.5} />
-                </span>
+                <BrandPictogram name={v.icon} color="rosa" size={28} />
+
                 <h3 className="mt-5 text-xl font-display font-semibold tracking-tight">
                   {v.title}
                 </h3>
@@ -326,10 +325,10 @@ function SobrePage() {
 
       {/* Nosso jeito de trabalhar — painel claro emoldurado sobre o fundo escuro */}
       <section className="relative py-12 px-4 sm:px-6">
-        <div className="mx-auto max-w-6xl rounded-3xl bg-brand-lavender text-brand-indigo py-14 px-6 sm:px-10 shadow-soft-lg">
+        <div className="mx-auto max-w-6xl rounded-3xl bg-brand-branco/85 text-brand-indigo py-14 px-6 sm:px-10 shadow-soft-lg ring-1 ring-brand-branco/20 [box-shadow:0_0_0_1px_rgba(33,16,78,0.35),0_40px_90px_-30px_rgba(33,16,78,0.75)]">
           <div className="flex items-start justify-between gap-6">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.4em] opacity-60">
+              <p className="font-mono text-xs uppercase tracking-[0.4em] text-brand-azul opacity-70">
                 // processo
               </p>
               <h2 className="mt-3 text-4xl sm:text-5xl font-display font-light tracking-[-0.03em]">
@@ -345,29 +344,29 @@ function SobrePage() {
           <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
-                icon: RefreshCw,
+                icon: "seta" as const,
                 title: "Iteração em semanas",
                 text: "Entregas curtas de 1–2 semanas. Demo funcional a cada ciclo, não de meses.",
               },
               {
-                icon: MessageSquare,
+                icon: "usuario" as const,
                 title: "Comunicação direta",
                 text: "Você fala com quem programa. Sem account manager traduzindo requisito.",
               },
               {
-                icon: ShieldCheck,
+                icon: "cadeado" as const,
                 title: "Qualidade sem cortes",
                 text: "Code review, testes automatizados e docs antes de qualquer merge.",
               },
               {
-                icon: Layers,
+                icon: "tabela" as const,
                 title: "Transparência total",
                 text: "Acesso ao repositório, pipeline visível e deploys diários.",
               },
             ].map((item, i) => (
               <RevealItem key={item.title}>
                 <div className="h-full rounded-2xl border border-brand-indigo/10 bg-white/60 p-6">
-                  <item.icon className="h-5 w-5" strokeWidth={1.5} />
+                  <BrandPictogram name={item.icon} color="roxo" size={24} />
                   <h3 className="mt-4 text-lg font-display font-semibold tracking-tight">
                     {item.title}
                   </h3>

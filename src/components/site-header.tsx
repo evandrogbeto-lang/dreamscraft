@@ -101,7 +101,7 @@ export function SiteHeader() {
 
         <div className="hidden md:block">
           <Link
-            to="/contato"
+            to="/estimar"
             className="btn-glow inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Solicitar orçamento
@@ -177,7 +177,7 @@ export function SiteHeader() {
                   );
                 })}
                 <Link
-                  to="/contato"
+                  to="/estimar"
                   onClick={close}
                   className="btn-glow mt-3 min-h-11 inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >

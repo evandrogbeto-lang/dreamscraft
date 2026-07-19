@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
-import { MessageSquare, Smartphone } from "lucide-react";
+import { MessageSquare } from "lucide-react";
+import { BrandPictogram } from "@/components/brand-pictogram";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const cards = [
@@ -166,7 +167,7 @@ function LiveCard() {
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-4 rounded-full bg-black/60" />
         <div className="mt-6 h-full rounded-2xl bg-gradient-to-b from-primary/20 to-background/40 p-3 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <Smartphone className="h-3.5 w-3.5 text-primary-glow" />
+            <BrandPictogram name="celular" color="rosa" size={14} />
             <span className="text-[10px] font-mono text-primary-glow uppercase tracking-wider">preview</span>
             <span className="ml-auto h-1.5 w-1.5 rounded-full bg-brand-amarelo node-pulse" />
           </div>

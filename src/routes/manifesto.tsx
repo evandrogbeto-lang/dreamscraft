@@ -102,7 +102,7 @@ function ManifestoPage() {
   };
 
   return (
-    <div className="bg-black text-foreground">
+    <div className="bg-brand-roxo text-foreground">
       <OpeningSection />
       <div ref={containerRef}>
         {principios.map((p) => (
@@ -240,8 +240,8 @@ function OpeningSection() {
   }, []);
 
   return (
-    <section className="relative h-screen flex items-center justify-center bg-black overflow-hidden">
-      <CodeRainBackground seed={3} className="opacity-25" />
+    <section className="relative h-screen flex items-center justify-center bg-brand-roxo overflow-hidden">
+      <CodeRainBackground seed={3} palette="rosa" className="opacity-25" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(120,80,255,0.15),transparent_60%)]" />
       <motion.div
         animate={{ opacity: done ? 0 : 1 }}
@@ -340,7 +340,7 @@ function PrincipleSection({
 
 function ClosingSection() {
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden border-t border-primary/10 bg-black">
+    <section className="relative h-screen flex items-center justify-center overflow-hidden border-t border-primary/10 bg-brand-roxo">
       <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-96 w-[700px] rounded-full bg-primary/30 blur-3xl" />
       <div className="relative text-center px-6">
         <motion.p

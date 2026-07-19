@@ -75,7 +75,7 @@ function ContatoPage() {
   return (
     <div>
       <section className="relative overflow-hidden mx-auto max-w-7xl px-6 pt-20 pb-12">
-        <CodeRainBackground seed={8} className="opacity-30" />
+        <CodeRainBackground seed={8} palette="rosa" className="opacity-30" />
         <p className="text-sm text-primary font-medium">Contato</p>
         <h1 className="mt-2 text-5xl sm:text-6xl font-light tracking-[-0.03em] max-w-3xl text-gradient">
           Vamos conversar sobre seu projeto

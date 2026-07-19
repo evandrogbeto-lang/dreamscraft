@@ -35,7 +35,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
-      <CodeRainBackground count={40} className="absolute inset-0 z-0 opacity-40" />
+      <CodeRainBackground count={40} palette="rosa" className="absolute inset-0 z-0 opacity-40" />
       <div className="relative z-10 w-full max-w-md text-center">
         <div className="mb-8 flex justify-center">
           <DreamscraftLogo variant="dark" />

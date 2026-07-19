@@ -70,7 +70,7 @@ function BlogIndex() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border/60">
-        <CodeRainBackground seed={13} className="opacity-30" />
+        <CodeRainBackground seed={13} palette="rosa-azul" className="opacity-30" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(175,102,249,0.22),transparent_55%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(106,120,246,0.15),transparent_50%)]" />
         <div className="relative mx-auto max-w-7xl px-6 pt-24 pb-16">

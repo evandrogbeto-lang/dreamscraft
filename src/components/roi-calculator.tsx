@@ -1,33 +1,30 @@
 import { useState, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Clock, Users, DollarSign, TrendingDown, Calendar, ArrowRight, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import {
+  BrandPictogram,
+  type PictogramName,
+} from "@/components/brand-pictogram";
 
 const brl = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
   maximumFractionDigits: 0,
 });
-const num = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
-// Investimento médio de uma automação DreamsCraft (faixa base)
-const INVESTIMENTO_BASE = 15000;
-const REDUCAO = 0.8;
-
+/** Custo manual da tarefa — só o que sai dos inputs do usuário. Sem economia/payback inventados. */
 export function RoiCalculator() {
   const [horas, setHoras] = useState(10);
   const [pessoas, setPessoas] = useState(2);
   const [custoHora, setCustoHora] = useState(25);
 
-  const { custoMensal, economiaMensal, custoComAutomacao, paybackMeses } = useMemo(() => {
+  const { custoMensal, custoAnual } = useMemo(() => {
     const semanasMes = 4.33;
     const custoMensal = horas * pessoas * custoHora * semanasMes;
-    const economiaMensal = custoMensal * REDUCAO;
-    const custoComAutomacao = custoMensal - economiaMensal;
-    const paybackMeses = economiaMensal > 0 ? INVESTIMENTO_BASE / economiaMensal : 0;
-    return { custoMensal, economiaMensal, custoComAutomacao, paybackMeses };
+    return { custoMensal, custoAnual: custoMensal * 12 };
   }, [horas, pessoas, custoHora]);
 
   return (
@@ -39,31 +36,29 @@ export function RoiCalculator() {
         transition={{ duration: 0.6 }}
         className="glass-card rounded-3xl p-8 lg:p-12 relative overflow-hidden"
       >
-        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-primary-glow/20 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-brand-azul/25 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-brand-rosa/20 blur-3xl pointer-events-none" />
 
         <div className="relative">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-primary/15 border border-primary/30 p-2.5">
-              <Zap className="h-5 w-5 text-primary-glow" />
-            </div>
-            <p className="text-[11px] uppercase tracking-[0.3em] text-primary-glow font-mono">
-              // roi.calculator
+            <BrandPictogram name="grafico" color="azul" size={28} />
+            <p className="text-[11px] uppercase tracking-[0.3em] text-brand-azul font-mono">
+              // custo.tarefa
             </p>
           </div>
           <h2 className="mt-5 text-3xl sm:text-4xl font-bold text-soft-glow">
-            Quanto você economiza automatizando?
+            Quanto custa essa tarefa hoje?
           </h2>
           <p className="mt-3 text-muted-foreground max-w-2xl">
-            Simule o custo real de uma tarefa repetitiva no seu time e veja o retorno
-            de uma automação sob medida da Dreamscraft.
+            Coloque as horas, as pessoas e o custo/hora. O número abaixo é só a conta
+            do processo manual — sem promessa de economia. A Dreamscraft conversa
+            com você sobre o que automatizar a partir daí.
           </p>
 
           <div className="mt-10 grid lg:grid-cols-2 gap-10">
-            {/* INPUTS */}
             <div className="space-y-8">
               <Field
-                icon={Clock}
+                icon="offline"
                 label="Horas/semana gastas na tarefa"
                 value={`${horas}h`}
               >
@@ -78,7 +73,7 @@ export function RoiCalculator() {
               </Field>
 
               <Field
-                icon={Users}
+                icon="usuario"
                 label="Quantas pessoas executam"
                 value={`${pessoas} ${pessoas === 1 ? "pessoa" : "pessoas"}`}
               >
@@ -95,10 +90,10 @@ export function RoiCalculator() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2 text-sm font-medium">
-                    <DollarSign className="h-4 w-4 text-primary-glow" />
+                    <BrandPictogram name="moeda" color="azul" size={16} />
                     Custo/hora médio (R$)
                   </div>
-                  <span className="font-mono text-sm text-primary-glow">
+                  <span className="font-mono text-sm text-brand-azul">
                     {brl.format(custoHora)}
                   </span>
                 </div>
@@ -112,38 +107,27 @@ export function RoiCalculator() {
               </div>
             </div>
 
-            {/* RESULTADOS */}
             <div className="space-y-4">
               <ResultCard
-                tone="muted"
-                label="Custo mensal atual"
+                tone="primary"
+                icon="moeda"
+                label="Custo mensal estimado"
                 value={brl.format(custoMensal)}
                 hint={`${horas}h × ${pessoas} × ${brl.format(custoHora)} × 4,33 semanas`}
               />
               <ResultCard
-                tone="primary"
-                icon={TrendingDown}
-                label="Com automação DreamsCraft (–80%)"
-                value={`Economiza ${brl.format(economiaMensal)}/mês`}
-                hint={`Custo residual estimado: ${brl.format(custoComAutomacao)}/mês`}
-              />
-              <ResultCard
                 tone="glow"
-                icon={Calendar}
-                label="Retorno do investimento em"
-                value={
-                  paybackMeses > 0
-                    ? `${num.format(paybackMeses)} ${paybackMeses <= 1.05 ? "mês" : "meses"}`
-                    : "—"
-                }
-                hint={`Baseado em investimento médio de ${brl.format(INVESTIMENTO_BASE)}`}
+                icon="grafico"
+                label="Custo anual estimado"
+                value={brl.format(custoAnual)}
+                hint="12 × o custo mensal acima"
               />
 
               <Link
                 to="/contato"
                 className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition glow-ring font-mono uppercase tracking-wider"
               >
-                Automatizar esse processo <ArrowRight className="h-4 w-4" />
+                Vamos conversar sobre automatizar isso <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
@@ -154,12 +138,12 @@ export function RoiCalculator() {
 }
 
 function Field({
-  icon: Icon,
+  icon,
   label,
   value,
   children,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: PictogramName;
   label: string;
   value: string;
   children: React.ReactNode;
@@ -168,10 +152,10 @@ function Field({
     <div>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Icon className="h-4 w-4 text-primary-glow" />
+          <BrandPictogram name={icon} color="azul" size={16} />
           {label}
         </div>
-        <span className="font-mono text-sm text-primary-glow">{value}</span>
+        <span className="font-mono text-sm text-brand-azul">{value}</span>
       </div>
       {children}
     </div>
@@ -192,18 +176,18 @@ function ResultCard({
   label,
   value,
   hint,
-  icon: Icon,
+  icon,
 }: {
   tone: "muted" | "primary" | "glow";
   label: string;
   value: string;
   hint?: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: PictogramName;
 }) {
   const styles = {
     muted: "border-border/50 bg-background/40",
-    primary: "border-primary/40 bg-primary/10",
-    glow: "border-primary-glow/50 bg-gradient-to-br from-primary/15 to-primary-glow/10",
+    primary: "border-brand-azul/40 bg-brand-azul/10",
+    glow: "border-brand-rosa/40 bg-gradient-to-br from-brand-rosa/10 to-brand-azul/10",
   }[tone];
 
   return (
@@ -212,7 +196,7 @@ function ResultCard({
       className={`rounded-2xl border ${styles} backdrop-blur p-5`}
     >
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-mono text-muted-foreground">
-        {Icon && <Icon className="h-3.5 w-3.5 text-primary-glow" />}
+        {icon && <BrandPictogram name={icon} color="azul" size={14} />}
         {label}
       </div>
       <p className="mt-2 text-2xl sm:text-3xl font-bold text-soft-glow font-mono">

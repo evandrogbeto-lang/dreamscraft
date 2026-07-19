@@ -4,10 +4,6 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ClientOnly } from "@tanstack/react-router";
 import {
   ArrowRight,
-  Apple,
-  Wallet,
-  Users,
-  PhoneCall,
   ChevronDown,
   Calendar,
   Clock,
@@ -16,6 +12,10 @@ import {
 } from "lucide-react";
 import { Reveal } from "@/components/reveal";
 import { CodeRainBackground } from "@/components/code-rain-background";
+import {
+  BrandPictogram,
+  type PictogramName,
+} from "@/components/brand-pictogram";
 
 const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/portfolio")({
     const title = "Portfolio — Produtos próprios em construção · Dreamscraft Code";
     const description =
       "Os 4 SaaS que estamos construindo internamente: NutrIAprova, FYNK, OURleads e Secretária Virtual com IA. Nada de case de cliente inventado — só o que a gente está de fato codando.";
-    const url = "https://dreamscraftcode.com.br/portfolio";
+    const url = "https://dreamscraftcode.com/portfolio";
     return {
       meta: [
         { title },
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/portfolio")({
 type Decision = { kind: "+" | "-"; tech: string; reason: string };
 type ArchNode = { id: string; x: number; y: number; label: string; sub: string };
 type Product = {
-  icon: typeof Apple;
+  icon: PictogramName;
   slug: string;
   name: string;
   tagline: string;
@@ -64,7 +64,7 @@ type Product = {
 
 const products: Product[] = [
   {
-    icon: Apple,
+    icon: "documento",
     slug: "nutriaprova",
     name: "NutrIAprova",
     tagline: "Nutricionistas validam receitas de IA em segundos, não em horas.",
@@ -114,7 +114,7 @@ export const validateRecipe = createServerFn({ method: "POST" })
     },
   },
   {
-    icon: Wallet,
+    icon: "dinheiro",
     slug: "fynk",
     name: "FYNK",
     tagline: "Sua vida financeira num painel só — com uma IA sarcástica te chamando à realidade.",
@@ -166,7 +166,7 @@ Meta declarada: "\${input.goal}". Comente.\`;
     },
   },
   {
-    icon: Users,
+    icon: "usuario",
     slug: "ourleads",
     name: "OURleads",
     tagline: "Gestão de leads para quem cansou de CRM inchado — de qualquer nicho, não só imobiliária.",
@@ -214,7 +214,7 @@ create policy "gestor ve tudo da conta"
     },
   },
   {
-    icon: PhoneCall,
+    icon: "celular",
     slug: "recepcionista-ia",
     name: "Secretária Virtual com IA",
     tagline: "Atendimento automatizado que não parece bot — agenda, qualifica e responde 24/7.",
@@ -282,7 +282,7 @@ function PortfolioPage() {
   return (
     <div>
       <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-12">
-        <CodeRainBackground seed={4} className="opacity-40" />
+        <CodeRainBackground seed={4} palette="rosa-azul" className="opacity-40" />
         <Reveal>
           <p className="text-sm text-primary-glow font-medium font-mono uppercase tracking-wider">
             // portfolio.produtos_proprios
@@ -321,7 +321,7 @@ function PortfolioPage() {
       </section>
 
       <section className="relative mx-auto max-w-7xl px-6 pb-16">
-        <CodeRainBackground seed={9} className="opacity-30" />
+        <CodeRainBackground seed={9} palette="azul" className="opacity-30" />
         <Reveal>
           <div className="relative rounded-3xl border border-primary/30 bg-gradient-to-br from-surface to-surface-elevated p-10 text-center">
             <p className="text-[11px] font-mono uppercase tracking-[0.28em] text-primary-glow">
@@ -370,7 +370,6 @@ function ProductCard({
   onToggle: () => void;
 }) {
   const [tab, setTab] = useState<TabKey>("problema");
-  const Icon = product.icon;
 
   return (
     <motion.article
@@ -386,9 +385,7 @@ function ProductCard({
         className="w-full text-left p-6 md:p-8 hover:bg-surface-elevated/60 transition flex items-start gap-5"
         aria-expanded={open}
       >
-        <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-primary-glow/10 border border-border">
-          <Icon className="h-6 w-6 text-primary-glow" aria-hidden />
-        </div>
+        <BrandPictogram name={product.icon} color="azul" size={40} className="shrink-0 mt-1" />
 
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-3">

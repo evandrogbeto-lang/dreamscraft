@@ -21,7 +21,7 @@ export const Route = createFileRoute("/blog/$slug")({
             { property: "og:type", content: "article" },
             {
               property: "og:url",
-              content: `https://dreamscraftcode.com.br/blog/${params.slug}`,
+              content: `https://dreamscraftcode.com/blog/${params.slug}`,
             },
             { property: "article:published_time", content: loaderData.post.date },
           ],
@@ -38,17 +38,17 @@ export const Route = createFileRoute("/blog/$slug")({
                 author: {
                   "@type": "Organization",
                   name: "Dreamscraft Code",
-                  url: "https://dreamscraftcode.com.br",
+                  url: "https://dreamscraftcode.com",
                 },
                 publisher: {
                   "@type": "Organization",
                   name: "Dreamscraft Code",
                   logo: {
                     "@type": "ImageObject",
-                    url: "https://dreamscraftcode.com.br/__l5e/assets-v1/e6e1358f-ecd3-40e5-bdae-7256f1be7f46/icone-roxo.png",
+                    url: "https://dreamscraftcode.com/icone-roxo.png",
                   },
                 },
-                mainEntityOfPage: `https://dreamscraftcode.com.br/blog/${params.slug}`,
+                mainEntityOfPage: `https://dreamscraftcode.com/blog/${params.slug}`,
                 articleSection: loaderData.post.tag,
               }),
             },

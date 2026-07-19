@@ -1,0 +1,101 @@
+---
+description: Linguagem visual e regras de marca da Dreamscraft.Code. Aplicar em TODO trabalho de UI, cor, tipografia, ícones, texto ou conteúdo do site.
+alwaysApply: true
+---
+
+# Linguagem Visual — Dreamscraft.Code
+
+Regras de identidade da marca, válidas para todo o site. Fonte da verdade: brandsheet
+oficial + Master Prompt 2.0. Na dúvida entre "bonito genérico" e "fiel à marca",
+escolher SEMPRE fiel à marca. Nunca fazer "reskinning" (mesma estrutura só trocando cor).
+
+## Paleta oficial (LEI — nenhuma cor fora desta lista, em nenhum lugar)
+
+| Nome        | HEX      | Papel — quando usar                                                                 |
+|-------------|----------|-------------------------------------------------------------------------------------|
+| CODE ROXO   | #21104E  | Base. Fundo dominante e tipografia principal. É o "chão" do site.                   |
+| CODE ROSA   | #AF66F9  | Acento/energia. CTAs, links, brilhos, destaques pontuais. Nunca um bloco inteiro.   |
+| CODE BRANCO | #EFE5FD  | Respiro/leveza. Texto claro sobre escuro; como fundo só em rara exceção.            |
+| CODE AMARELO| #F0D071  | Ofertas, urgência, alertas, CTAs quentes. Ex: Pioneiro, "vagas", badge "novo".      |
+| CODE AZUL   | #6A78F6  | Tech/complementar. Código, terminal, arquitetura, tags técnicas.                    |
+
+- Os tokens já existem em `src/styles.css` (`--color-brand-*`). SEMPRE usar o token,
+  nunca hex solto nem sinônimo. Um único jeito de escrever cada cor.
+- A marca-mãe PODE e DEVE usar todas as cores secundárias (rosa, amarelo, azul), não só
+  roxo. O roxo é a base, não a única cor.
+
+## Cor com variedade (o site NÃO é monocromático)
+
+Mostrar a paleta inteira, com disciplina — cada cor no seu papel:
+
+- Cada seção principal tem uma cor-assinatura vinda das 4 combinações oficiais de grafismo:
+  **Roxo+Rosa · Roxo+Azul · Roxo+Amarelo · Branco+Azul**. O roxo é constante; o acento varia
+  por seção.
+- Aplicar o acento nos ELEMENTOS PEQUENOS: o rótulo `// SEÇÃO`, o brilho/glow, as barras do
+  grafismo, o ícone. Nunca pintar um bloco grande de cor sólida.
+- Rotação sugerida por papel: Hero → Roxo+Rosa; Soluções/tech → Roxo+Azul;
+  Preços/Pioneiro → Roxo+Amarelo; seção de respiro → Branco+Azul.
+- Técnica preferida (validada): misturar 2 cores nas barras do grafismo dentro da mesma
+  seção, em vez de trocar a cor de fundo.
+- Amarelo é reservado a oferta/urgência (Pioneiro, contador de vagas, CTA quente).
+  Não usar amarelo como decoração aleatória.
+
+## Superfícies escuras (coesão)
+
+- O site é dark. Diferenciar seções por ELEVAÇÃO dentro do escuro (superfície roxa um tom
+  acima do fundo — tokens `surface` / `surface-elevated`), NUNCA virando fundo claro chapado.
+- Proibido `bg-black` (preto puro não está na paleta; a base é o roxo #21104E).
+  Exceção: overlays semitransparentes de modal/sheet, que servem a contraste/acessibilidade.
+- Sem faixas claras de borda a borda. Se precisar de respiro claro, no máximo UMA no site
+  inteiro, como painel arredondado flutuante.
+
+## Tipografia
+
+- Cascadia Code exclusivamente (Regular, Light, Italic). Nunca outra fonte.
+- Substituto técnico só se estritamente necessário: IBM Plex Mono.
+
+## Grafismo — "chuva de barras verticais com iluminação interna"
+
+- Barras verticais sólidas na base, esmaecendo (fade) em direção à ponta, DESCENDO do topo.
+- Soltas: distribuição uniforme na largura inteira. Nunca coladas em header/footer, nunca
+  aglomeradas de um lado só.
+- Só ~30% das barras têm um rastro fino de 2px acompanhando.
+- Cores em uma das 4 combinações oficiais (acima). Preferir mistura de 2 cores.
+
+## Ícones (regra forte)
+
+- NUNCA ícones genéricos de biblioteca "template" (ex: megafone, paleta, carteira).
+  A marca tem 14 pictogramas lineares próprios (cifrão, cadeado, seta, gráfico, celular,
+  lupa, etc.) — usar esses quando disponíveis.
+- Onde não houver pictograma próprio, preferir glifos de terminal/código que a marca já usa:
+  `$`, `>`, `//`, `[✓]`, `~`.
+- Ícones que ficarem: finos, monocromáticos (roxo/lavanda), sem bloco de fundo em gradiente.
+
+## Logo
+
+- `logo-branco` (wordmark lavanda) sobre fundos escuros — padrão do site.
+- `logo-roxo` sobre fundos claros.
+- Símbolo isolado `c/` para favicon e foto de perfil.
+- Zona de respiro obrigatória em volta da logo. Nunca repetir a logo dentro de seções no
+  meio da página.
+
+## Tom e escrita
+
+- Voz mono/terminal, técnica mas humana.
+- Tagline: "Small team, big systems". Frase-manifesto: "Processo que não se esconde nas
+  entrelinhas".
+- Rótulos de seção no estilo `// SEÇÃO`.
+
+## Honestidade de dados (ABSOLUTA — não flexível)
+
+- A empresa ainda NÃO tem cliente real. NUNCA inventar case, depoimento, métrica, resultado
+  ou número — nem de cliente, nem de concorrente.
+- Toda "prova" deve ser: (a) o próprio produto/site da Dreamscraft, identificado como tal,
+  ou (b) real e autorizado, quando houver primeiro cliente.
+- Calculadoras/estimadores só exibem números derivados dos inputs do usuário ou faixas
+  honestas — nunca uma redução/resultado assumido apresentado como fato.
+
+## Processo
+
+- Antes de mudanças visuais grandes, apresentar o plano em texto e esperar aprovação.
+- Trabalhar sempre em branch; commits no padrão conventional, em inglês.

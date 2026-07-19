@@ -2,37 +2,34 @@ import { termToast } from "@/lib/term-toast";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Handshake,
-  UserPlus,
-  Send,
-  Coins,
-  Megaphone,
-  Palette,
-  Briefcase,
-  Code2,
-  CheckCircle2,
-} from "lucide-react";
+import { CheckCircle2, ArrowRight } from "lucide-react";
 import { z } from "zod";
+import { useServerFn } from "@tanstack/react-start";
+import { submitLead } from "@/lib/leads.functions";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  BrandPictogram,
+  type PictogramName,
+} from "@/components/brand-pictogram";
+import { CodeRainBackground } from "@/components/code-rain-background";
 
 const partnersFaqs = [
   {
     q: "Tem limite de indicações?",
-    a: "Não. Você pode indicar quantos clientes quiser — quanto mais virarem projeto, mais você ganha.",
+    a: "Não. Você pode indicar quantos clientes quiser — a gente combina a contrapartida quando a indicação vira projeto.",
   },
   {
     q: "Posso ser parceiro sendo dev freelancer?",
     a: "Sim. Muitos devs nos indicam projetos fora da sua stack ou capacidade de entrega no momento.",
   },
   {
-    q: "Quanto tempo até receber?",
-    a: "30 dias após a assinatura do contrato do cliente. Pagamento via Pix ou transferência, com nota fiscal.",
+    q: "Como funciona o retorno da indicação?",
+    a: "Combinamos por escrito quando a indicação vira contrato. Sem tabela pública por enquanto — cada caso tem contexto.",
   },
 ];
 
@@ -43,15 +40,15 @@ export const Route = createFileRoute("/parceiros")({
       {
         name: "description",
         content:
-          "Indique projetos de software e ganhe até 10% de comissão. Para agências, designers, consultores e devs freelancers.",
+          "Indique projetos de software e caminhe junto com a Dreamscraft. Para agências, designers, consultores e freelancers.",
       },
       { property: "og:title", content: "Programa de Parceiros — Dreamscraft Code" },
       {
         property: "og:description",
         content:
-          "Indique projetos de software e ganhe até 10% de comissão. Para agências, designers, consultores e devs freelancers.",
+          "Indique projetos de software e caminhe junto com a Dreamscraft. Para agências, designers, consultores e freelancers.",
       },
-      { property: "og:url", content: "https://dreamscraftcode.com.br/parceiros" },
+      { property: "og:url", content: "https://dreamscraftcode.com/parceiros" },
     ],
     scripts: [
       {
@@ -79,42 +76,42 @@ const schema = z.object({
   audience: z.string().trim().min(10, "Conte um pouco mais").max(1000),
 });
 
-const steps = [
+const steps: { icon: PictogramName; title: string; desc: string }[] = [
   {
-    icon: UserPlus,
+    icon: "usuario",
     title: "Cadastre-se como parceiro",
     desc: "Formulário rápido. Sem burocracia, sem reunião obrigatória.",
   },
   {
-    icon: Send,
+    icon: "link",
     title: "Indique um cliente",
     desc: "Envie quem tem uma necessidade real de software — app, sistema, automação.",
   },
   {
-    icon: Coins,
-    title: "Receba sua comissão",
-    desc: "Se virar projeto, você recebe 10% do valor inicial em até 30 dias.",
+    icon: "moeda",
+    title: "Combinamos o retorno",
+    desc: "Se a indicação virar projeto, alinhamos a contrapartida por escrito — sem tabela pública por enquanto.",
   },
 ];
 
-const profiles = [
+const profiles: { icon: PictogramName; title: string; desc: string }[] = [
   {
-    icon: Megaphone,
+    icon: "link",
     title: "Agência de marketing digital",
     desc: "Seu cliente precisa de landing page, sistema interno ou app — você não precisa virar dev.",
   },
   {
-    icon: Palette,
+    icon: "documento",
     title: "Designer UX/UI",
     desc: "Você tem o design pronto. A gente codifica com qualidade e respeita seu trabalho.",
   },
   {
-    icon: Briefcase,
+    icon: "grafico",
     title: "Consultor de negócios",
     desc: "Cliente precisa automatizar processo, integrar sistema ou digitalizar operação.",
   },
   {
-    icon: Code2,
+    icon: "tabela",
     title: "Desenvolvedor freelancer",
     desc: "Projeto fora da sua especialidade? Indica pra gente e participa do resultado.",
   },
@@ -124,9 +121,11 @@ const faqs = partnersFaqs;
 
 function ParceirosPage() {
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const submit = useServerFn(submitLead);
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
     const result = schema.safeParse(data);
@@ -137,29 +136,53 @@ function ParceirosPage() {
       return;
     }
     setErrors({});
-    setSent(true);
-    termToast.success("candidatura recebida");
+    setSubmitting(true);
+    try {
+      const { name, email, linkedin, type, audience } = result.data;
+      await submit({
+        data: {
+          name,
+          email,
+          project_type: `parceiro:${type}`,
+          description: [
+            audience,
+            linkedin ? `LinkedIn: ${linkedin}` : null,
+          ]
+            .filter(Boolean)
+            .join("\n\n"),
+        },
+      });
+      setSent(true);
+      termToast.success("candidatura recebida");
+    } catch (err) {
+      termToast.error(err instanceof Error ? err.message : "falha ao enviar — tente de novo");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <div>
       {/* Hero */}
-      <section className="mx-auto max-w-7xl px-6 pt-20 pb-16">
-        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1 text-xs font-mono text-primary">
-          <Handshake className="h-3.5 w-3.5" /> programa.parceiros
+      <section className="relative overflow-hidden mx-auto max-w-7xl px-6 pt-20 pb-16">
+        <CodeRainBackground seed={12} palette="rosa" className="opacity-30" />
+        <div className="relative">
+        <div className="inline-flex items-center gap-2 rounded-full border border-brand-rosa/40 bg-brand-rosa/10 px-3 py-1 text-xs font-mono text-brand-rosa">
+          <BrandPictogram name="link" color="rosa" size={14} /> // programa.parceiros
         </div>
         <h1 className="mt-4 text-5xl sm:text-6xl font-light tracking-[-0.03em] max-w-3xl text-gradient">
-          Indique projetos, ganhe comissão
+          Indique projetos, caminhe junto
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
           Para agências, designers e consultores que querem agregar valor aos seus clientes sem
           precisar desenvolver.
         </p>
+        </div>
       </section>
 
       {/* Como funciona */}
       <section className="mx-auto max-w-7xl px-6 pb-20">
-        <p className="text-sm font-mono text-primary">// como.funciona</p>
+        <p className="text-sm font-mono text-brand-rosa">// como.funciona</p>
         <h2 className="mt-2 text-3xl sm:text-4xl font-light tracking-[-0.03em]">3 passos simples</h2>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -175,7 +198,7 @@ function ParceirosPage() {
               <div className="absolute -top-4 left-8 inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow font-mono text-sm font-bold text-primary-foreground">
                 {i + 1}
               </div>
-              <s.icon className="h-8 w-8 text-primary" />
+              <BrandPictogram name={s.icon} color="rosa" size={32} />
               <h3 className="mt-4 text-xl font-semibold">{s.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
             </motion.div>
@@ -185,7 +208,7 @@ function ParceirosPage() {
 
       {/* Perfis */}
       <section className="mx-auto max-w-7xl px-6 pb-20">
-        <p className="text-sm font-mono text-primary">// perfil.ideal</p>
+        <p className="text-sm font-mono text-brand-rosa">// perfil.ideal</p>
         <h2 className="mt-2 text-3xl sm:text-4xl font-light tracking-[-0.03em]">Pra quem é esse programa</h2>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2">
@@ -196,11 +219,9 @@ function ParceirosPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06 }}
-              className="rounded-2xl border border-border bg-surface/60 p-6 hover:bg-surface-elevated transition"
+              className="rounded-2xl border border-border bg-surface/60 p-6 hover:bg-surface-elevated hover:border-brand-rosa/30 transition"
             >
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/30 to-primary-glow/10 border border-border">
-                <p.icon className="h-5 w-5 text-primary" />
-              </div>
+              <BrandPictogram name={p.icon} color="rosa" size={28} />
               <h3 className="mt-4 text-lg font-semibold">{p.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{p.desc}</p>
             </motion.div>
@@ -208,64 +229,9 @@ function ParceirosPage() {
         </div>
       </section>
 
-      {/* Parcerias técnicas */}
-      <section className="mx-auto max-w-7xl px-6 pb-20">
-        <p className="text-sm font-mono text-primary">// parcerias.tecnicas</p>
-        <h2 className="mt-2 text-3xl sm:text-4xl font-light tracking-[-0.03em]">Quem caminha com a gente</h2>
-        <div className="mt-8 rounded-2xl border border-border bg-surface/60 p-6 max-w-2xl">
-          <p className="text-sm text-foreground/90">
-            <span className="font-mono text-primary">Dataloga</span> — colaboração pontual em cibersegurança
-            (revisão de arquitetura, pentest e hardening) quando o projeto do cliente exige.
-          </p>
-          <p className="mt-3 text-xs text-muted-foreground font-mono">
-            // sem contratos exclusivos. sem revenda. só engenharia séria quando faz sentido.
-          </p>
-        </div>
-      </section>
-
-
-      {/* Tabela comissão */}
-      <section className="mx-auto max-w-7xl px-6 pb-20">
-        <p className="text-sm font-mono text-primary">// tabela.comissoes</p>
-        <h2 className="mt-2 text-3xl sm:text-4xl font-light tracking-[-0.03em]">Quanto você ganha</h2>
-
-        <div className="mt-10 overflow-hidden rounded-3xl border border-border bg-surface/60">
-          <table className="w-full text-sm">
-            <thead className="border-b border-border bg-surface-elevated/60">
-              <tr className="text-left">
-                <th className="px-6 py-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                  Faixa do projeto
-                </th>
-                <th className="px-6 py-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                  Comissão
-                </th>
-                <th className="px-6 py-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                  Mínimo
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              <tr>
-                <td className="px-6 py-5 font-medium">Projetos até R$20k</td>
-                <td className="px-6 py-5 text-primary font-mono">10%</td>
-                <td className="px-6 py-5 font-mono">R$2.000</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-5 font-medium">Projetos acima de R$20k</td>
-                <td className="px-6 py-5 text-primary font-mono">8%</td>
-                <td className="px-6 py-5 text-muted-foreground font-mono">—</td>
-              </tr>
-            </tbody>
-          </table>
-          <div className="border-t border-border px-6 py-4 text-xs text-muted-foreground font-mono">
-            pagamento: 30 dias após início do projeto · pix ou transferência · com nota fiscal
-          </div>
-        </div>
-      </section>
-
       {/* Formulário */}
       <section className="mx-auto max-w-3xl px-6 pb-20">
-        <p className="text-sm font-mono text-primary">// cadastro.parceiro</p>
+        <p className="text-sm font-mono text-brand-rosa">// cadastro.parceiro</p>
         <h2 className="mt-2 text-3xl sm:text-4xl font-light tracking-[-0.03em]">Quero ser parceiro</h2>
 
         <motion.div
@@ -279,7 +245,7 @@ function ParceirosPage() {
               <CheckCircle2 className="h-14 w-14 text-primary" />
               <h3 className="mt-6 text-2xl font-bold">Cadastro recebido!</h3>
               <p className="mt-3 text-muted-foreground max-w-sm">
-                Vamos te enviar o kit do parceiro por email em até 1 dia útil.
+                Recebemos seu cadastro. Respondemos por email em até 1 dia útil.
               </p>
             </div>
           ) : (
@@ -318,9 +284,10 @@ function ParceirosPage() {
 
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition glow-ring"
+                disabled={submitting}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition glow-ring disabled:opacity-50"
               >
-                Enviar cadastro <Send className="h-4 w-4" />
+                {submitting ? "Enviando…" : "Enviar cadastro"} <ArrowRight className="h-4 w-4" />
               </button>
             </form>
           )}
@@ -329,7 +296,7 @@ function ParceirosPage() {
 
       {/* FAQ */}
       <section className="mx-auto max-w-3xl px-6 pb-24">
-        <p className="text-sm font-mono text-primary">// faq</p>
+        <p className="text-sm font-mono text-brand-rosa">// faq</p>
         <h2 className="mt-2 text-3xl sm:text-4xl font-light tracking-[-0.03em]">Perguntas frequentes</h2>
 
         <Accordion type="single" collapsible className="mt-8">

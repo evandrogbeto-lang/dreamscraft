@@ -144,7 +144,7 @@ function EstimarPage() {
 
   return (
     <div className="relative min-h-screen bg-background pt-20 pb-24 px-4 overflow-hidden">
-      <CodeRainBackground seed={11} className="opacity-25" />
+      <CodeRainBackground seed={11} palette="rosa-azul" className="opacity-25" />
       <div className="relative mx-auto max-w-3xl">
         {/* Terminal frame */}
         <div className="rounded-lg border border-border bg-card/40 backdrop-blur-sm shadow-2xl overflow-hidden">

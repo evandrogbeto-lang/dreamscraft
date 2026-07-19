@@ -15,7 +15,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,9 +23,18 @@ function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Só redireciona quem é admin de verdade — evita loop /login ↔ /admin
+  // quando há sessão presa ou conta sem permissão.
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/admin" });
-  }, [user, loading, navigate]);
+    if (!loading && user && isAdmin) navigate({ to: "/admin" });
+  }, [user, loading, isAdmin, navigate]);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    setError(null);
+  }
+
+  const loggedInNotAdmin = !loading && user && !isAdmin;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,6 +87,22 @@ function LoginPage() {
             ? "Acesso restrito aos sócios da Dreamscraft Code."
             : "Apenas emails autorizados podem criar conta."}
         </p>
+
+        {loggedInNotAdmin && (
+          <div className="mt-4 rounded-md border border-brand-amber/30 bg-brand-amber/10 p-3 text-sm">
+            <p className="text-foreground">
+              Você está logada como <strong>{user!.email}</strong>, mas esta conta
+              ainda não tem acesso de administrador.
+            </p>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="mt-2 font-medium text-primary hover:underline"
+            >
+              Sair desta conta
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {mode === "signup" && (

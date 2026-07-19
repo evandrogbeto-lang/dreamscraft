@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 import { Clock, Zap, MessageSquare, Mail, Calendar, CircleDot } from "lucide-react";
 import { LiveTerminal } from "@/components/live-terminal";
-import { PinnedBuild } from "@/components/pinned-build";
 import { PipelineScroll } from "@/components/pipeline-scroll";
 import { ProjectStory } from "@/components/project-story";
 import { ProofOfWork } from "@/components/proof-of-work";
@@ -16,8 +15,8 @@ export const Route = createFileRoute("/")({
     const title = "Dreamscraft Code — Codificamos sua visão";
     const description =
       "Engenharia digital de elite: apps, sistemas web, SaaS e automação com IA. Codificamos sua visão da arquitetura ao deploy.";
-    const url = "https://dreamscraftcode.com.br/";
-    const image = "https://dreamscraftcode.com.br/og-image.png";
+    const url = "https://dreamscraftcode.com/";
+    const image = "https://dreamscraftcode.com/og-image.png";
     return {
       meta: [
         { title },
@@ -169,7 +168,8 @@ function Hero() {
       {/* brand "chuva de colunas" */}
       <CodeRainBackground
         count={56}
-        className="opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_85%)]"
+        palette="rosa"
+        className="opacity-60 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_85%)]"
       />
       {/* dot grid (zoom parallax) */}
       <motion.div
@@ -205,7 +205,7 @@ function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/40 px-4 py-1.5 text-[11px] uppercase tracking-[0.2em] text-primary-glow backdrop-blur font-mono">
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand-rosa/50 bg-brand-rosa/10 px-4 py-1.5 text-[11px] uppercase tracking-[0.2em] text-brand-rosa backdrop-blur font-mono shadow-[0_0_24px_-4px_rgba(175,102,249,0.55)]">
             <span className="h-1.5 w-1.5 rounded-full bg-brand-amarelo node-pulse" />
             system.online · taking_clients
           </span>
@@ -274,7 +274,7 @@ function HomePage() {
       {/* SERVIÇOS — lista editorial */}
       <section className="mx-auto max-w-5xl px-6 pt-6 pb-10 lg:pt-10 lg:pb-14">
         <div className="mb-8">
-          <p className="text-[11px] uppercase tracking-[0.32em] text-primary-glow font-mono">// services</p>
+          <p className="text-[11px] uppercase tracking-[0.32em] text-brand-azul font-mono">// services</p>
           <h2 className="mt-3 text-4xl sm:text-5xl font-light tracking-[-0.03em] text-soft-glow">O que construímos</h2>
         </div>
 
@@ -321,7 +321,7 @@ function HomePage() {
       {/* PIONEIRO — honesto, sem cliente fake */}
       <section id="proof-of-work" className="mx-auto max-w-5xl px-6 pt-8 pb-12 lg:pt-10 lg:pb-16 scroll-mt-24">
         <div className="mb-10">
-          <p className="text-[11px] uppercase tracking-[0.32em] text-primary-glow font-mono">// pacote.pioneiro</p>
+          <p className="text-[11px] uppercase tracking-[0.32em] text-brand-amarelo font-mono">// pacote.pioneiro</p>
           <h2 className="mt-3 text-4xl sm:text-5xl font-light tracking-[-0.03em] text-soft-glow">
             Você pode ser nosso primeiro case.
           </h2>
@@ -341,7 +341,7 @@ function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ delay: i * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="glass-card rounded-2xl border border-border/60 p-6"
+              className="glass-card rounded-2xl border border-brand-amarelo/25 bg-brand-amarelo/[0.04] p-6 shadow-[0_0_40px_-20px_rgba(240,208,113,0.35)]"
             >
               <div className="flex items-center gap-3">
                 <span className="grid h-8 w-8 place-items-center rounded-md border border-brand-amarelo/40 bg-brand-amarelo/10 font-mono text-xs text-brand-amarelo">
@@ -373,11 +373,8 @@ function HomePage() {
       {/* PIPELINE — horizontal scroll */}
       <PipelineScroll />
 
-      {/* PROJECT STORY — scroll-driven */}
+      {/* PROJECT STORY */}
       <ProjectStory />
-
-      {/* PINNED BUILD — sticky scroll-driven */}
-      <PinnedBuild />
 
       {/* PROOF OF WORK — live demo */}
       <ProofOfWork />
@@ -387,12 +384,13 @@ function HomePage() {
         <CodeRainBackground
           count={44}
           seed={7}
+          palette="rosa-azul"
           className="opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_80%)]"
         />
         <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-10 lg:gap-16 items-start">
           {/* COLUNA ESQUERDA — 60% */}
           <div>
-            <p className="text-[11px] uppercase tracking-[0.32em] text-primary-glow font-mono">
+            <p className="text-[11px] uppercase tracking-[0.32em] text-brand-rosa font-mono">
               // a_conversa_começa_aqui
             </p>
             <h2 className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-light tracking-[-0.03em] text-soft-glow leading-[1.05]">
@@ -449,7 +447,7 @@ function HomePage() {
                 >
                   <span className="text-primary-glow select-none">$</span>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">calendly</span>
+                  <span className="text-muted-foreground">cal.com</span>
                   <span className="text-brand-azul group-hover:underline underline-offset-4">
                     Agendar 30 min gratuito →
                   </span>

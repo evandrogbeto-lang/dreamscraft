@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 
+/** Combinações oficiais de grafismo (roxo implícito no fundo; acentos nas barras). */
+export type CodeRainPalette = "rosa" | "azul" | "amarelo" | "rosa-azul" | "rosa-amarelo";
+
 interface CodeRainBackgroundProps {
   /** Número de colunas/barras */
   count?: number;
@@ -8,6 +11,14 @@ interface CodeRainBackgroundProps {
   className?: string;
   /** Semente para variação determinística (evita hydration mismatch) */
   seed?: number;
+  /**
+   * Assinatura de cor da seção.
+   * - rosa: hero / energia (padrão)
+   * - azul: tech / soluções
+   * - amarelo: preços / oferta (uso contido)
+   * - rosa-azul / rosa-amarelo: mistura ~70/30
+   */
+  palette?: CodeRainPalette;
 }
 
 interface Bar {
@@ -15,11 +26,22 @@ interface Bar {
   height: number;
   delay: number;
   duration: number;
-  gold: boolean;
+  accent: boolean;
   bodyOpacity: number;
   wickTopOpacity: number;
   wickBottomOpacity: number;
 }
+
+const PALETTE_COLORS: Record<
+  CodeRainPalette,
+  { primary: string; secondary: string; accentRatio: number }
+> = {
+  rosa: { primary: "#AF66F9", secondary: "#AF66F9", accentRatio: 0 },
+  azul: { primary: "#6A78F6", secondary: "#AF66F9", accentRatio: 0.25 },
+  amarelo: { primary: "#AF66F9", secondary: "#F0D071", accentRatio: 0.2 },
+  "rosa-azul": { primary: "#AF66F9", secondary: "#6A78F6", accentRatio: 0.35 },
+  "rosa-amarelo": { primary: "#AF66F9", secondary: "#F0D071", accentRatio: 0.18 },
+};
 
 // PRNG determinístico (mulberry32) — evita SSR/CSR mismatch
 function rand(seed: number) {
@@ -39,26 +61,28 @@ function rand(seed: number) {
  *   - wick superior: 1px, ~20% da altura, opacidade 0.2–0.4
  *   - corpo central: 3px, ~60% da altura, opacidade 0.6–0.9
  *   - wick inferior: 1px, ~20% da altura, opacidade 0.2–0.4
- * ~15% das barras renderizam em Amber (#F0D071); o restante em Orchid (#AF66F9).
  */
 export function CodeRainBackground({
   count = 48,
   className,
   seed = 1,
+  palette = "rosa",
 }: CodeRainBackgroundProps) {
+  const { primary, secondary, accentRatio } = PALETTE_COLORS[palette];
+
   const bars = useMemo<Bar[]>(() => {
     const r = rand(seed);
     return Array.from({ length: count }, (_, i): Bar => ({
       left: (i / count) * 100 + r() * (100 / count) * 0.5,
-      height: 30 + r() * 60, // 30–90% da altura do container
+      height: 30 + r() * 60,
       delay: r() * -8,
       duration: 4 + r() * 6,
-      gold: r() < 0.15,
+      accent: r() < accentRatio,
       bodyOpacity: 0.6 + r() * 0.3,
       wickTopOpacity: 0.2 + r() * 0.2,
       wickBottomOpacity: 0.2 + r() * 0.2,
     }));
-  }, [count, seed]);
+  }, [count, seed, accentRatio]);
 
   return (
     <div
@@ -69,7 +93,7 @@ export function CodeRainBackground({
       )}
     >
       {bars.map((b, i) => {
-        const color = b.gold ? "#F0D071" : "#AF66F9";
+        const color = b.accent ? secondary : primary;
         return (
           <div
             key={i}
@@ -81,7 +105,6 @@ export function CodeRainBackground({
               animationDuration: `${b.duration}s`,
             }}
           >
-            {/* wick superior */}
             <span
               style={{
                 width: 1,
@@ -90,7 +113,6 @@ export function CodeRainBackground({
                 opacity: b.wickTopOpacity,
               }}
             />
-            {/* corpo */}
             <span
               style={{
                 width: 3,
@@ -100,7 +122,6 @@ export function CodeRainBackground({
                 boxShadow: `0 0 8px ${color}55`,
               }}
             />
-            {/* wick inferior */}
             <span
               style={{
                 width: 1,

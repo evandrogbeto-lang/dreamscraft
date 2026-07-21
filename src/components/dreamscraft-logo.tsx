@@ -11,18 +11,33 @@ interface DreamscraftLogoProps {
   symbolClassName?: string;
   /** @deprecated mantido para compatibilidade — usar symbolClassName para definir altura */
   wordmarkClassName?: string;
+  /** Só o símbolo c/ (ícone). Padrão = wordmark completo. */
+  mark?: boolean;
 }
 
 /**
  * Logo oficial Dreamscraft.code — arte vetorial fornecida pelo brand guide.
  * - variant="dark": LOGO_BRANCO (wordmark lavanda + ícone) para fundos escuros.
  * - variant="light": LOGO_ROXO para fundos claros.
+ * - mark: só o símbolo (icone-roxo), para headers apertados.
  */
 export function DreamscraftLogo({
   variant = "dark",
   className,
   symbolClassName = "h-8",
+  mark = false,
 }: DreamscraftLogoProps) {
+  if (mark) {
+    return (
+      <img
+        src="/icone-roxo.png"
+        alt="Dreamscraft.code"
+        className={cn("w-auto select-none", symbolClassName, className)}
+        draggable={false}
+      />
+    );
+  }
+
   const src = variant === "dark" ? logoBranco : logoRoxo;
   return (
     <img

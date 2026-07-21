@@ -5,9 +5,7 @@ import { ClientOnly } from "@tanstack/react-router";
 import {
   ArrowRight,
   ChevronDown,
-  Calendar,
   Clock,
-  Flag,
   MessageCircle,
 } from "lucide-react";
 import { Reveal } from "@/components/reveal";
@@ -23,7 +21,7 @@ export const Route = createFileRoute("/portfolio")({
   head: () => {
     const title = "Portfolio — Produtos próprios em construção · Dreamscraft Code";
     const description =
-      "Os 4 SaaS que estamos construindo internamente: NutrIAprova, FYNK, OURleads e Secretária Virtual com IA. Nada de case de cliente inventado — só o que a gente está de fato codando.";
+      "Os 4 SaaS que estamos construindo internamente: Secretária Virtual com IA, NutrIAprova, FYNK e OURleads. Nada de case de cliente inventado — só o que a gente está de fato codando.";
     const url = "https://dreamscraftcode.com/portfolio";
     return {
       meta: [
@@ -64,210 +62,210 @@ type Product = {
 
 const products: Product[] = [
   {
-    icon: "documento",
-    slug: "nutriaprova",
-    name: "NutrIAprova",
-    tagline: "Nutricionistas validam receitas de IA em segundos, não em horas.",
-    status: "Em desenvolvimento",
-    statusTone: "dev",
-    stage: "MVP fechado, em iteração com nutricionistas",
-    nextMilestone: "Fluxo de aprovação em lote + export para prontuário",
-    problem:
-      "Nutricionistas recebem centenas de receitas geradas por IA e precisam checar cada uma: macros batem? substituições fazem sentido clínico? contraindicações estão cobertas? Fazer isso manualmente é caro e lento. O NutrIAprova coloca a receita, o parecer da IA e os alertas nutricionais lado a lado — a aprovação vira 1 clique, e o que não bate volta com justificativa.",
-    arch: {
-      nodes: [
-        { id: "web", x: 40, y: 50, label: "Web", sub: "React 19 · TS" },
-        { id: "edge", x: 230, y: 50, label: "Server Fn", sub: "TanStack Start" },
-        { id: "ai", x: 420, y: 50, label: "IA", sub: "Lovable AI Gateway" },
-        { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
+      icon: "celular",
+      slug: "recepcionista-ia",
+      name: "Secretária Virtual com IA",
+      tagline: "Atendimento automatizado que não parece bot — agenda, qualifica e responde 24/7.",
+      status: "Em escopo",
+      statusTone: "scope",
+      stage: "Escopo fechando: canais, integrações de agenda e limites da IA",
+      nextMilestone: "Primeira versão end-to-end no WhatsApp de um piloto interno",
+      problem:
+        "Clínicas, consultórios, prestadores e pequenos escritórios perdem cliente porque não têm quem atenda fora do horário — e chatbot de fluxo fixo irrita mais do que resolve. A Secretária Virtual usa IA para entender pedido, checar agenda real, oferecer horário e escalar para humano quando não deve decidir sozinha. Objetivo é substituir a recepção repetitiva, não a humana.",
+      arch: {
+        nodes: [
+          { id: "wa", x: 40, y: 50, label: "Canais", sub: "WhatsApp · Web · Voz" },
+          { id: "brain", x: 230, y: 50, label: "IA", sub: "modelo + tools" },
+          { id: "cal", x: 420, y: 50, label: "Agenda", sub: "Google · iCal" },
+          { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
+        ],
+        edges: [
+          ["wa", "brain"],
+          ["brain", "cal"],
+          ["brain", "db"],
+        ],
+      },
+      decisions: [
+        { kind: "+", tech: "Tool calling estrito", reason: "IA só age via ações auditadas (agendar, cancelar, transferir humano)" },
+        { kind: "+", tech: "Handoff explícito para humano", reason: "produto ganha confiança quando sabe dizer 'isso eu não decido'" },
+        { kind: "+", tech: "WhatsApp Cloud API primeiro", reason: "canal com maior ROI para o público-alvo" },
+        { kind: "-", tech: "Fluxo por árvore de decisão descartado", reason: "custo de manutenção alto e experiência ruim; IA + tools rende mais" },
       ],
-      edges: [
-        ["web", "edge"],
-        ["edge", "ai"],
-        ["edge", "db"],
-      ],
+      code: {
+        lang: "typescript",
+        filename: "tools.ts",
+        body: `// src/lib/recepcionista/tools.ts
+  export const tools = [
+    {
+      name: "check_availability",
+      description: "Consulta horários livres na agenda do profissional",
+      parameters: { date: "string (YYYY-MM-DD)", durationMin: "number" },
     },
-    decisions: [
-      { kind: "+", tech: "Lovable AI Gateway", reason: "sem API key própria e permite trocar modelo sem redeploy" },
-      { kind: "+", tech: "Postgres + RLS", reason: "isolamento por nutricionista feito no banco, não no client" },
-      { kind: "+", tech: "TanStack Start server functions", reason: "chamada de IA fica no edge, prompt nunca vaza para o browser" },
-      { kind: "-", tech: "LangChain descartado", reason: "abstração cara para um caso de uso de 1 chamada + validação estruturada" },
-    ],
-    code: {
-      lang: "typescript",
-      filename: "validateRecipe.functions.ts",
-      body: `// src/lib/nutri/validate.functions.ts
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-
-const Input = z.object({ recipeId: z.string().uuid() });
-
-export const validateRecipe = createServerFn({ method: "POST" })
-  .inputValidator((d) => Input.parse(d))
-  .handler(async ({ data }) => {
-    // 1. carrega receita + restrições do paciente
-    // 2. dispara modelo com schema estruturado (macros, alergênicos, alertas)
-    // 3. persiste parecer e devolve para revisão da nutri
-    return { recipeId: data.recipeId, verdict: "needs_review" };
-  });
-`,
+    {
+      name: "book_slot",
+      description: "Agenda um horário para o cliente. Requer confirmação.",
+      parameters: { slotId: "string", clientName: "string", clientPhone: "string" },
     },
-  },
+    {
+      name: "handoff_human",
+      description: "Escala para atendente humano quando fugir do escopo",
+      parameters: { reason: "string" },
+    },
+  ] as const;
+  `,
+      },
+    },
   {
-    icon: "dinheiro",
-    slug: "fynk",
-    name: "FYNK",
-    tagline: "Sua vida financeira num painel só — com uma IA sarcástica te chamando à realidade.",
-    status: "Em desenvolvimento",
-    statusTone: "dev",
-    stage: "Núcleo de imposto de renda + cartões em construção",
-    nextMilestone: "Importação de fatura + primeiro roast de gastos",
-    problem:
-      "Imposto de renda, empréstimos, faturas de cartão, gastos do mês, planejamento — tudo espalhado em planilha, banco e app de fintech. O FYNK unifica isso e coloca um copiloto de IA que não é gentil: ele confronta o usuário sobre onde o dinheiro vai. A ideia é o oposto do dashboard bonitinho que ninguém abre.",
-    arch: {
-      nodes: [
-        { id: "app", x: 40, y: 50, label: "Web/App", sub: "React 19" },
-        { id: "edge", x: 230, y: 50, label: "Edge", sub: "Server Fn" },
-        { id: "ai", x: 420, y: 50, label: "IA", sub: "modelo com persona" },
-        { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
+      icon: "documento",
+      slug: "nutriaprova",
+      name: "NutrIAprova",
+      tagline: "Nutricionistas validam receitas de IA em segundos, não em horas.",
+      status: "Em desenvolvimento",
+      statusTone: "dev",
+      stage: "MVP fechado, em iteração com nutricionistas",
+      nextMilestone: "Fluxo de aprovação em lote + export para prontuário",
+      problem:
+        "Nutricionistas recebem centenas de receitas geradas por IA e precisam checar cada uma: macros batem? substituições fazem sentido clínico? contraindicações estão cobertas? Fazer isso manualmente é caro e lento. O NutrIAprova coloca a receita, o parecer da IA e os alertas nutricionais lado a lado — a aprovação vira 1 clique, e o que não bate volta com justificativa.",
+      arch: {
+        nodes: [
+          { id: "web", x: 40, y: 50, label: "Web", sub: "React 19 · TS" },
+          { id: "edge", x: 230, y: 50, label: "Server Fn", sub: "TanStack Start" },
+          { id: "ai", x: 420, y: 50, label: "IA", sub: "Lovable AI Gateway" },
+          { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
+        ],
+        edges: [
+          ["web", "edge"],
+          ["edge", "ai"],
+          ["edge", "db"],
+        ],
+      },
+      decisions: [
+        { kind: "+", tech: "Lovable AI Gateway", reason: "sem API key própria e permite trocar modelo sem redeploy" },
+        { kind: "+", tech: "Postgres + RLS", reason: "isolamento por nutricionista feito no banco, não no client" },
+        { kind: "+", tech: "TanStack Start server functions", reason: "chamada de IA fica no edge, prompt nunca vaza para o browser" },
+        { kind: "-", tech: "LangChain descartado", reason: "abstração cara para um caso de uso de 1 chamada + validação estruturada" },
       ],
-      edges: [
-        ["app", "edge"],
-        ["edge", "ai"],
-        ["edge", "db"],
-      ],
+      code: {
+        lang: "typescript",
+        filename: "validateRecipe.functions.ts",
+        body: `// src/lib/nutri/validate.functions.ts
+  import { createServerFn } from "@tanstack/react-start";
+  import { z } from "zod";
+  
+  const Input = z.object({ recipeId: z.string().uuid() });
+  
+  export const validateRecipe = createServerFn({ method: "POST" })
+    .inputValidator((d) => Input.parse(d))
+    .handler(async ({ data }) => {
+      // 1. carrega receita + restrições do paciente
+      // 2. dispara modelo com schema estruturado (macros, alergênicos, alertas)
+      // 3. persiste parecer e devolve para revisão da nutri
+      return { recipeId: data.recipeId, verdict: "needs_review" };
+    });
+  `,
+      },
     },
-    decisions: [
-      { kind: "+", tech: "Ingest CSV/OFX próprio", reason: "não depender de Open Finance no MVP; libera o produto sem convênio bancário" },
-      { kind: "+", tech: "Persona sarcástica travada em system prompt", reason: "tom é o produto — não pode variar entre sessões" },
-      { kind: "+", tech: "Categorização por regras + IA", reason: "regras cobrem 80% barato; IA só resolve os casos ambíguos" },
-      { kind: "-", tech: "Pluggy/Belvo no MVP descartado", reason: "custo por conta inviabiliza o preço de entrada" },
-    ],
-    code: {
-      lang: "typescript",
-      filename: "roast.ts",
-      body: `// src/lib/fynk/roast.ts
-export const ROAST_SYSTEM = \`
-Você é o copiloto financeiro do FYNK. Personalidade: sarcástico,
-direto, sem paciência para desculpa. Nunca xinga. Sempre confronta
-o gasto com a meta declarada do usuário. Fecha com uma ação de 1 linha.
-\`;
-
-export function buildRoastPrompt(input: {
-  monthTotal: number;
-  topCategory: { name: string; amount: number };
-  goal: string;
-}) {
-  return \`Mês fechou em R$ \${input.monthTotal}. Maior categoria:
-\${input.topCategory.name} (R$ \${input.topCategory.amount}).
-Meta declarada: "\${input.goal}". Comente.\`;
-}
-`,
-    },
-  },
   {
-    icon: "usuario",
-    slug: "ourleads",
-    name: "OURleads",
-    tagline: "Gestão de leads para quem cansou de CRM inchado — de qualquer nicho, não só imobiliária.",
-    status: "Em desenvolvimento",
-    statusTone: "dev",
-    stage: "Pipeline, distribuição e integrações-base em construção",
-    nextMilestone: "Distribuição round-robin com SLA de resposta",
-    problem:
-      "Ferramentas como C2S resolvem bem gestão de leads — mas só para imobiliária. Fora desse nicho, quem quer organizar lead vai parar em CRM genérico caro e configurável demais. O OURleads pega o núcleo bom (captura → distribuição → follow-up → conversão) e entrega enxuto para clínicas, escolas, prestadores de serviço, agências — qualquer negócio que roda em cima de lead frio.",
-    arch: {
-      nodes: [
-        { id: "web", x: 40, y: 50, label: "Web", sub: "React 19" },
-        { id: "api", x: 230, y: 50, label: "API", sub: "Server Fn · Edge" },
-        { id: "wh", x: 420, y: 50, label: "Webhooks", sub: "Meta · Google · WA" },
-        { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
+      icon: "dinheiro",
+      slug: "fynk",
+      name: "FYNK",
+      tagline: "Sua vida financeira num painel só — com uma IA sarcástica te chamando à realidade.",
+      status: "Em desenvolvimento",
+      statusTone: "dev",
+      stage: "Núcleo de imposto de renda + cartões em construção",
+      nextMilestone: "Importação de fatura + primeiro roast de gastos",
+      problem:
+        "Imposto de renda, empréstimos, faturas de cartão, gastos do mês, planejamento — tudo espalhado em planilha, banco e app de fintech. O FYNK unifica isso e coloca um copiloto de IA que não é gentil: ele confronta o usuário sobre onde o dinheiro vai. A ideia é o oposto do dashboard bonitinho que ninguém abre.",
+      arch: {
+        nodes: [
+          { id: "app", x: 40, y: 50, label: "Web/App", sub: "React 19" },
+          { id: "edge", x: 230, y: 50, label: "Edge", sub: "Server Fn" },
+          { id: "ai", x: 420, y: 50, label: "IA", sub: "modelo com persona" },
+          { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
+        ],
+        edges: [
+          ["app", "edge"],
+          ["edge", "ai"],
+          ["edge", "db"],
+        ],
+      },
+      decisions: [
+        { kind: "+", tech: "Ingest CSV/OFX próprio", reason: "não depender de Open Finance no MVP; libera o produto sem convênio bancário" },
+        { kind: "+", tech: "Persona sarcástica travada em system prompt", reason: "tom é o produto — não pode variar entre sessões" },
+        { kind: "+", tech: "Categorização por regras + IA", reason: "regras cobrem 80% barato; IA só resolve os casos ambíguos" },
+        { kind: "-", tech: "Pluggy/Belvo no MVP descartado", reason: "custo por conta inviabiliza o preço de entrada" },
       ],
-      edges: [
-        ["web", "api"],
-        ["api", "db"],
-        ["wh", "api"],
+      code: {
+        lang: "typescript",
+        filename: "roast.ts",
+        body: `// src/lib/fynk/roast.ts
+  export const ROAST_SYSTEM = \`
+  Você é o copiloto financeiro do FYNK. Personalidade: sarcástico,
+  direto, sem paciência para desculpa. Nunca xinga. Sempre confronta
+  o gasto com a meta declarada do usuário. Fecha com uma ação de 1 linha.
+  \`;
+  
+  export function buildRoastPrompt(input: {
+    monthTotal: number;
+    topCategory: { name: string; amount: number };
+    goal: string;
+  }) {
+    return \`Mês fechou em R$ \${input.monthTotal}. Maior categoria:
+  \${input.topCategory.name} (R$ \${input.topCategory.amount}).
+  Meta declarada: "\${input.goal}". Comente.\`;
+  }
+  `,
+      },
+    },
+  {
+      icon: "usuario",
+      slug: "ourleads",
+      name: "OURleads",
+      tagline: "Gestão de leads para quem cansou de CRM inchado — de qualquer nicho, não só imobiliária.",
+      status: "Em desenvolvimento",
+      statusTone: "dev",
+      stage: "Pipeline, distribuição e integrações-base em construção",
+      nextMilestone: "Distribuição round-robin com SLA de resposta",
+      problem:
+        "Ferramentas como C2S resolvem bem gestão de leads — mas só para imobiliária. Fora desse nicho, quem quer organizar lead vai parar em CRM genérico caro e configurável demais. O OURleads pega o núcleo bom (captura → distribuição → follow-up → conversão) e entrega enxuto para clínicas, escolas, prestadores de serviço, agências — qualquer negócio que roda em cima de lead frio.",
+      arch: {
+        nodes: [
+          { id: "web", x: 40, y: 50, label: "Web", sub: "React 19" },
+          { id: "api", x: 230, y: 50, label: "API", sub: "Server Fn · Edge" },
+          { id: "wh", x: 420, y: 50, label: "Webhooks", sub: "Meta · Google · WA" },
+          { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
+        ],
+        edges: [
+          ["web", "api"],
+          ["api", "db"],
+          ["wh", "api"],
+        ],
+      },
+      decisions: [
+        { kind: "+", tech: "Webhooks em /api/public/*", reason: "endpoints públicos verificados por assinatura, sem auth de app" },
+        { kind: "+", tech: "Motor de distribuição em Postgres", reason: "SLA e round-robin em transação — não em fila externa" },
+        { kind: "+", tech: "RLS por conta + role", reason: "vendedor só enxerga o próprio funil sem lógica no client" },
+        { kind: "-", tech: "Multi-tenant por schema descartado", reason: "explosão de migrations; RLS resolve com custo menor" },
       ],
+      code: {
+        lang: "sql",
+        filename: "leads_rls.sql",
+        body: `-- policies/leads.sql
+  alter table public.leads enable row level security;
+  
+  create policy "vendedor ve seus leads"
+    on public.leads for select
+    to authenticated
+    using (owner_id = auth.uid());
+  
+  create policy "gestor ve tudo da conta"
+    on public.leads for select
+    to authenticated
+    using (public.has_role(auth.uid(), 'gestor'));
+  `,
+      },
     },
-    decisions: [
-      { kind: "+", tech: "Webhooks em /api/public/*", reason: "endpoints públicos verificados por assinatura, sem auth de app" },
-      { kind: "+", tech: "Motor de distribuição em Postgres", reason: "SLA e round-robin em transação — não em fila externa" },
-      { kind: "+", tech: "RLS por conta + role", reason: "vendedor só enxerga o próprio funil sem lógica no client" },
-      { kind: "-", tech: "Multi-tenant por schema descartado", reason: "explosão de migrations; RLS resolve com custo menor" },
-    ],
-    code: {
-      lang: "sql",
-      filename: "leads_rls.sql",
-      body: `-- policies/leads.sql
-alter table public.leads enable row level security;
-
-create policy "vendedor ve seus leads"
-  on public.leads for select
-  to authenticated
-  using (owner_id = auth.uid());
-
-create policy "gestor ve tudo da conta"
-  on public.leads for select
-  to authenticated
-  using (public.has_role(auth.uid(), 'gestor'));
-`,
-    },
-  },
-  {
-    icon: "celular",
-    slug: "recepcionista-ia",
-    name: "Secretária Virtual com IA",
-    tagline: "Atendimento automatizado que não parece bot — agenda, qualifica e responde 24/7.",
-    status: "Em escopo",
-    statusTone: "scope",
-    stage: "Escopo fechando: canais, integrações de agenda e limites da IA",
-    nextMilestone: "Primeira versão end-to-end no WhatsApp de um piloto interno",
-    problem:
-      "Clínicas, consultórios, prestadores e pequenos escritórios perdem cliente porque não têm quem atenda fora do horário — e chatbot de fluxo fixo irrita mais do que resolve. A Secretária Virtual usa IA para entender pedido, checar agenda real, oferecer horário e escalar para humano quando não deve decidir sozinha. Objetivo é substituir a recepção repetitiva, não a humana.",
-    arch: {
-      nodes: [
-        { id: "wa", x: 40, y: 50, label: "Canais", sub: "WhatsApp · Web · Voz" },
-        { id: "brain", x: 230, y: 50, label: "IA", sub: "modelo + tools" },
-        { id: "cal", x: 420, y: 50, label: "Agenda", sub: "Google · iCal" },
-        { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
-      ],
-      edges: [
-        ["wa", "brain"],
-        ["brain", "cal"],
-        ["brain", "db"],
-      ],
-    },
-    decisions: [
-      { kind: "+", tech: "Tool calling estrito", reason: "IA só age via ações auditadas (agendar, cancelar, transferir humano)" },
-      { kind: "+", tech: "Handoff explícito para humano", reason: "produto ganha confiança quando sabe dizer 'isso eu não decido'" },
-      { kind: "+", tech: "WhatsApp Cloud API primeiro", reason: "canal com maior ROI para o público-alvo" },
-      { kind: "-", tech: "Fluxo por árvore de decisão descartado", reason: "custo de manutenção alto e experiência ruim; IA + tools rende mais" },
-    ],
-    code: {
-      lang: "typescript",
-      filename: "tools.ts",
-      body: `// src/lib/recepcionista/tools.ts
-export const tools = [
-  {
-    name: "check_availability",
-    description: "Consulta horários livres na agenda do profissional",
-    parameters: { date: "string (YYYY-MM-DD)", durationMin: "number" },
-  },
-  {
-    name: "book_slot",
-    description: "Agenda um horário para o cliente. Requer confirmação.",
-    parameters: { slotId: "string", clientName: "string", clientPhone: "string" },
-  },
-  {
-    name: "handoff_human",
-    description: "Escala para atendente humano quando fugir do escopo",
-    parameters: { reason: "string" },
-  },
-] as const;
-`,
-    },
-  },
-];
+]
 
 const toneStyle: Record<Product["statusTone"], string> = {
   dev: "bg-primary/15 text-primary-glow border-primary/30",
@@ -378,25 +376,37 @@ function ProductCard({
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, delay: index * 0.05 }}
       data-cursor="view"
-      className="rounded-3xl border border-border bg-surface/60 overflow-hidden"
+      className="rounded-lg border border-primary/25 bg-surface overflow-hidden"
     >
+      {/* window chrome */}
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-primary/20 bg-surface-elevated/80 font-mono text-[10px] sm:text-[11px] text-muted-foreground">
+        <span className="h-2.5 w-2.5 rounded-full bg-brand-rosa/80 shrink-0" aria-hidden />
+        <span className="h-2.5 w-2.5 rounded-full bg-brand-amarelo/80 shrink-0" aria-hidden />
+        <span className="h-2.5 w-2.5 rounded-full bg-brand-azul/80 shrink-0" aria-hidden />
+        <span className="ml-2 truncate text-primary-glow/90">
+          $ products/{product.slug}
+        </span>
+      </div>
+
       <button
         onClick={onToggle}
-        className="w-full text-left p-6 md:p-8 hover:bg-surface-elevated/60 transition flex items-start gap-5"
+        className="w-full text-left p-5 md:p-6 hover:bg-surface-elevated/50 transition flex items-start gap-5"
         aria-expanded={open}
       >
         <BrandPictogram name={product.icon} color="azul" size={40} className="shrink-0 mt-1" />
 
         <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-2xl md:text-3xl font-light tracking-[-0.02em]">{product.name}</h2>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h2 className="text-2xl md:text-3xl font-light tracking-[-0.02em] font-mono">
+              {product.name}
+            </h2>
             <span
-              className={`text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full border ${toneStyle[product.statusTone]}`}
+              className={`text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-sm border ${toneStyle[product.statusTone]}`}
             >
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-current mr-1.5 align-middle" />
               {product.status}
             </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-1 rounded-full border border-primary/20 text-primary-glow/80">
+            <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-sm border border-primary/25 text-primary-glow/80">
               produto próprio
             </span>
           </div>
@@ -404,15 +414,13 @@ function ProductCard({
           <p className="mt-2 text-sm text-foreground/80 leading-relaxed">{product.tagline}</p>
 
           <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1.5 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5 text-primary-glow" />
-              <span className="font-mono text-xs">{product.stage}</span>
+            <span className="inline-flex items-center gap-1.5 font-mono text-xs">
+              <span className="text-primary-glow">{`// stage`}</span>
+              <span>{product.stage}</span>
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Flag className="h-3.5 w-3.5 text-primary-glow" />
-              <span className="text-xs">
-                Próximo marco: <span className="text-foreground">{product.nextMilestone}</span>
-              </span>
+            <span className="inline-flex items-center gap-1.5 font-mono text-xs">
+              <span className="text-primary-glow">{`// next`}</span>
+              <span className="text-foreground">{product.nextMilestone}</span>
             </span>
           </div>
         </div>
@@ -433,17 +441,17 @@ function ProductCard({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="border-t border-border overflow-hidden"
+            className="border-t border-primary/20 overflow-hidden"
           >
-            <div className="p-6 md:p-8">
-              <div role="tablist" className="flex flex-wrap gap-1 border-b border-border mb-6">
+            <div className="p-5 md:p-6">
+              <div role="tablist" className="flex flex-wrap gap-1 border-b border-primary/20 mb-6">
                 {TABS.map((t) => (
                   <button
                     key={t.id}
                     role="tab"
                     aria-selected={tab === t.id}
                     onClick={() => setTab(t.id)}
-                    className={`px-3.5 py-2 text-sm font-mono rounded-t-md transition relative ${
+                    className={`px-3.5 py-2 text-sm font-mono rounded-none transition relative ${
                       tab === t.id
                         ? "text-primary-glow"
                         : "text-muted-foreground hover:text-foreground"

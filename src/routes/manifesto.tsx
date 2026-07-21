@@ -283,35 +283,40 @@ function PrincipleSection({
     <section
       id={`principio-${n}`}
       ref={ref}
-      className="relative h-screen flex items-center overflow-hidden border-t border-primary/10 scroll-mt-0"
+      className="relative h-screen flex items-center overflow-hidden border-t border-primary/10 scroll-mt-0 bg-brand-roxo"
     >
-      {/* Watermark number */}
+      <CodeRainBackground seed={Number(n)} palette="rosa" className="opacity-20" />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(175,102,249,0.12),transparent_65%)]"
+      />
+
+      {/* Watermark number — intentional, rosa accent */}
       <motion.div
         style={{ y }}
         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
       >
         <span
-          className="font-mono font-light leading-none text-brand-amber tracking-[-0.03em]"
+          className="font-mono font-light leading-none text-brand-rosa tracking-[-0.03em]"
           style={{
-            fontSize: "clamp(18rem, 45vw, 38rem)",
-            opacity: 0.12,
+            fontSize: "clamp(12rem, 32vw, 28rem)",
+            opacity: 0.25,
           }}
         >
           {n}
         </span>
       </motion.div>
 
-      <div className="relative mx-auto max-w-5xl px-6 w-full">
+      <div className="relative mx-auto max-w-3xl px-6 w-full">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: false, margin: "-30%" }}
           transition={{ duration: 0.6 }}
-          className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.4em] text-primary-glow"
+          className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.4em] text-brand-rosa"
         >
-          <span className="h-px w-10 bg-primary-glow" />
-          princípio {n}
-          <span className="inline-block w-[0.6ch] h-3 bg-primary-glow animate-pulse" />
+          <span className="h-px w-8 bg-brand-rosa" />
+          {`// princípio ${n}`}
         </motion.div>
 
         <SplitReveal
@@ -321,15 +326,15 @@ function PrincipleSection({
           withClip
           viewportMargin="-25%"
           once={false}
-          className="mt-6 text-[clamp(2rem,5.5vw,4.5rem)] font-light leading-[1.05] text-soft-glow max-w-4xl tracking-[-0.03em]"
+          className="mt-4 text-[clamp(1.85rem,4.8vw,3.75rem)] font-light leading-[1.08] text-brand-branco max-w-3xl tracking-[-0.03em]"
         />
 
         <motion.p
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, margin: "-25%" }}
-          transition={{ duration: 0.8, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-8 max-w-2xl text-lg sm:text-xl text-muted-foreground leading-relaxed"
+          transition={{ duration: 0.8, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-5 max-w-xl text-base sm:text-lg text-brand-branco/70 leading-relaxed"
         >
           {sub}
         </motion.p>

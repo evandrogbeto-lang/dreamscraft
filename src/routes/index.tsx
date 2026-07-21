@@ -201,21 +201,9 @@ function Hero() {
         className="mx-auto max-w-3xl px-6 py-12 lg:py-16 relative w-full text-center"
       >
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand-rosa/50 bg-brand-rosa/10 px-4 py-1.5 text-[11px] uppercase tracking-[0.2em] text-brand-rosa backdrop-blur font-mono shadow-[0_0_24px_-4px_rgba(175,102,249,0.55)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-amarelo node-pulse" />
-            system.online · taking_clients
-          </span>
-        </motion.div>
-
-        <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.15 }}
-          className="mt-6"
         >
           <LiveTerminal />
         </motion.div>

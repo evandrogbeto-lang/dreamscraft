@@ -244,12 +244,12 @@ function OpeningSection() {
       <CodeRainBackground seed={3} palette="rosa" className="opacity-25" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(120,80,255,0.15),transparent_60%)]" />
       <motion.div
-        animate={{ opacity: done ? 0 : 1 }}
-        transition={{ duration: 0.8 }}
         className="relative font-mono text-2xl sm:text-4xl md:text-5xl tracking-tight text-soft-glow"
       >
         <span className="text-primary-glow">$</span> {typed}
-        <span className="inline-block w-[0.6ch] h-[1em] align-middle bg-primary-glow ml-1 animate-pulse" />
+        {!done && (
+          <span className="inline-block w-[0.6ch] h-[1em] align-middle bg-primary-glow ml-1 animate-pulse" />
+        )}
       </motion.div>
       <motion.div
         initial={{ opacity: 0 }}
@@ -311,7 +311,7 @@ function PrincipleSection({
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: false, margin: "-30%" }}
+          viewport={{ once: true, margin: "-30%" }}
           transition={{ duration: 0.6 }}
           className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.4em] text-brand-rosa"
         >
@@ -325,14 +325,14 @@ function PrincipleSection({
           delay={0.15}
           withClip
           viewportMargin="-25%"
-          once={false}
+          once={true}
           className="mt-4 text-[clamp(1.85rem,4.8vw,3.75rem)] font-light leading-[1.08] text-brand-branco max-w-3xl tracking-[-0.03em]"
         />
 
         <motion.p
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "-25%" }}
+          viewport={{ once: true, margin: "-25%" }}
           transition={{ duration: 0.8, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="mt-5 max-w-xl text-base sm:text-lg text-brand-branco/70 leading-relaxed"
         >

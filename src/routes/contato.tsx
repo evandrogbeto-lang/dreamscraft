@@ -90,7 +90,7 @@ function ContatoPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-3 rounded-3xl border border-border bg-surface/60 p-8 lg:p-10"
+          className="lg:col-span-3 rounded-3xl border border-border bg-surface/60 p-5 sm:p-8 lg:p-10"
         >
           {sent ? (
             <div className="flex flex-col items-center text-center py-16">
@@ -112,7 +112,7 @@ function ContatoPage() {
                   name="type"
                   autoComplete="off"
                   defaultValue="app"
-                  className="mt-2 w-full rounded-lg border border-border bg-background/60 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="mt-2 w-full min-h-11 rounded-lg border border-border bg-background/60 px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="app">App mobile</option>
                   <option value="web">Sistema web / SaaS</option>
@@ -128,7 +128,7 @@ function ContatoPage() {
                   name="message"
                   rows={5}
                   placeholder="Conta um pouco sobre o que você quer construir..."
-                  className="mt-2 w-full rounded-lg border border-border bg-background/60 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="mt-2 w-full min-h-11 rounded-lg border border-border bg-background/60 px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 {errors.message && <p className="mt-1 text-xs text-destructive">{errors.message}</p>}
               </div>
@@ -136,7 +136,7 @@ function ContatoPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition glow-ring disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 min-h-11 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition glow-ring disabled:opacity-60"
               >
                 {submitting ? "Enviando..." : "Enviar"} <Send className="h-4 w-4" />
               </button>
@@ -196,7 +196,7 @@ function Field({
         name={name}
         type={type}
         autoComplete={autoComplete}
-        className="mt-2 w-full rounded-lg border border-border bg-background/60 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        className="mt-2 w-full min-h-11 rounded-lg border border-border bg-background/60 px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
       />
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>

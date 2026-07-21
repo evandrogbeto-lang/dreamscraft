@@ -370,7 +370,7 @@ function QuestionType({
               disabled={locked}
               onClick={() => setValue(o)}
               className={[
-                "px-3 py-1 rounded border font-mono text-xs transition-all",
+                "inline-flex items-center min-h-11 px-4 py-2.5 rounded border font-mono text-sm transition-all",
                 selected
                   ? "border-primary bg-primary/15 text-primary"
                   : "border-border text-muted-foreground hover:border-primary hover:text-primary",
@@ -414,7 +414,7 @@ function QuestionTimeline({
               disabled={locked}
               onClick={() => setValue(o)}
               className={[
-                "px-3 py-1 rounded border font-mono text-xs transition-all",
+                "inline-flex items-center min-h-11 px-4 py-2.5 rounded border font-mono text-sm transition-all",
                 selected
                   ? "border-primary bg-primary/15 text-primary"
                   : "border-border text-muted-foreground hover:border-primary hover:text-primary",

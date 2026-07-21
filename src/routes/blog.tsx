@@ -133,7 +133,7 @@ function BlogIndex() {
                 <button
                   key={t}
                   onClick={() => setActive(t)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm border transition font-medium ${
+                  className={`inline-flex items-center min-h-11 px-4 py-2.5 rounded-full text-sm border transition font-medium ${
                     isActive
                       ? "bg-primary text-primary-foreground border-transparent glow-ring"
                       : "border-border bg-surface/50 text-muted-foreground hover:text-foreground hover:bg-surface-elevated"
@@ -151,7 +151,7 @@ function BlogIndex() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar no blog..."
-              className="w-full rounded-full border border-border bg-surface/50 pl-10 pr-4 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40"
+              className="w-full min-h-11 rounded-full border border-border bg-surface/50 pl-10 pr-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40"
             />
           </div>
         </div>

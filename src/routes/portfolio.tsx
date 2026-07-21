@@ -451,7 +451,7 @@ function ProductCard({
                     role="tab"
                     aria-selected={tab === t.id}
                     onClick={() => setTab(t.id)}
-                    className={`px-3.5 py-2 text-sm font-mono rounded-none transition relative ${
+                    className={`inline-flex items-center px-4 min-h-11 text-sm font-mono rounded-none transition relative ${
                       tab === t.id
                         ? "text-primary-glow"
                         : "text-muted-foreground hover:text-foreground"

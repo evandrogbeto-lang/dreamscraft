@@ -280,7 +280,46 @@ function PrecosPage() {
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground">{svc.desc}</p>
               </div>
-              <div className="overflow-x-auto">
+              <div className="md:hidden space-y-3 p-4">
+                {svc.rows.map((r, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-lg border border-primary/20 bg-surface p-4 space-y-3"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span
+                        className={`inline-flex rounded-sm border px-2.5 py-1 text-xs font-medium font-mono ${levelBadge(r.level)}`}
+                      >
+                        {r.level}
+                      </span>
+                      <span className="font-semibold font-mono text-brand-rosa text-sm">
+                        R$ {r.price}
+                      </span>
+                    </div>
+                    {r.deadline !== undefined && (
+                      <p className="font-mono text-xs text-muted-foreground">
+                        <span className="text-primary-glow">{`// prazo`}</span>{" "}
+                        {r.deadline}
+                      </p>
+                    )}
+                    <div>
+                      <p className="font-mono text-[10px] uppercase tracking-wider text-primary-glow">
+                        // o que inclui
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                        {r.includes}
+                      </p>
+                    </div>
+                    {r.example && (
+                      <p className="text-xs text-muted-foreground/80 italic font-mono">
+                        <span className="not-italic text-primary-glow/80">{`// ex`}</span>{" "}
+                        {r.example}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-background/40">
                     <tr>

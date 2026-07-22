@@ -4,6 +4,7 @@ import { SplitReveal } from "@/components/split-reveal";
 import { MagneticButton } from "@/components/MagneticButton";
 import { ArrowRight } from "lucide-react";
 import { CodeRainBackground } from "@/components/code-rain-background";
+import { EditorWindow } from "@/components/editor-window";
 import {
   BrandPictogram,
   type PictogramName,
@@ -240,49 +241,43 @@ function SobrePage() {
       {/* Visão / Missão */}
       <section className="py-20 border-t border-border grid lg:grid-cols-2 gap-8">
         <Reveal>
-          <div className="glass-card rounded-3xl p-8 h-full relative overflow-hidden">
-            <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
-            <div className="relative">
-              <div className="flex items-center gap-3">
-                <BrandPictogram name="lupa" color="rosa" size={28} />
-                <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
-                  visão
-                </p>
-              </div>
-              <h3 className="mt-5 text-2xl sm:text-3xl font-display font-semibold tracking-tight leading-tight">
-                Ser referência em engenharia de software honesta no Brasil.
-              </h3>
-              <p className="mt-4 text-muted-foreground leading-relaxed">
-                Queremos que a frase “contratei a Dreamscraft” signifique, para o
-                mercado, que o cliente é exigente, leva o produto a sério e não tolera
-                processo inflado. Construir uma marca em que o nosso nome no rodapé do
-                sistema vale recomendação.
+          <EditorWindow filename="visao.md" className="h-full" as="article">
+            <div className="flex items-center gap-3">
+              <BrandPictogram name="lupa" color="rosa" size={28} />
+              <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
+                visão
               </p>
             </div>
-          </div>
+            <h3 className="mt-5 text-2xl sm:text-3xl font-display font-semibold tracking-tight leading-tight">
+              Ser referência em engenharia de software honesta no Brasil.
+            </h3>
+            <p className="mt-4 text-muted-foreground leading-relaxed">
+              Queremos que a frase “contratei a Dreamscraft” signifique, para o
+              mercado, que o cliente é exigente, leva o produto a sério e não tolera
+              processo inflado. Construir uma marca em que o nosso nome no rodapé do
+              sistema vale recomendação.
+            </p>
+          </EditorWindow>
         </Reveal>
 
         <Reveal delay={0.15}>
-          <div className="glass-card rounded-3xl p-8 h-full relative overflow-hidden">
-            <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-primary-glow/20 blur-3xl" />
-            <div className="relative">
-              <div className="flex items-center gap-3">
-                <BrandPictogram name="seta" color="rosa" size={28} />
-                <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
-                  missão
-                </p>
-              </div>
-              <h3 className="mt-5 text-2xl sm:text-3xl font-display font-semibold tracking-tight leading-tight">
-                Transformar ideias em sistemas que duram — com clareza, velocidade e
-                código que não dá vergonha.
-              </h3>
-              <p className="mt-4 text-muted-foreground leading-relaxed">
-                Tirar produto do papel para a loja em semanas. Manter no ar por anos.
-                Conversar com o cliente em português, não em jargão. Tratar dinheiro
-                dos outros como tratamos o nosso.
+          <EditorWindow filename="missao.md" className="h-full" as="article">
+            <div className="flex items-center gap-3">
+              <BrandPictogram name="seta" color="rosa" size={28} />
+              <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
+                missão
               </p>
             </div>
-          </div>
+            <h3 className="mt-5 text-2xl sm:text-3xl font-display font-semibold tracking-tight leading-tight">
+              Transformar ideias em sistemas que duram — com clareza, velocidade e
+              código que não dá vergonha.
+            </h3>
+            <p className="mt-4 text-muted-foreground leading-relaxed">
+              Tirar produto do papel para a loja em semanas. Manter no ar por anos.
+              Conversar com o cliente em português, não em jargão. Tratar dinheiro
+              dos outros como tratamos o nosso.
+            </p>
+          </EditorWindow>
         </Reveal>
       </section>
 

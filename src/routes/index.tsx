@@ -9,6 +9,7 @@ import { ProofOfWork } from "@/components/proof-of-work";
 import { MagneticButton } from "@/components/MagneticButton";
 import { TiltCard } from "@/components/TiltCard";
 import { CodeRainBackground } from "@/components/code-rain-background";
+import { EditorWindow } from "@/components/editor-window";
 
 export const Route = createFileRoute("/")({
   head: () => {
@@ -321,24 +322,50 @@ function HomePage() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        {/* Mobile: lista — evita paredão de caixas */}
+        <ul className="divide-y divide-border/50 border-y border-border/50 sm:hidden">
           {pioneiroBenefits.map((b, i) => (
-            <motion.article
+            <li key={b.title} className="flex items-start gap-4 py-5">
+              <span className="shrink-0 pt-0.5 font-mono text-xs text-brand-amarelo">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <h3 className="text-base font-semibold tracking-tight">{b.title}</h3>
+                <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                  {b.desc}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {/* Desktop: janelas de editor */}
+        <div className="hidden gap-4 sm:grid sm:grid-cols-2">
+          {pioneiroBenefits.map((b, i) => (
+            <motion.div
               key={b.title}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ delay: i * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="glass-card rounded-2xl border border-brand-amarelo/25 bg-brand-amarelo/[0.04] p-6 shadow-[0_0_40px_-20px_rgba(240,208,113,0.35)]"
             >
-              <div className="flex items-center gap-3">
-                <span className="grid h-8 w-8 place-items-center rounded-md border border-brand-amarelo/40 bg-brand-amarelo/10 font-mono text-xs text-brand-amarelo">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="text-lg font-semibold tracking-tight">{b.title}</h3>
-              </div>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
-            </motion.article>
+              <EditorWindow
+                as="article"
+                filename={`pioneiro-0${i + 1}.md`}
+                filenameClassName="text-brand-amarelo/90"
+                className="h-full"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="grid h-8 w-8 place-items-center rounded-md border border-brand-amarelo/40 bg-brand-amarelo/10 font-mono text-xs text-brand-amarelo">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="text-lg font-semibold tracking-tight">{b.title}</h3>
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                  {b.desc}
+                </p>
+              </EditorWindow>
+            </motion.div>
           ))}
         </div>
 

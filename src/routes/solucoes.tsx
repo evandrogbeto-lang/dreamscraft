@@ -5,6 +5,7 @@ import { useState } from "react";
 import { RoiCalculator } from "@/components/roi-calculator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CodeRainBackground } from "@/components/code-rain-background";
+import { EditorWindow } from "@/components/editor-window";
 import {
   BrandPictogram,
   type PictogramName,
@@ -260,35 +261,41 @@ function ComoTrabalhamos() {
 
       <div className="grid md:grid-cols-2 gap-6">
         {modelos.map((m, i) => (
-          <motion.article
+          <motion.div
             key={m.title}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="glass-card rounded-3xl p-8 lg:p-10 flex flex-col"
           >
-            <div className="flex items-center gap-3">
-              <BrandPictogram name={m.icon} color="azul" size={36} />
-              <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
-                {m.tag}
-              </span>
-            </div>
-            <h3 className="mt-5 text-2xl font-bold">{m.title}</h3>
-            <ul className="mt-5 space-y-3 flex-1">
-              {m.bullets.map((b) => (
-                <li key={b} className="flex items-start gap-3 text-sm">
-                  <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" strokeWidth={1.5} />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6 pt-5 border-t border-border/60 text-sm">
-              <span className="text-primary-glow font-mono mr-2">→</span>
-              <span className="text-muted-foreground">Melhor quando: </span>
-              <span className="font-medium">{m.bestWhen}</span>
-            </div>
-          </motion.article>
+            <EditorWindow
+              as="article"
+              filename={i === 0 ? "modelo-a.md" : "modelo-b.md"}
+              className="h-full"
+              contentClassName="flex flex-col p-8 lg:p-10"
+            >
+              <div className="flex items-center gap-3">
+                <BrandPictogram name={m.icon} color="azul" size={36} />
+                <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
+                  {m.tag}
+                </span>
+              </div>
+              <h3 className="mt-5 text-2xl font-bold">{m.title}</h3>
+              <ul className="mt-5 space-y-3 flex-1">
+                {m.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-3 text-sm">
+                    <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" strokeWidth={1.5} />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 pt-5 border-t border-border/60 text-sm">
+                <span className="text-primary-glow font-mono mr-2">→</span>
+                <span className="text-muted-foreground">Melhor quando: </span>
+                <span className="font-medium">{m.bestWhen}</span>
+              </div>
+            </EditorWindow>
+          </motion.div>
         ))}
       </div>
 

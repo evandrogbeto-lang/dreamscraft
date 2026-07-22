@@ -12,6 +12,8 @@ type EditorWindowProps = {
   className?: string;
   /** Classes do corpo (use `p-0` quando o filho já tem padding próprio). */
   contentClassName?: string;
+  /** Classes extras no rótulo do filename (ex: acento amarelo no Pioneiro). */
+  filenameClassName?: string;
   as?: "div" | "article" | "section";
 };
 
@@ -26,6 +28,7 @@ export function EditorWindow({
   lineCount = 8,
   className,
   contentClassName,
+  filenameClassName,
   as: Comp = "div",
 }: EditorWindowProps) {
   const Tag = Comp as ElementType;
@@ -55,7 +58,11 @@ export function EditorWindow({
           className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-azul/80"
           aria-hidden
         />
-        <span className="ml-2 truncate text-primary-glow/90">{filename}</span>
+        <span
+          className={cn("ml-2 truncate text-primary-glow/90", filenameClassName)}
+        >
+          {filename}
+        </span>
       </div>
 
       <div className="flex min-w-0">

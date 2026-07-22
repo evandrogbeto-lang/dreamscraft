@@ -56,7 +56,13 @@ type Product = {
   problem: string;
   arch: { nodes: ArchNode[]; edges: [string, string][] };
   decisions: Decision[];
-  code: { lang: string; filename: string; body: string };
+  code: {
+    lang: string;
+    filename: string;
+    body: string;
+    /** Rótulo honesto no chrome do viewer (ex.: nó n8n real vs rascunho). */
+    badge?: string;
+  };
 };
 
 // ---------- Data (produtos PRÓPRIOS Dreamscraft — nenhum cliente) ----------
@@ -66,54 +72,101 @@ const products: Product[] = [
       icon: "celular",
       slug: "recepcionista-ia",
       name: "Secretária Virtual com IA",
-      tagline: "Atendimento automatizado que não parece bot — agenda, qualifica e responde 24/7.",
-      status: "Em escopo",
-      statusTone: "scope",
-      stage: "Escopo fechando: canais, integrações de agenda e limites da IA",
-      nextMilestone: "Primeira versão end-to-end no WhatsApp de um piloto interno",
+      tagline:
+        "Atendimento no WhatsApp com IA — responde 24/7 com memória de conversa.",
+      status: "Em desenvolvimento",
+      statusTone: "dev",
+      stage: "Fluxo n8n no ar: WhatsApp Cloud API + agente OpenRouter + memória",
+      nextMilestone: "Agenda (Google/iCal) e handoff humano — ainda no plano",
       problem:
-        "Clínicas, consultórios, prestadores e pequenos escritórios perdem cliente porque não têm quem atenda fora do horário — e chatbot de fluxo fixo irrita mais do que resolve. A Secretária Virtual usa IA para entender pedido, checar agenda real, oferecer horário e escalar para humano quando não deve decidir sozinha. Objetivo é substituir a recepção repetitiva, não a humana.",
+        "Clínicas, consultórios, prestadores e pequenos escritórios perdem cliente porque não têm quem atenda fora do horário — e chatbot de fluxo fixo irrita mais do que resolve. Hoje a Secretária Virtual roda num fluxo n8n real: recebe mensagem via WhatsApp Cloud API, parseia o webhook, passa por um agente de IA (modelo via OpenRouter) com memória simples de conversa e devolve a resposta no WhatsApp. Agenda, Web, voz, banco e tool calling ainda não entram neste fluxo — estão no roadmap.",
       arch: {
         nodes: [
-          { id: "wa", x: 40, y: 50, label: "Canais", sub: "WhatsApp · Web · Voz" },
-          { id: "brain", x: 230, y: 50, label: "IA", sub: "modelo + tools" },
-          { id: "cal", x: 420, y: 50, label: "Agenda", sub: "Google · iCal" },
-          { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
+          { id: "wa", x: 40, y: 120, label: "WhatsApp", sub: "Cloud API" },
+          { id: "n8n", x: 200, y: 120, label: "n8n", sub: "webhook · JS · agente" },
+          { id: "ai", x: 380, y: 50, label: "IA", sub: "OpenRouter" },
+          { id: "mem", x: 380, y: 190, label: "Memória", sub: "conversa simples" },
         ],
         edges: [
-          ["wa", "brain"],
-          ["brain", "cal"],
-          ["brain", "db"],
+          ["wa", "n8n"],
+          ["n8n", "ai"],
+          ["n8n", "mem"],
         ],
       },
       decisions: [
-        { kind: "+", tech: "Tool calling estrito", reason: "IA só age via ações auditadas (agendar, cancelar, transferir humano)" },
-        { kind: "+", tech: "Handoff explícito para humano", reason: "produto ganha confiança quando sabe dizer 'isso eu não decido'" },
-        { kind: "+", tech: "WhatsApp Cloud API primeiro", reason: "canal com maior ROI para o público-alvo" },
-        { kind: "-", tech: "Fluxo por árvore de decisão descartado", reason: "custo de manutenção alto e experiência ruim; IA + tools rende mais" },
+        {
+          kind: "+",
+          tech: "WhatsApp Cloud API primeiro",
+          reason: "canal com maior ROI para o público-alvo; webhook de verificação + recebimento já no fluxo",
+        },
+        {
+          kind: "+",
+          tech: "n8n como orquestrador",
+          reason: "parse JS, condicional, agente e envio de volta no mesmo workflow — sem app própria ainda",
+        },
+        {
+          kind: "+",
+          tech: "OpenRouter + memória de conversa",
+          reason: "modelo trocável; contexto simples entre mensagens sem Postgres",
+        },
+        {
+          kind: "+",
+          tech: "Agenda e handoff (plano)",
+          reason: "próximo passo: Google/iCal e transferência explícita para humano — ainda não implementados",
+        },
+        {
+          kind: "-",
+          tech: "Árvore de decisão fixa descartada",
+          reason: "custo de manutenção alto e experiência ruim; agente com IA rende mais no atendimento aberto",
+        },
       ],
       code: {
-        lang: "typescript",
-        filename: "tools.ts",
-        body: `// src/lib/recepcionista/tools.ts
-  export const tools = [
-    {
-      name: "check_availability",
-      description: "Consulta horários livres na agenda do profissional",
-      parameters: { date: "string (YYYY-MM-DD)", durationMin: "number" },
-    },
-    {
-      name: "book_slot",
-      description: "Agenda um horário para o cliente. Requer confirmação.",
-      parameters: { slotId: "string", clientName: "string", clientPhone: "string" },
-    },
-    {
-      name: "handoff_human",
-      description: "Escala para atendente humano quando fugir do escopo",
-      parameters: { reason: "string" },
-    },
-  ] as const;
-  `,
+        lang: "javascript",
+        filename: "n8n-parse-whatsapp.js",
+        badge: "// nó de código n8n — fluxo real",
+        body: `let from = '';
+let msg_body = '';
+let msg_id = '';
+
+try {
+  const entry = $json.body.entry?.[0];
+  const change = entry?.changes?.[0];
+  const value = change?.value;
+
+  if (value) {
+    const contact = value.contacts?.[0];
+    from = contact?.wa_id || '';
+
+    const message = value.messages?.[0];
+    msg_body = message?.text?.body || '';
+    msg_id = message?.id || '';
+  }
+} catch (error) {
+  // mantém vazio
+}
+
+const cleanedFrom = from.replace(/[^0-9]/g, '');
+
+if (!cleanedFrom || !msg_body) {
+  return { skip: true };
+}
+
+const $node = $getWorkflowStaticData('global');
+const processedIds = $node.processedIds || [];
+
+if (processedIds.includes(msg_id)) {
+  return { skip: true };
+}
+
+processedIds.push(msg_id);
+$node.processedIds = processedIds;
+
+return {
+  from: cleanedFrom,
+  msg_body: msg_body,
+  msg_id: msg_id
+};
+`,
       },
     },
   {
@@ -149,6 +202,7 @@ const products: Product[] = [
       code: {
         lang: "typescript",
         filename: "validateRecipe.functions.ts",
+        badge: "// rascunho interno — em construção",
         body: `// src/lib/nutri/validate.functions.ts
   import { createServerFn } from "@tanstack/react-start";
   import { z } from "zod";
@@ -199,6 +253,7 @@ const products: Product[] = [
       code: {
         lang: "typescript",
         filename: "roast.ts",
+        badge: "// rascunho interno — em construção",
         body: `// src/lib/fynk/roast.ts
   export const ROAST_SYSTEM = \`
   Você é o copiloto financeiro do FYNK. Personalidade: sarcástico,
@@ -251,6 +306,7 @@ const products: Product[] = [
       code: {
         lang: "sql",
         filename: "leads_rls.sql",
+        badge: "// rascunho interno — em construção",
         body: `-- policies/leads.sql
   alter table public.leads enable row level security;
   
@@ -296,7 +352,8 @@ function PortfolioPage() {
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
             Não temos case de cliente para mostrar ainda — e a gente não vai inventar.
             O que temos são 4 produtos SaaS próprios que estamos codando agora, com
-            problema real, arquitetura escolhida a dedo e trecho de código verdadeiro.
+            problema real, arquitetura escolhida a dedo e trechos do que já roda —
+            o que ainda for plano, a gente rotula como plano.
             Ficha técnica aberta.
           </p>
         </Reveal>
@@ -620,7 +677,7 @@ function CodeViewer({ code }: { code: Product["code"] }) {
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background/40">
         <span className="font-mono text-xs text-muted-foreground">{code.filename}</span>
         <span className="font-mono text-[10px] uppercase tracking-wider text-primary-glow">
-          // trecho real do repositório
+          {code.badge ?? "// trecho"}
         </span>
       </div>
       <ClientOnly fallback={<pre className="p-4 text-xs text-muted-foreground font-mono h-[260px] overflow-auto">{code.body}</pre>}>

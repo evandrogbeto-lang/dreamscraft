@@ -94,24 +94,20 @@ const steps: { icon: PictogramName; title: string; desc: string }[] = [
   },
 ];
 
-const profiles: { icon: PictogramName; title: string; desc: string }[] = [
+const profiles: { title: string; desc: string }[] = [
   {
-    icon: "link",
     title: "Agência de marketing digital",
     desc: "Seu cliente precisa de landing page, sistema interno ou app — você não precisa virar dev.",
   },
   {
-    icon: "documento",
     title: "Designer UX/UI",
     desc: "Você tem o design pronto. A gente codifica com qualidade e respeita seu trabalho.",
   },
   {
-    icon: "grafico",
     title: "Consultor de negócios",
     desc: "Cliente precisa automatizar processo, integrar sistema ou digitalizar operação.",
   },
   {
-    icon: "tabela",
     title: "Desenvolvedor freelancer",
     desc: "Projeto fora da sua especialidade? Indica pra gente e participa do resultado.",
   },
@@ -168,7 +164,7 @@ function ParceirosPage() {
         <CodeRainBackground seed={12} palette="rosa" className="opacity-30" />
         <div className="relative">
         <div className="inline-flex items-center gap-2 rounded-full border border-brand-rosa/40 bg-brand-rosa/10 px-3 py-1 text-xs font-mono text-brand-rosa">
-          <BrandPictogram name="link" color="rosa" size={14} /> // programa.parceiros
+          // programa.parceiros
         </div>
         <h1 className="mt-4 text-5xl sm:text-6xl font-light tracking-[-0.03em] max-w-3xl text-gradient">
           Indique projetos, caminhe junto
@@ -221,7 +217,9 @@ function ParceirosPage() {
               transition={{ delay: i * 0.06 }}
               className="rounded-2xl border border-border bg-surface/60 p-6 hover:bg-surface-elevated hover:border-brand-rosa/30 transition"
             >
-              <BrandPictogram name={p.icon} color="rosa" size={28} />
+              <span className="font-mono text-xs text-brand-rosa">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <h3 className="mt-4 text-lg font-semibold">{p.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{p.desc}</p>
             </motion.div>

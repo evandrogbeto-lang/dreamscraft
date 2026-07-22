@@ -7,7 +7,6 @@ import { CodeRainBackground } from "@/components/code-rain-background";
 import { EditorWindow } from "@/components/editor-window";
 import {
   BrandPictogram,
-  type PictogramName,
 } from "@/components/brand-pictogram";
 
 export const Route = createFileRoute("/sobre")({
@@ -82,24 +81,20 @@ const partners: Partner[] = [
   },
 ];
 
-const values: { icon: PictogramName; title: string; text: string }[] = [
+const values: { title: string; text: string }[] = [
   {
-    icon: "tabela",
     title: "Engenharia, não digitação",
     text: "Cada decisão técnica é justificada. Não escrevemos linhas; resolvemos problemas com a stack certa para o momento.",
   },
   {
-    icon: "documento",
     title: "Clareza acima de apresentação",
     text: "Sem slide bonito escondendo prazo furado. Falamos o que sabemos, admitimos o que não sabemos e atualizamos toda semana.",
   },
   {
-    icon: "seta",
     title: "Velocidade com responsabilidade",
     text: "MVP em semanas, não em meses. Mas nunca entregamos tech debt como produto final. Feito e bem feito.",
   },
   {
-    icon: "grafico",
     title: "Resultado mensurável",
     text: "Software que serve negócio. Métrica, retorno, retenção. Se não move ponteiro, não construímos.",
   },
@@ -301,10 +296,12 @@ function SobrePage() {
           className="mt-12 grid sm:grid-cols-2 gap-5"
           stagger={0.1}
         >
-          {values.map((v) => (
+          {values.map((v, i) => (
             <RevealItem key={v.title}>
               <div className="group h-full rounded-2xl border border-border/60 bg-surface/40 p-6 hover:border-primary/40 hover:bg-surface-elevated/50 transition">
-                <BrandPictogram name={v.icon} color="rosa" size={28} />
+                <span className="font-mono text-xs text-primary-glow">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
 
                 <h3 className="mt-5 text-xl font-display font-semibold tracking-tight">
                   {v.title}
@@ -339,29 +336,27 @@ function SobrePage() {
           <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
-                icon: "seta" as const,
                 title: "Iteração em semanas",
                 text: "Entregas curtas de 1–2 semanas. Demo funcional a cada ciclo, não de meses.",
               },
               {
-                icon: "usuario" as const,
                 title: "Comunicação direta",
                 text: "Você fala com quem programa. Sem account manager traduzindo requisito.",
               },
               {
-                icon: "cadeado" as const,
                 title: "Qualidade sem cortes",
                 text: "Code review, testes automatizados e docs antes de qualquer merge.",
               },
               {
-                icon: "tabela" as const,
                 title: "Transparência total",
                 text: "Acesso ao repositório, pipeline visível e deploys diários.",
               },
             ].map((item, i) => (
               <RevealItem key={item.title}>
                 <div className="h-full rounded-2xl border border-brand-indigo/10 bg-white/60 p-6">
-                  <BrandPictogram name={item.icon} color="roxo" size={24} />
+                  <span className="font-mono text-xs text-brand-azul">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <h3 className="mt-4 text-lg font-display font-semibold tracking-tight">
                     {item.title}
                   </h3>

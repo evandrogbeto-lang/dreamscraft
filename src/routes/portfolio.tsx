@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Reveal } from "@/components/reveal";
 import { CodeRainBackground } from "@/components/code-rain-background";
+import { EditorWindow } from "@/components/editor-window";
 import {
   BrandPictogram,
   type PictogramName,
@@ -370,24 +371,18 @@ function ProductCard({
   const [tab, setTab] = useState<TabKey>("problema");
 
   return (
-    <motion.article
+    <motion.div
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, delay: index * 0.05 }}
       data-cursor="view"
-      className="rounded-lg border border-primary/25 bg-surface overflow-hidden"
     >
-      {/* window chrome */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-primary/20 bg-surface-elevated/80 font-mono text-[10px] sm:text-[11px] text-muted-foreground">
-        <span className="h-2.5 w-2.5 rounded-full bg-brand-rosa/80 shrink-0" aria-hidden />
-        <span className="h-2.5 w-2.5 rounded-full bg-brand-amarelo/80 shrink-0" aria-hidden />
-        <span className="h-2.5 w-2.5 rounded-full bg-brand-azul/80 shrink-0" aria-hidden />
-        <span className="ml-2 truncate text-primary-glow/90">
-          $ products/{product.slug}
-        </span>
-      </div>
-
+      <EditorWindow
+        as="article"
+        filename={`$ products/${product.slug}`}
+        contentClassName="p-0"
+      >
       <button
         onClick={onToggle}
         className="w-full text-left p-5 md:p-6 hover:bg-surface-elevated/50 transition flex items-start gap-5"
@@ -505,7 +500,8 @@ function ProductCard({
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.article>
+      </EditorWindow>
+    </motion.div>
   );
 }
 

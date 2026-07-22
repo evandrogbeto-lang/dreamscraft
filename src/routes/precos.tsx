@@ -370,25 +370,29 @@ function PrecosPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-12">
-        <p className="text-sm font-mono text-brand-azul">// custos.externos</p>
-        <h2 className="mt-2 text-3xl font-light tracking-[-0.03em]">
-          Custos externos repassáveis
-        </h2>
-        <p className="mt-2 text-muted-foreground max-w-2xl">
-          Itens pagos a terceiros (domínio, lojas, APIs) — você paga direto ou a
-          Dreamscraft gerencia com taxa de administração de 10%.
-        </p>
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {external.map((e) => (
-            <div
-              key={e.item}
-              className="rounded-2xl border border-border bg-surface-elevated/50 p-5"
-            >
-              <p className="text-sm font-semibold">{e.item}</p>
-              <p className="mt-2 text-lg font-bold text-brand-rosa font-mono">{e.cost}</p>
-              <p className="mt-1 text-xs text-muted-foreground font-mono">{e.freq}</p>
-            </div>
-          ))}
+        <div className="mx-auto max-w-3xl">
+          <p className="text-sm font-mono text-brand-azul">// custos.externos</p>
+          <h2 className="mt-2 text-3xl font-light tracking-[-0.03em]">
+            Custos externos repassáveis
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            Itens pagos a terceiros (domínio, lojas, APIs) — você paga direto ou a
+            Dreamscraft gerencia com taxa de administração de 10%.
+          </p>
+          <ul className="mt-8 divide-y divide-border/50 border-y border-border/50">
+            {external.map((e) => (
+              <li
+                key={e.item}
+                className="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+              >
+                <span className="text-sm text-foreground/90">{e.item}</span>
+                <span className="flex shrink-0 items-baseline gap-3 font-mono text-sm">
+                  <span className="font-semibold text-brand-rosa">{e.cost}</span>
+                  <span className="text-xs text-muted-foreground">{e.freq}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

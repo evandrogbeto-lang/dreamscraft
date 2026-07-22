@@ -426,13 +426,13 @@ function SobrePage() {
 
         <RevealGroup
           as="ul"
-          className="mt-12 grid sm:grid-cols-2 gap-4"
+          className="mt-12 max-w-3xl divide-y divide-border/50 border-y border-border/50"
           stagger={0.06}
         >
           {promises.map((promise, i) => (
             <RevealItem key={i}>
-              <li className="flex items-start gap-4 rounded-2xl border border-border/50 bg-surface/30 p-5 hover:bg-surface-elevated/40 transition">
-                <span className="shrink-0 grid place-items-center h-8 w-8 rounded-lg bg-primary/15 font-mono text-xs text-primary-glow">
+              <li className="flex items-start gap-4 py-5 list-none">
+                <span className="shrink-0 pt-0.5 font-mono text-xs text-primary-glow">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">

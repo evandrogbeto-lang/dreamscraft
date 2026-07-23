@@ -103,8 +103,7 @@ const values: { title: string; text: string }[] = [
 const credibilityNumbers = [
   { value: "2", label: "engenheiros seniores" },
   { value: "100%", label: "código próprio, sem caixa preta" },
-  { value: "≤2sem", label: "do brief ao primeiro deploy" },
-  { value: "0", label: "projetos abandonados pós-entrega" },
+  { value: "até 2 semanas", label: "do brief ao primeiro deploy" },
 ];
 
 const promises = [
@@ -376,7 +375,7 @@ function SobrePage() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(126,34,206,0.18),transparent_50%)]" />
             <div className="relative">
               <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
-                // a régua que usamos
+                // o que garantimos
               </p>
               <h2 className="mt-3 text-3xl sm:text-4xl font-display font-light tracking-[-0.03em] max-w-2xl">
                 Empresa nova, padrão sênior.
@@ -384,12 +383,13 @@ function SobrePage() {
               <p className="mt-3 text-muted-foreground max-w-2xl">
                 Somos uma estrutura jovem por escolha. Pequena, sem hierarquia inflada,
                 com o que importa: senioridade real em quem coloca a mão no código.
+                Os números abaixo são compromisso operacional — não histórico de clientes.
               </p>
 
-              <dl className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <dl className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {credibilityNumbers.map((n) => (
                   <div key={n.label} className="border-l border-primary/30 pl-4">
-                    <dt className="text-3xl sm:text-4xl font-display font-light text-soft-glow tracking-tight">
+                    <dt className="text-2xl sm:text-3xl font-display font-light text-soft-glow tracking-tight">
                       {n.value}
                     </dt>
                     <dd className="mt-1 text-xs font-mono uppercase tracking-wider text-muted-foreground">

@@ -191,6 +191,19 @@ const external = [
   { item: "Publicação Google Play", cost: "R$ 25", freq: "Único" },
 ];
 
+const whatsappAddons = [
+  "Integração com agenda",
+  "Lembrete e confirmação de consulta",
+  "Transferência para humano com fila e múltiplos atendentes",
+  "Qualificação de lead",
+  "Integração com CRM ou planilha",
+  "Relatório de atendimentos",
+  "Base de conhecimento treinada",
+  "Link de pagamento",
+  "Pesquisa de satisfação",
+  "Atendimento no Instagram Direct",
+];
+
 function levelBadge(level: string) {
   const map: Record<string, string> = {
     Baixa: "bg-brand-amarelo/10 text-brand-amarelo border-brand-amarelo/20",
@@ -367,6 +380,35 @@ function PrecosPage() {
             </TiltCard>
           </motion.div>
         ))}
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-12">
+        <div className="mx-auto max-w-3xl">
+          <p className="text-sm font-mono text-brand-azul">// addons.whatsapp</p>
+          <h2 className="mt-2 text-3xl font-light tracking-[-0.03em]">
+            Add-ons — automação WhatsApp
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            Ampliam o bot/atendimento além do pacote base. Sem tabela de preço fixo —
+            cada item entra sob consulta.
+          </p>
+          <ul className="mt-8 divide-y divide-border/50 border-y border-border/50">
+            {whatsappAddons.map((item) => (
+              <li
+                key={item}
+                className="flex flex-col gap-2 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+              >
+                <span className="text-sm text-foreground/90">{item}</span>
+                <span className="shrink-0 font-mono text-[11px] uppercase tracking-wider text-brand-amarelo">
+                  sob consulta
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs font-mono text-muted-foreground leading-relaxed">
+            Add-ons são orçados por escopo e fechados na call de diagnóstico.
+          </p>
+        </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-12">

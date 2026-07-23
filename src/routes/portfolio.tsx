@@ -44,6 +44,7 @@ export const Route = createFileRoute("/portfolio")({
 
 type Decision = { kind: "+" | "-"; tech: string; reason: string };
 type ArchNode = { id: string; x: number; y: number; label: string; sub: string };
+type ArchEdge = { from: string; to: string; label?: string };
 type Product = {
   icon: PictogramName;
   slug: string;
@@ -54,7 +55,7 @@ type Product = {
   stage: string;
   nextMilestone: string;
   problem: string;
-  arch: { nodes: ArchNode[]; edges: [string, string][] };
+  arch: { nodes: ArchNode[]; edges: ArchEdge[]; note?: string; viewBox?: string };
   decisions: Decision[];
   code: {
     lang: string;
@@ -81,16 +82,22 @@ const products: Product[] = [
       problem:
         "Clínicas, consultórios, prestadores e pequenos escritórios perdem cliente porque não têm quem atenda fora do horário — e chatbot de fluxo fixo irrita mais do que resolve. Hoje a Secretária Virtual roda num fluxo n8n real: recebe mensagem via WhatsApp Cloud API, parseia o webhook, passa por um agente de IA (modelo via OpenRouter) com memória simples de conversa e devolve a resposta no WhatsApp. Agenda, Web, voz, banco e tool calling ainda não entram neste fluxo — estão no roadmap.",
       arch: {
+        note: "// fluxo n8n real — o que roda hoje",
+        viewBox: "0 0 640 300",
         nodes: [
-          { id: "wa", x: 40, y: 120, label: "WhatsApp", sub: "Cloud API" },
-          { id: "n8n", x: 200, y: 120, label: "n8n", sub: "webhook · JS · agente" },
-          { id: "ai", x: 380, y: 50, label: "IA", sub: "OpenRouter" },
-          { id: "mem", x: 380, y: 190, label: "Memória", sub: "conversa simples" },
+          { id: "wa", x: 16, y: 36, label: "WhatsApp", sub: "Cloud API" },
+          { id: "wh", x: 168, y: 36, label: "webhook", sub: "verificação + msg" },
+          { id: "js", x: 320, y: 36, label: "código JS", sub: "parse + dedupe" },
+          { id: "if", x: 472, y: 36, label: "condicional", sub: "skip se inválido" },
+          { id: "ai", x: 320, y: 176, label: "Agente IA", sub: "OpenRouter + memória" },
+          { id: "out", x: 168, y: 176, label: "resposta", sub: "envio WhatsApp" },
         ],
         edges: [
-          ["wa", "n8n"],
-          ["n8n", "ai"],
-          ["n8n", "mem"],
+          { from: "wa", to: "wh" },
+          { from: "wh", to: "js" },
+          { from: "js", to: "if" },
+          { from: "if", to: "ai" },
+          { from: "ai", to: "out" },
         ],
       },
       decisions: [
@@ -181,6 +188,7 @@ return {
       problem:
         "Nutricionistas recebem centenas de receitas geradas por IA e precisam checar cada uma: macros batem? substituições fazem sentido clínico? contraindicações estão cobertas? Fazer isso manualmente é caro e lento. O NutrIAprova coloca a receita, o parecer da IA e os alertas nutricionais lado a lado — a aprovação vira 1 clique, e o que não bate volta com justificativa.",
       arch: {
+        note: "// rascunho — topologia a confirmar",
         nodes: [
           { id: "web", x: 40, y: 50, label: "Web", sub: "React 19 · TS" },
           { id: "edge", x: 230, y: 50, label: "Server Fn", sub: "TanStack Start" },
@@ -188,9 +196,9 @@ return {
           { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
         ],
         edges: [
-          ["web", "edge"],
-          ["edge", "ai"],
-          ["edge", "db"],
+          { from: "web", to: "edge" },
+          { from: "edge", to: "ai" },
+          { from: "edge", to: "db" },
         ],
       },
       decisions: [
@@ -232,6 +240,7 @@ return {
       problem:
         "Imposto de renda, empréstimos, faturas de cartão, gastos do mês, planejamento — tudo espalhado em planilha, banco e app de fintech. O FYNK unifica isso e coloca um copiloto de IA que não é gentil: ele confronta o usuário sobre onde o dinheiro vai. A ideia é o oposto do dashboard bonitinho que ninguém abre.",
       arch: {
+        note: "// rascunho — topologia a confirmar",
         nodes: [
           { id: "app", x: 40, y: 50, label: "Web/App", sub: "React 19" },
           { id: "edge", x: 230, y: 50, label: "Edge", sub: "Server Fn" },
@@ -239,9 +248,9 @@ return {
           { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
         ],
         edges: [
-          ["app", "edge"],
-          ["edge", "ai"],
-          ["edge", "db"],
+          { from: "app", to: "edge" },
+          { from: "edge", to: "ai" },
+          { from: "edge", to: "db" },
         ],
       },
       decisions: [
@@ -285,6 +294,7 @@ return {
       problem:
         "Ferramentas como C2S resolvem bem gestão de leads — mas só para imobiliária. Fora desse nicho, quem quer organizar lead vai parar em CRM genérico caro e configurável demais. O OURleads pega o núcleo bom (captura → distribuição → follow-up → conversão) e entrega enxuto para clínicas, escolas, prestadores de serviço, agências — qualquer negócio que roda em cima de lead frio.",
       arch: {
+        note: "// rascunho — topologia a confirmar",
         nodes: [
           { id: "web", x: 40, y: 50, label: "Web", sub: "React 19" },
           { id: "api", x: 230, y: 50, label: "API", sub: "Server Fn · Edge" },
@@ -292,9 +302,9 @@ return {
           { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
         ],
         edges: [
-          ["web", "api"],
-          ["api", "db"],
-          ["wh", "api"],
+          { from: "web", to: "api" },
+          { from: "api", to: "db" },
+          { from: "wh", to: "api" },
         ],
       },
       decisions: [
@@ -564,77 +574,158 @@ function ProductCard({
 
 // ---------- Tab contents ----------
 
+function boxPort(
+  from: ArchNode,
+  to: ArchNode,
+  w: number,
+  h: number,
+): { x: number; y: number } {
+  const fx = from.x + w / 2;
+  const fy = from.y + h / 2;
+  const tx = to.x + w / 2;
+  const ty = to.y + h / 2;
+  const dx = tx - fx;
+  const dy = ty - fy;
+  const hw = w / 2;
+  const hh = h / 2;
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+  if (absDx < 0.001 && absDy < 0.001) return { x: fx, y: fy };
+  const t = absDx * hh > absDy * hw ? hw / absDx : hh / absDy;
+  return { x: fx + dx * t, y: fy + dy * t };
+}
+
 function MiniArchitecture({ arch }: { arch: Product["arch"] }) {
   const reduce = useReducedMotion();
   const pos = Object.fromEntries(arch.nodes.map((n) => [n.id, n]));
+  const nodeW = 128;
+  const nodeH = 56;
+  const viewBox = arch.viewBox ?? "0 0 560 290";
+  const markerId = `arch-arrow-${arch.note ?? "default"}`.replace(/[^a-zA-Z0-9_-]/g, "");
+
+  const edgeGeom = arch.edges
+    .map((e) => {
+      const a = pos[e.from];
+      const b = pos[e.to];
+      if (!a || !b) return null;
+      const start = boxPort(a, b, nodeW, nodeH);
+      const end = boxPort(b, a, nodeW, nodeH);
+      return { ...e, start, end, mx: (start.x + end.x) / 2, my: (start.y + end.y) / 2 };
+    })
+    .filter(Boolean) as Array<
+    ArchEdge & { start: { x: number; y: number }; end: { x: number; y: number }; mx: number; my: number }
+  >;
+
   return (
-    <div className="rounded-2xl border border-primary/20 bg-[#0A0620] p-5 shadow-[0_0_60px_-30px_hsl(var(--primary)/0.5)]">
-      <svg viewBox="0 0 560 290" className="w-full h-auto" role="img" aria-label="Diagrama de arquitetura">
-        <defs>
-          <linearGradient id="arch-edge" x1="0" x2="1">
-            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="hsl(var(--primary-glow))" stopOpacity="0.9" />
-          </linearGradient>
-        </defs>
-        {arch.edges.map(([a, b], i) => {
-          const p1 = pos[a];
-          const p2 = pos[b];
-          if (!p1 || !p2) return null;
-          return (
+    <div className="overflow-hidden rounded-lg border border-brand-rosa/30 bg-surface">
+      <div className="flex items-center gap-2 border-b border-brand-rosa/20 bg-surface-elevated/80 px-4 py-2 font-mono text-[10px] text-muted-foreground sm:text-[11px]">
+        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-rosa/80" aria-hidden />
+        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-amarelo/80" aria-hidden />
+        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-azul/80" aria-hidden />
+        <span className="ml-2 truncate text-primary-glow/90">
+          {arch.note ?? "// architecture.diagram"}
+        </span>
+      </div>
+
+      <div className="bg-[#0A0620] p-4 sm:p-5">
+        <svg
+          viewBox={viewBox}
+          className="h-auto w-full"
+          role="img"
+          aria-label="Diagrama de arquitetura"
+        >
+          <defs>
+            <marker
+              id={markerId}
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="5"
+              markerHeight="5"
+              orient="auto"
+            >
+              <path d="M 0 1.5 L 8 5 L 0 8.5 Z" fill="var(--color-brand-rosa)" fillOpacity="0.75" />
+            </marker>
+          </defs>
+
+          {/* Linhas atrás das caixas */}
+          {edgeGeom.map((e, i) => (
             <motion.line
-              key={`${a}-${b}`}
-              x1={p1.x + 60}
-              y1={p1.y + 30}
-              x2={p2.x + 60}
-              y2={p2.y + 30}
-              stroke="url(#arch-edge)"
+              key={`line-${e.from}-${e.to}-${i}`}
+              x1={e.start.x}
+              y1={e.start.y}
+              x2={e.end.x}
+              y2={e.end.y}
+              stroke="var(--color-brand-rosa)"
+              strokeOpacity={0.4}
               strokeWidth={1.5}
               strokeDasharray="4 4"
+              markerEnd={`url(#${markerId})`}
               initial={reduce ? { opacity: 1 } : { pathLength: 0, opacity: 0 }}
               animate={reduce ? { opacity: 1 } : { pathLength: 1, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 + i * 0.12 }}
+              transition={{ duration: 0.7, delay: 0.2 + i * 0.08 }}
             />
-          );
-        })}
-        {arch.nodes.map((n, i) => (
-          <motion.g
-            key={n.id}
-            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, delay: 0.15 + i * 0.1 }}
-            style={{ transformOrigin: `${n.x + 60}px ${n.y + 30}px` }}
-          >
-            <rect
-              x={n.x}
-              y={n.y}
-              width={120}
-              height={60}
-              rx={12}
-              fill="hsl(var(--primary) / 0.08)"
-              stroke="hsl(var(--primary) / 0.5)"
-              strokeWidth={1}
-            />
-            <text
-              x={n.x + 60}
-              y={n.y + 26}
-              textAnchor="middle"
-              className="fill-white"
-              style={{ font: "600 14px 'Cascadia Code', ui-monospace, monospace" }}
+          ))}
+
+          {/* Caixas */}
+          {arch.nodes.map((n, i) => (
+            <motion.g
+              key={n.id}
+              initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.35, delay: 0.1 + i * 0.06 }}
+              style={{ transformOrigin: `${n.x + nodeW / 2}px ${n.y + nodeH / 2}px` }}
             >
-              {n.label}
-            </text>
-            <text
-              x={n.x + 60}
-              y={n.y + 44}
-              textAnchor="middle"
-              className="fill-zinc-400"
-              style={{ font: "11px 'Cascadia Code', ui-monospace, monospace" }}
-            >
-              {n.sub}
-            </text>
-          </motion.g>
-        ))}
-      </svg>
+              <rect
+                x={n.x}
+                y={n.y}
+                width={nodeW}
+                height={nodeH}
+                rx={6}
+                fill="var(--color-brand-roxo)"
+                stroke="var(--color-brand-rosa)"
+                strokeOpacity={0.4}
+                strokeWidth={1}
+              />
+              <text
+                x={n.x + nodeW / 2}
+                y={n.y + 22}
+                textAnchor="middle"
+                fill="var(--color-brand-branco)"
+                style={{ font: "500 11px 'Cascadia Code', ui-monospace, monospace" }}
+              >
+                {n.label}
+              </text>
+              <text
+                x={n.x + nodeW / 2}
+                y={n.y + 40}
+                textAnchor="middle"
+                fill="var(--color-brand-branco)"
+                fillOpacity={0.55}
+                style={{ font: "400 9px 'Cascadia Code', ui-monospace, monospace" }}
+              >
+                {n.sub}
+              </text>
+            </motion.g>
+          ))}
+
+          {/* Rótulos das setas — por cima das caixas (quando existirem) */}
+          {edgeGeom.map((e, i) =>
+            e.label ? (
+              <text
+                key={`label-${e.from}-${e.to}-${i}`}
+                x={e.mx}
+                y={e.my - 8}
+                textAnchor="middle"
+                fill="var(--color-brand-azul)"
+                style={{ font: "500 9px 'Cascadia Code', ui-monospace, monospace" }}
+              >
+                {e.label}
+              </text>
+            ) : null,
+          )}
+        </svg>
+      </div>
     </div>
   );
 }

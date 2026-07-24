@@ -42,7 +42,7 @@ function Frame({
           whileInView={reduce ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true, margin: "-25%" }}
           transition={{ duration: 1, ease, delay: 0.15 }}
-          className="relative"
+          className="relative w-full max-w-full overflow-hidden flex justify-center"
         >
           {children}
         </motion.div>
@@ -111,10 +111,10 @@ function ArchitectureDiagram() {
   ];
   const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
   return (
-    <div className="rounded-3xl border border-primary/20 bg-[#0A0A0A] p-6 shadow-[0_0_60px_-20px_hsl(var(--primary)/0.4)]">
+    <div className="w-full max-w-full overflow-hidden rounded-3xl border border-primary/20 bg-[#0A0A0A] p-4 sm:p-6 shadow-[0_0_60px_-20px_hsl(var(--primary)/0.4)] mx-auto">
       <svg
-        viewBox="0 0 560 320"
-        className="w-full h-auto"
+        viewBox="0 0 580 320"
+        className="w-full h-auto max-w-full block mx-auto"
         role="img"
         aria-label="Diagrama de arquitetura: Mobile, API, Database, Auth"
       >
@@ -202,7 +202,7 @@ function PhoneMockup() {
             <p className="text-[10px] font-mono text-primary-glow">// demo.app</p>
             <p className="text-sm font-semibold text-white mt-1">Dashboard de exemplo</p>
           </div>
-          <div className="flex-1 px-3 py-2 space-y-2 overflow-hidden">
+          <div className="flex-1 px-3 pt-2 pb-4 space-y-2 overflow-hidden">
             {[0, 1, 2, 3].map((i) => (
               <motion.div
                 key={i}

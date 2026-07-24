@@ -4,9 +4,9 @@ import { SplitReveal } from "@/components/split-reveal";
 import { MagneticButton } from "@/components/MagneticButton";
 import { ArrowRight } from "lucide-react";
 import { CodeRainBackground } from "@/components/code-rain-background";
+import { EditorWindow } from "@/components/editor-window";
 import {
   BrandPictogram,
-  type PictogramName,
 } from "@/components/brand-pictogram";
 
 export const Route = createFileRoute("/sobre")({
@@ -81,24 +81,20 @@ const partners: Partner[] = [
   },
 ];
 
-const values: { icon: PictogramName; title: string; text: string }[] = [
+const values: { title: string; text: string }[] = [
   {
-    icon: "tabela",
     title: "Engenharia, não digitação",
     text: "Cada decisão técnica é justificada. Não escrevemos linhas; resolvemos problemas com a stack certa para o momento.",
   },
   {
-    icon: "documento",
     title: "Clareza acima de apresentação",
     text: "Sem slide bonito escondendo prazo furado. Falamos o que sabemos, admitimos o que não sabemos e atualizamos toda semana.",
   },
   {
-    icon: "seta",
     title: "Velocidade com responsabilidade",
     text: "MVP em semanas, não em meses. Mas nunca entregamos tech debt como produto final. Feito e bem feito.",
   },
   {
-    icon: "grafico",
     title: "Resultado mensurável",
     text: "Software que serve negócio. Métrica, retorno, retenção. Se não move ponteiro, não construímos.",
   },
@@ -107,8 +103,7 @@ const values: { icon: PictogramName; title: string; text: string }[] = [
 const credibilityNumbers = [
   { value: "2", label: "engenheiros seniores" },
   { value: "100%", label: "código próprio, sem caixa preta" },
-  { value: "≤2sem", label: "do brief ao primeiro deploy" },
-  { value: "0", label: "projetos abandonados pós-entrega" },
+  { value: "até 2 semanas", label: "do brief ao primeiro deploy" },
 ];
 
 const promises = [
@@ -240,49 +235,43 @@ function SobrePage() {
       {/* Visão / Missão */}
       <section className="py-20 border-t border-border grid lg:grid-cols-2 gap-8">
         <Reveal>
-          <div className="glass-card rounded-3xl p-8 h-full relative overflow-hidden">
-            <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
-            <div className="relative">
-              <div className="flex items-center gap-3">
-                <BrandPictogram name="lupa" color="rosa" size={28} />
-                <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
-                  visão
-                </p>
-              </div>
-              <h3 className="mt-5 text-2xl sm:text-3xl font-display font-semibold tracking-tight leading-tight">
-                Ser referência em engenharia de software honesta no Brasil.
-              </h3>
-              <p className="mt-4 text-muted-foreground leading-relaxed">
-                Queremos que a frase “contratei a Dreamscraft” signifique, para o
-                mercado, que o cliente é exigente, leva o produto a sério e não tolera
-                processo inflado. Construir uma marca em que o nosso nome no rodapé do
-                sistema vale recomendação.
+          <EditorWindow filename="visao.md" className="h-full" as="article">
+            <div className="flex items-center gap-3">
+              <BrandPictogram name="lupa" color="rosa" size={28} />
+              <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
+                visão
               </p>
             </div>
-          </div>
+            <h3 className="mt-5 text-2xl sm:text-3xl font-display font-semibold tracking-tight leading-tight">
+              Ser referência em engenharia de software honesta no Brasil.
+            </h3>
+            <p className="mt-4 text-muted-foreground leading-relaxed">
+              Queremos que a frase “contratei a Dreamscraft” signifique, para o
+              mercado, que o cliente é exigente, leva o produto a sério e não tolera
+              processo inflado. Construir uma marca em que o nosso nome no rodapé do
+              sistema vale recomendação.
+            </p>
+          </EditorWindow>
         </Reveal>
 
         <Reveal delay={0.15}>
-          <div className="glass-card rounded-3xl p-8 h-full relative overflow-hidden">
-            <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-primary-glow/20 blur-3xl" />
-            <div className="relative">
-              <div className="flex items-center gap-3">
-                <BrandPictogram name="seta" color="rosa" size={28} />
-                <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
-                  missão
-                </p>
-              </div>
-              <h3 className="mt-5 text-2xl sm:text-3xl font-display font-semibold tracking-tight leading-tight">
-                Transformar ideias em sistemas que duram — com clareza, velocidade e
-                código que não dá vergonha.
-              </h3>
-              <p className="mt-4 text-muted-foreground leading-relaxed">
-                Tirar produto do papel para a loja em semanas. Manter no ar por anos.
-                Conversar com o cliente em português, não em jargão. Tratar dinheiro
-                dos outros como tratamos o nosso.
+          <EditorWindow filename="missao.md" className="h-full" as="article">
+            <div className="flex items-center gap-3">
+              <BrandPictogram name="seta" color="rosa" size={28} />
+              <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
+                missão
               </p>
             </div>
-          </div>
+            <h3 className="mt-5 text-2xl sm:text-3xl font-display font-semibold tracking-tight leading-tight">
+              Transformar ideias em sistemas que duram — com clareza, velocidade e
+              código que não dá vergonha.
+            </h3>
+            <p className="mt-4 text-muted-foreground leading-relaxed">
+              Tirar produto do papel para a loja em semanas. Manter no ar por anos.
+              Conversar com o cliente em português, não em jargão. Tratar dinheiro
+              dos outros como tratamos o nosso.
+            </p>
+          </EditorWindow>
         </Reveal>
       </section>
 
@@ -306,10 +295,12 @@ function SobrePage() {
           className="mt-12 grid sm:grid-cols-2 gap-5"
           stagger={0.1}
         >
-          {values.map((v) => (
+          {values.map((v, i) => (
             <RevealItem key={v.title}>
               <div className="group h-full rounded-2xl border border-border/60 bg-surface/40 p-6 hover:border-primary/40 hover:bg-surface-elevated/50 transition">
-                <BrandPictogram name={v.icon} color="rosa" size={28} />
+                <span className="font-mono text-xs text-primary-glow">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
 
                 <h3 className="mt-5 text-xl font-display font-semibold tracking-tight">
                   {v.title}
@@ -344,29 +335,27 @@ function SobrePage() {
           <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
-                icon: "seta" as const,
                 title: "Iteração em semanas",
                 text: "Entregas curtas de 1–2 semanas. Demo funcional a cada ciclo, não de meses.",
               },
               {
-                icon: "usuario" as const,
                 title: "Comunicação direta",
                 text: "Você fala com quem programa. Sem account manager traduzindo requisito.",
               },
               {
-                icon: "cadeado" as const,
                 title: "Qualidade sem cortes",
                 text: "Code review, testes automatizados e docs antes de qualquer merge.",
               },
               {
-                icon: "tabela" as const,
                 title: "Transparência total",
                 text: "Acesso ao repositório, pipeline visível e deploys diários.",
               },
             ].map((item, i) => (
               <RevealItem key={item.title}>
                 <div className="h-full rounded-2xl border border-brand-indigo/10 bg-white/60 p-6">
-                  <BrandPictogram name={item.icon} color="roxo" size={24} />
+                  <span className="font-mono text-xs text-brand-azul">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <h3 className="mt-4 text-lg font-display font-semibold tracking-tight">
                     {item.title}
                   </h3>
@@ -386,7 +375,7 @@ function SobrePage() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(126,34,206,0.18),transparent_50%)]" />
             <div className="relative">
               <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-glow">
-                // a régua que usamos
+                // o que garantimos
               </p>
               <h2 className="mt-3 text-3xl sm:text-4xl font-display font-light tracking-[-0.03em] max-w-2xl">
                 Empresa nova, padrão sênior.
@@ -394,12 +383,13 @@ function SobrePage() {
               <p className="mt-3 text-muted-foreground max-w-2xl">
                 Somos uma estrutura jovem por escolha. Pequena, sem hierarquia inflada,
                 com o que importa: senioridade real em quem coloca a mão no código.
+                Os números abaixo são compromisso operacional — não histórico de clientes.
               </p>
 
-              <dl className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <dl className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {credibilityNumbers.map((n) => (
                   <div key={n.label} className="border-l border-primary/30 pl-4">
-                    <dt className="text-3xl sm:text-4xl font-display font-light text-soft-glow tracking-tight">
+                    <dt className="text-2xl sm:text-3xl font-display font-light text-soft-glow tracking-tight">
                       {n.value}
                     </dt>
                     <dd className="mt-1 text-xs font-mono uppercase tracking-wider text-muted-foreground">
@@ -426,13 +416,13 @@ function SobrePage() {
 
         <RevealGroup
           as="ul"
-          className="mt-12 grid sm:grid-cols-2 gap-4"
+          className="mt-12 max-w-3xl divide-y divide-border/50 border-y border-border/50"
           stagger={0.06}
         >
           {promises.map((promise, i) => (
             <RevealItem key={i}>
-              <li className="flex items-start gap-4 rounded-2xl border border-border/50 bg-surface/30 p-5 hover:bg-surface-elevated/40 transition">
-                <span className="shrink-0 grid place-items-center h-8 w-8 rounded-lg bg-primary/15 font-mono text-xs text-primary-glow">
+              <li className="flex items-start gap-4 py-5 list-none">
+                <span className="shrink-0 pt-0.5 font-mono text-xs text-primary-glow">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">

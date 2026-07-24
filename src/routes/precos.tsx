@@ -191,6 +191,19 @@ const external = [
   { item: "Publicação Google Play", cost: "R$ 25", freq: "Único" },
 ];
 
+const whatsappAddons = [
+  "Integração com agenda",
+  "Lembrete e confirmação de consulta",
+  "Transferência para humano com fila e múltiplos atendentes",
+  "Qualificação de lead",
+  "Integração com CRM ou planilha",
+  "Relatório de atendimentos",
+  "Base de conhecimento treinada",
+  "Link de pagamento",
+  "Pesquisa de satisfação",
+  "Atendimento no Instagram Direct",
+];
+
 function levelBadge(level: string) {
   const map: Record<string, string> = {
     Baixa: "bg-brand-amarelo/10 text-brand-amarelo border-brand-amarelo/20",
@@ -280,7 +293,46 @@ function PrecosPage() {
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground">{svc.desc}</p>
               </div>
-              <div className="overflow-x-auto">
+              <div className="md:hidden space-y-3 p-4">
+                {svc.rows.map((r, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-lg border border-primary/20 bg-surface p-4 space-y-3"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span
+                        className={`inline-flex rounded-sm border px-2.5 py-1 text-xs font-medium font-mono ${levelBadge(r.level)}`}
+                      >
+                        {r.level}
+                      </span>
+                      <span className="font-semibold font-mono text-brand-rosa text-sm">
+                        R$ {r.price}
+                      </span>
+                    </div>
+                    {r.deadline !== undefined && (
+                      <p className="font-mono text-xs text-muted-foreground">
+                        <span className="text-primary-glow">{`// prazo`}</span>{" "}
+                        {r.deadline}
+                      </p>
+                    )}
+                    <div>
+                      <p className="font-mono text-[10px] uppercase tracking-wider text-primary-glow">
+                        // o que inclui
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                        {r.includes}
+                      </p>
+                    </div>
+                    {r.example && (
+                      <p className="text-xs text-muted-foreground/80 italic font-mono">
+                        <span className="not-italic text-primary-glow/80">{`// ex`}</span>{" "}
+                        {r.example}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-background/40">
                     <tr>
@@ -331,25 +383,58 @@ function PrecosPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-12">
-        <p className="text-sm font-mono text-brand-azul">// custos.externos</p>
-        <h2 className="mt-2 text-3xl font-light tracking-[-0.03em]">
-          Custos externos repassáveis
-        </h2>
-        <p className="mt-2 text-muted-foreground max-w-2xl">
-          Itens pagos a terceiros (domínio, lojas, APIs) — você paga direto ou a
-          Dreamscraft gerencia com taxa de administração de 10%.
-        </p>
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {external.map((e) => (
-            <div
-              key={e.item}
-              className="rounded-2xl border border-border bg-surface-elevated/50 p-5"
-            >
-              <p className="text-sm font-semibold">{e.item}</p>
-              <p className="mt-2 text-lg font-bold text-brand-rosa font-mono">{e.cost}</p>
-              <p className="mt-1 text-xs text-muted-foreground font-mono">{e.freq}</p>
-            </div>
-          ))}
+        <div className="mx-auto max-w-3xl">
+          <p className="text-sm font-mono text-brand-azul">// addons.whatsapp</p>
+          <h2 className="mt-2 text-3xl font-light tracking-[-0.03em]">
+            Add-ons — automação WhatsApp
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            Ampliam o bot/atendimento além do pacote base. Sem tabela de preço fixo —
+            cada item entra sob consulta.
+          </p>
+          <ul className="mt-8 divide-y divide-border/50 border-y border-border/50">
+            {whatsappAddons.map((item) => (
+              <li
+                key={item}
+                className="flex flex-col gap-2 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+              >
+                <span className="text-sm text-foreground/90">{item}</span>
+                <span className="shrink-0 font-mono text-[11px] uppercase tracking-wider text-brand-amarelo">
+                  sob consulta
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs font-mono text-muted-foreground leading-relaxed">
+            Add-ons são orçados por escopo e fechados na call de diagnóstico.
+          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-12">
+        <div className="mx-auto max-w-3xl">
+          <p className="text-sm font-mono text-brand-azul">// custos.externos</p>
+          <h2 className="mt-2 text-3xl font-light tracking-[-0.03em]">
+            Custos externos repassáveis
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            Itens pagos a terceiros (domínio, lojas, APIs) — você paga direto ou a
+            Dreamscraft gerencia com taxa de administração de 10%.
+          </p>
+          <ul className="mt-8 divide-y divide-border/50 border-y border-border/50">
+            {external.map((e) => (
+              <li
+                key={e.item}
+                className="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+              >
+                <span className="text-sm text-foreground/90">{e.item}</span>
+                <span className="flex shrink-0 items-baseline gap-3 font-mono text-sm">
+                  <span className="font-semibold text-brand-rosa">{e.cost}</span>
+                  <span className="text-xs text-muted-foreground">{e.freq}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

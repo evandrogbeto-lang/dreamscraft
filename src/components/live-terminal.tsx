@@ -63,20 +63,26 @@ export function LiveTerminal() {
     >
       {/* chrome */}
       <div
-        className="flex items-center gap-2 px-4 py-2.5 border-b text-[11px] sm:text-xs text-neutral-400"
+        className="flex items-center justify-between gap-3 px-4 py-2.5 border-b text-[11px] sm:text-xs text-neutral-400"
         style={{ borderColor: "#2C2C2C", background: "#0A0A0A" }}
       >
-        <span className="h-2.5 w-2.5 rounded-full bg-brand-rosa/70" />
-        <span className="h-2.5 w-2.5 rounded-full bg-brand-amarelo/70" />
-        <span className="h-2.5 w-2.5 rounded-full bg-brand-amarelo/70" />
-        <span className="ml-3 truncate">dreamscraft@build:~/site$</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="h-2.5 w-2.5 rounded-full bg-brand-rosa/70 shrink-0" />
+          <span className="h-2.5 w-2.5 rounded-full bg-brand-amarelo/70 shrink-0" />
+          <span className="h-2.5 w-2.5 rounded-full bg-brand-azul/70 shrink-0" />
+          <span className="ml-3 truncate">dreamscraft@build:~/site$</span>
+        </div>
+        <span className="inline-flex items-center gap-1.5 shrink-0 text-[10px] uppercase tracking-wider text-neutral-500">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-rosa/80" aria-hidden />
+          online
+        </span>
       </div>
 
       {/* body */}
-      <div className="p-4 sm:p-6 text-[12px] sm:text-[13.5px] leading-relaxed">
-        <div className="flex flex-wrap items-start text-neutral-100">
-          <span className="text-primary-glow mr-2 select-none">&gt;</span>
-          <span className="break-all">
+      <div className="p-3 sm:p-6 text-[11px] sm:text-[13.5px] leading-relaxed overflow-x-hidden">
+        <div className="flex items-start text-neutral-100 min-w-0">
+          <span className="text-primary-glow mr-2 select-none shrink-0">&gt;</span>
+          <span className="break-all min-w-0">
             {typed}
             {phase === "typing" && (
               <span className="inline-block w-2 h-4 -mb-0.5 ml-0.5 bg-primary-glow animate-pulse" />

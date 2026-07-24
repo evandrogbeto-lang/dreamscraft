@@ -2,6 +2,7 @@ import { lazy, Suspense, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { Play, CheckCircle2, User, Flame, Sparkles, PencilLine, ArrowRight } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 
@@ -327,6 +328,8 @@ function parseRoastSample(code: string) {
 
 export function ProofOfWork() {
   const reduce = useReducedMotion();
+  const isMobile = useIsMobile();
+  const editorHeight = isMobile ? "240px" : "420px";
   const [tab, setTab] = useState<TabKey>("useAuth");
   const [codeByTab, setCodeByTab] = useState<Record<TabKey, string>>({
     useAuth: CODE_AUTH,
@@ -412,7 +415,7 @@ export function ProofOfWork() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`group relative inline-flex items-center gap-2 rounded-t-lg border px-3.5 py-2 font-mono text-xs transition ${
+              className={`group relative inline-flex items-center gap-2 rounded-t-lg border px-4 min-h-11 font-mono text-xs sm:text-sm transition ${
                 active
                   ? "border-primary/40 bg-[#0A0A0A] text-primary-glow"
                   : "border-border/60 bg-card/30 text-muted-foreground hover:text-foreground hover:bg-card/60"
@@ -460,7 +463,7 @@ export function ProofOfWork() {
                 onClick={handleRun}
                 disabled={running}
                 aria-label="Executar código"
-                className="group inline-flex items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-mono text-primary-glow transition hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+                className="group inline-flex items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-4 min-h-11 text-sm font-mono text-primary-glow transition hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
               >
                 <Play className="h-3.5 w-3.5" />
                 {running ? "Executando..." : "Executar"}
@@ -475,14 +478,14 @@ export function ProofOfWork() {
 
           <ClientOnly
             fallback={
-              <div className="h-[420px] flex items-center justify-center font-mono text-xs text-muted-foreground">
+              <div className={`flex items-center justify-center font-mono text-xs text-muted-foreground ${isMobile ? "h-[240px]" : "h-[420px]"}`}>
                 Carregando editor...
               </div>
             }
           >
             <Suspense
               fallback={
-                <div className="h-[420px] flex items-center justify-center font-mono text-xs text-muted-foreground">
+                <div className={`flex items-center justify-center font-mono text-xs text-muted-foreground ${isMobile ? "h-[240px]" : "h-[420px]"}`}>
                   Carregando editor...
                 </div>
               }
@@ -496,7 +499,7 @@ export function ProofOfWork() {
                   transition={{ duration: 0.2 }}
                 >
                   <MonacoEditor
-                    height="420px"
+                    height={editorHeight}
                     defaultLanguage="typescript"
                     path={`${tab}.ts`}
                     value={currentCode}
@@ -506,13 +509,14 @@ export function ProofOfWork() {
                     theme="vs-dark"
                     options={{
                       fontFamily: "'Cascadia Code', monospace",
-                      fontSize: 13,
+                      fontSize: isMobile ? 12 : 13,
                       minimap: { enabled: false },
                       scrollBeyondLastLine: false,
                       padding: { top: 16, bottom: 16 },
-                      lineNumbers: "on",
+                      lineNumbers: isMobile ? "off" : "on",
                       renderLineHighlight: "none",
                       smoothScrolling: true,
+                      wordWrap: isMobile ? "on" : "off",
                     }}
                   />
                 </motion.div>

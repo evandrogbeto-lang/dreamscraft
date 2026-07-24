@@ -80,10 +80,11 @@ export function SiteHeader() {
           aria-label="Dreamscraft Code — Home"
           className="group flex items-center gap-2.5 font-display font-semibold text-lg tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          <DreamscraftLogo variant="dark" />
+          <DreamscraftLogo mark className="lg:hidden" symbolClassName="h-8" />
+          <DreamscraftLogo variant="dark" className="hidden lg:block" />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-0.5" aria-label="Navegação principal">
+        <nav className="hidden lg:flex items-center gap-0.5" aria-label="Navegação principal">
           {navItems.map((item) => {
             const active = location.pathname === item.to;
             const highlight = "highlight" in item && item.highlight;
@@ -99,7 +100,7 @@ export function SiteHeader() {
           })}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <Link
             to="/estimar"
             className="btn-glow inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -111,7 +112,7 @@ export function SiteHeader() {
         <button
           type="button"
           onClick={toggle}
-          className="md:hidden p-2 rounded-md text-foreground hover:bg-primary/10 transition-colors min-h-11 min-w-11 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="lg:hidden p-2 rounded-md text-foreground hover:bg-primary/10 transition-colors min-h-11 min-w-11 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           aria-label={open ? "Fechar menu" : "Abrir menu"}
           aria-expanded={open}
           aria-controls={menuId}
@@ -132,7 +133,7 @@ export function SiteHeader() {
               transition={{ duration: 0.2 }}
               onClick={close}
               aria-hidden="true"
-              className="md:hidden fixed inset-x-0 top-[3.5rem] bottom-0 z-40 bg-background/40 backdrop-blur-sm"
+              className="lg:hidden fixed inset-x-0 top-[3.5rem] bottom-0 z-40 bg-background/40 backdrop-blur-sm"
             />
             <motion.div
               key="panel"
@@ -144,7 +145,7 @@ export function SiteHeader() {
               animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
               exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="md:hidden relative z-50 border-t border-primary/15 bg-background/85 backdrop-blur-2xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]"
+              className="lg:hidden relative z-50 border-t border-primary/15 bg-background/85 backdrop-blur-2xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]"
             >
               <nav
                 aria-label="Navegação principal (mobile)"

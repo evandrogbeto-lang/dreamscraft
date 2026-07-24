@@ -165,7 +165,7 @@ function LiveCard() {
     <div className="h-full flex items-center justify-center">
       <div className="relative w-[180px] h-[340px] rounded-[2rem] border-2 border-border/60 bg-background/80 shadow-soft-lg p-3">
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-4 rounded-full bg-black/60" />
-        <div className="mt-6 h-full rounded-2xl bg-gradient-to-b from-primary/20 to-background/40 p-3 flex flex-col gap-3">
+        <div className="mt-6 h-[calc(100%-1.75rem)] rounded-2xl bg-gradient-to-b from-primary/20 to-background/40 p-3 pb-4 flex flex-col gap-3 overflow-hidden">
           <div className="flex items-center gap-2">
             <BrandPictogram name="celular" color="rosa" size={14} />
             <span className="text-[10px] font-mono text-primary-glow uppercase tracking-wider">preview</span>
@@ -186,14 +186,14 @@ function LiveCard() {
               R$ {revenue.toLocaleString()}
             </div>
           </div>
-          <div className="flex-1 flex items-end gap-1">
+          <div className="min-h-[48px] flex-1 flex items-end gap-1 pb-1">
             {[40, 60, 35, 75, 55, 85, 70, 95].map((h, i) => (
               <motion.div
                 key={i}
                 initial={{ height: 0 }}
                 animate={{ height: `${h}%` }}
                 transition={{ duration: 0.8, delay: i * 0.08, ease: "easeOut" }}
-                className="flex-1 bg-gradient-to-t from-primary to-primary-glow rounded-sm"
+                className="flex-1 bg-gradient-to-t from-primary to-primary-glow rounded-sm max-h-full"
               />
             ))}
           </div>
@@ -212,13 +212,8 @@ export function PipelineScroll() {
     offset: ["start start", "end end"],
   });
 
-  // Card width is responsive: 40vw on desktop, 84vw on mobile (readable cards).
-  // Track math: side padding = (100 - cardW) / 2 centers each card;
-  // travel per card = cardW + 2vw gap; total = 4 * travel.
-  // Hold the first card briefly at the start and the last card at the end
-  // so users have time to read both before the section releases.
   const isMobile = useIsMobile();
-  const cardW = isMobile ? 84 : 40;
+  const cardW = 40;
   const sidePad = (100 - cardW) / 2;
   const travel = (cardW + 2) * (cards.length - 1);
   const x = useTransform(
@@ -229,11 +224,48 @@ export function PipelineScroll() {
   const [activeIdx, setActiveIdx] = useState(0);
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    // Map travel range [0.04, 0.94] -> [0, 1] for the active-card index.
     const t = Math.max(0, Math.min(1, (v - 0.04) / 0.9));
     const idx = Math.min(cards.length - 1, Math.max(0, Math.floor(t * cards.length)));
     setActiveIdx(idx);
   });
+
+  // Mobile: stacked list — no scrub / fades / 420vh
+  if (isMobile) {
+    return (
+      <section
+        className="relative bg-[oklch(0.16_0.08_285)] border-y border-border/50 px-4 py-10"
+        aria-label="Pipeline de desenvolvimento"
+      >
+        <p className="text-[11px] uppercase tracking-[0.32em] text-primary-glow font-mono px-2 mb-6">
+          // pipeline
+        </p>
+        <div className="space-y-4">
+          {cards.map((c, i) => {
+            const Renderer = renderers[i];
+            return (
+              <div
+                key={c.id}
+                className="rounded-2xl border border-border/60 bg-background/70 backdrop-blur p-5 shadow-soft-lg relative overflow-hidden"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-primary-glow">
+                    0{c.id} / 05
+                  </span>
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {c.label}
+                  </span>
+                  <span className="ml-auto font-mono text-[10px] text-primary-glow">{c.tag}</span>
+                </div>
+                <div className="min-h-[220px]">
+                  <Renderer />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

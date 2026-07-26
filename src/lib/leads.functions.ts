@@ -53,6 +53,7 @@ async function notifyLeadEmail(lead: {
   const { error } = await resend.emails.send({
     from: "Dreamscraft <contato@dreamscraftcode.com>",
     to: ["contato@dreamscraftcode.com"],
+    replyTo: lead.email,
     subject: `Novo lead · ${who}`,
     text: lines.join("\n"),
   });

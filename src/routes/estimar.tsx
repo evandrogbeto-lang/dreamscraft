@@ -1,5 +1,5 @@
 import { termToast } from "@/lib/term-toast";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { estimateProject, type EstimateResult } from "@/lib/estimate.functions";
@@ -56,7 +56,7 @@ function Typewriter({
 // Types
 
 type ProjectType = "Web" | "App" | "API" | "Automação";
-type Timeline = "urgente (1-2 sem)" | "normal (4-6 sem)" | "flexível";
+type Timeline = "urgente (1-2 semanas)" | "normal (4-6 semanas)" | "flexível";
 
 type Phase =
   | "intro"
@@ -91,7 +91,7 @@ function EstimarPage() {
       "→ parsing input...",
       "→ tokenizing requirements...",
       "→ resolving stack dependencies...",
-      "→ invoking gemini-2.5-pro...",
+      "→ invoking model...",
       "→ estimating complexity matrix...",
       "→ compiling diff...",
     ];
@@ -122,7 +122,12 @@ function EstimarPage() {
         setResult(res);
         setPhase("result");
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Erro desconhecido");
+        const raw = e instanceof Error ? e.message : "";
+        const friendly =
+          raw && !/status|HTTP|openrouter|json|fetch|API/i.test(raw)
+            ? raw
+            : "Não conseguimos gerar a estimativa agora. Tente de novo ou fale com a gente.";
+        setError(friendly);
         setPhase("error");
       }
     };
@@ -175,9 +180,9 @@ function EstimarPage() {
 
             {phase !== "intro" && (
               <div className="text-muted-foreground pl-4 border-l border-border/60 ml-1">
-                Dreamscraft Estimate CLI v1.0 · powered by gemini-2.5-pro
+                Dreamscraft Estimate CLI · conversa rápida, sem formulário.
                 <br />
-                Conversa rápida. Sem formulário. Responda 3 perguntas.
+                Responda 3 perguntas.
               </div>
             )}
 
@@ -240,14 +245,24 @@ function EstimarPage() {
 
             {/* Error */}
             {phase === "error" && (
-              <div className="space-y-2">
-                <div className="text-brand-rosa">✗ erro: {error}</div>
-                <button
-                  onClick={reset}
-                  className="text-primary hover:underline"
-                >
-                  → tentar novamente
-                </button>
+              <div className="space-y-3 max-w-xl">
+                <div className="text-brand-rosa leading-relaxed">
+                  {error ?? "Não conseguimos gerar a estimativa agora."}
+                </div>
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <button
+                    onClick={reset}
+                    className="text-primary hover:underline"
+                  >
+                    → tentar novamente
+                  </button>
+                  <Link
+                    to="/contato"
+                    className="text-primary-glow hover:underline"
+                  >
+                    → falar pelo contato
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -354,7 +369,12 @@ function QuestionType({
   setValue: (v: ProjectType) => void;
   locked: boolean;
 }) {
-  const opts: ProjectType[] = ["Web", "App", "API", "Automação"];
+  const opts: { value: ProjectType; label: string }[] = [
+    { value: "Web", label: "Web / site" },
+    { value: "App", label: "App mobile" },
+    { value: "API", label: "API / backend" },
+    { value: "Automação", label: "Automação" },
+  ];
   return (
     <div className="space-y-2">
       <Line prompt="?">
@@ -362,24 +382,25 @@ function QuestionType({
       </Line>
       <div className="pl-4 flex flex-wrap gap-2">
         {opts.map((o) => {
-          const selected = value === o;
+          const selected = value === o.value;
           const dim = locked && !selected;
           return (
             <button
-              key={o}
+              key={o.value}
+              type="button"
               disabled={locked}
-              onClick={() => setValue(o)}
+              onClick={() => setValue(o.value)}
               className={[
-                "inline-flex items-center min-h-11 px-4 py-2.5 rounded border font-mono text-sm transition-all",
+                "inline-flex items-center min-h-11 px-4 py-2.5 rounded-lg border text-sm transition-all",
                 selected
                   ? "border-primary bg-primary/15 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary hover:text-primary",
+                  : "border-border text-foreground/90 hover:border-primary hover:text-primary",
                 dim && "opacity-40",
               ]
                 .filter(Boolean)
                 .join(" ")}
             >
-              [{o}]
+              {o.label}
             </button>
           );
         })}
@@ -398,7 +419,11 @@ function QuestionTimeline({
   setValue: (v: Timeline) => void;
   locked: boolean;
 }) {
-  const opts: Timeline[] = ["urgente (1-2 sem)", "normal (4-6 sem)", "flexível"];
+  const opts: Timeline[] = [
+    "urgente (1-2 semanas)",
+    "normal (4-6 semanas)",
+    "flexível",
+  ];
   return (
     <div className="space-y-2">
       <Line prompt="?">
@@ -411,19 +436,20 @@ function QuestionTimeline({
           return (
             <button
               key={o}
+              type="button"
               disabled={locked}
               onClick={() => setValue(o)}
               className={[
-                "inline-flex items-center min-h-11 px-4 py-2.5 rounded border font-mono text-sm transition-all",
+                "inline-flex items-center min-h-11 px-4 py-2.5 rounded-lg border text-sm transition-all",
                 selected
                   ? "border-primary bg-primary/15 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary hover:text-primary",
+                  : "border-border text-foreground/90 hover:border-primary hover:text-primary",
                 dim && "opacity-40",
               ]
                 .filter(Boolean)
                 .join(" ")}
             >
-              [{o}]
+              {o}
             </button>
           );
         })}

@@ -77,34 +77,8 @@ function formatCls(n: number | null) {
   return n.toFixed(3);
 }
 
-type Commit = { message: string; relative: string };
-
-function relativeTime(date: Date): string {
-  const diff = (Date.now() - date.getTime()) / 1000;
-  if (diff < 60) return "agora há pouco";
-  if (diff < 3600) return `há ${Math.floor(diff / 60)} min`;
-  if (diff < 86400) return `há ${Math.floor(diff / 3600)}h`;
-  return `há ${Math.floor(diff / 86400)}d`;
-}
-
-function useLastCommit(): Commit {
-  const [commit, setCommit] = useState<Commit>({
-    message: "feat: narrativa scroll-driven 'como um projeto nasce'",
-    relative: "há 2 horas",
-  });
-
-  // GitHub commit fetch removed — repo is private/inexistent and was 404-looping.
-  useEffect(() => {
-    return () => {};
-  }, []);
-
-
-  return commit;
-}
-
 export function SiteFooter() {
   const vitals = useWebVitals();
-  const commit = useLastCommit();
 
   return (
     <footer className="border-t border-border/60 mt-24">
@@ -138,10 +112,8 @@ export function SiteFooter() {
               <li><Link to="/sobre" className="text-foreground/80 hover:text-primary transition-colors">sobre</Link></li>
               <li><Link to="/parceiros" className="text-foreground/80 hover:text-primary transition-colors">parceiros</Link></li>
               <li><Link to="/manifesto" className="text-foreground/80 hover:text-primary transition-colors">manifesto</Link></li>
-              <li><Link to="/stack" className="text-foreground/80 hover:text-primary transition-colors">stack</Link></li>
               <li><Link to="/blog" className="text-foreground/80 hover:text-primary transition-colors">blog</Link></li>
               <li><Link to="/contato" className="text-foreground/80 hover:text-primary transition-colors">contato</Link></li>
-              <li><Link to="/status" className="text-foreground/80 hover:text-primary transition-colors">status</Link></li>
             </ul>
           </div>
         </div>
@@ -175,11 +147,6 @@ export function SiteFooter() {
             )}
           </div>
         </div>
-
-        <div className="mx-auto max-w-6xl px-6 pb-6 font-mono text-xs text-muted-foreground sm:text-right">
-          último deploy: <span className="text-foreground/80">'{commit.message}'</span> – {commit.relative}
-        </div>
-
       </div>
     </footer>
   );

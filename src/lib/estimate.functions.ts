@@ -19,6 +19,10 @@ export type EstimateResult = {
   resumo: string;
 };
 
+/** User-facing only — never leak status codes or provider payloads to the client. */
+const FRIENDLY_ESTIMATE_ERROR =
+  "Não conseguimos gerar a estimativa agora. Você pode tentar de novo em instantes ou falar com a gente pelo contato.";
+
 const SYSTEM = `Você é um arquiteto de software sênior da Dreamscraft Code, agência brasileira de engenharia digital.
 Gere uma estimativa REALISTA de projeto em JSON. Tabela de preços base (BRL):
 - Landing/site simples: R$ 4.000–12.000
@@ -28,7 +32,7 @@ Gere uma estimativa REALISTA de projeto em JSON. Tabela de preços base (BRL):
 - Integrações complexas: +R$ 10.000–40.000
 Prazos típicos: MVP 6–14 semanas, sistema robusto 12–28 semanas.
 Considere urgência (multiplica custo até 1.4x), integrações (aumenta risco), tamanho da empresa (define complexidade de governança).
-Stack padrão: React, TypeScript, TanStack Start, Supabase, Tailwind, Lovable AI. Adapte se mobile (React Native/Expo).
+Stack padrão: React, TypeScript, TanStack Start, Supabase, Tailwind, Cloudflare. Adapte se mobile (React Native/Expo).
 Responda SOMENTE com JSON válido, sem markdown.`;
 
 export const estimateProject = createServerFn({ method: "POST" })
@@ -39,8 +43,7 @@ export const estimateProject = createServerFn({ method: "POST" })
     );
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // IP-based rate limit: 6 AI calls per IP per hour. Protects the
-    // unauthenticated public endpoint from credit-exhaustion abuse.
+    // IP-based rate limit: 6 AI calls per IP per hour.
     const xff = getRequestHeader("x-forwarded-for");
     const ip = (xff?.split(",")[0]?.trim()) || getRequestIP() || "unknown";
     const sinceIso = new Date(Date.now() - 60 * 60 * 1000).toISOString();
@@ -57,8 +60,13 @@ export const estimateProject = createServerFn({ method: "POST" })
       .from("rate_limits")
       .insert({ bucket: "ai_estimate", key: ip });
 
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("LOVABLE_API_KEY não configurada");
+    const key = process.env.OPENROUTER_API_KEY;
+    // Secretária.Code / n8n — Gemini Flash 2.5 on OpenRouter (override via OPENROUTER_MODEL).
+    const model = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
+    if (!key) {
+      console.error("estimate: OPENROUTER_API_KEY missing");
+      throw new Error(FRIENDLY_ESTIMATE_ERROR);
+    }
 
     const userPrompt = `Projeto:
 - Descrição: ${data.description}
@@ -79,47 +87,46 @@ Responda em JSON com esta estrutura exata:
 }
 Stack deve ter 4-5 itens. Investimento em BRL.`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        messages: [
-          { role: "system", content: SYSTEM },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-      }),
-    });
-
-    if (!res.ok) {
-      const txt = await res.text();
-      if (res.status === 429) throw new Error("Limite de uso atingido. Tente novamente em alguns instantes.");
-      if (res.status === 402) throw new Error("Créditos esgotados. Contate o suporte.");
-      throw new Error(`Falha na IA: ${res.status} ${txt.slice(0, 200)}`);
+    let res: Response;
+    try {
+      res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${key}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://dreamscraftcode.com",
+          "X-Title": "Dreamscraft Estimate",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: SYSTEM },
+            { role: "user", content: userPrompt },
+          ],
+          response_format: { type: "json_object" },
+        }),
+      });
+    } catch (err) {
+      console.error("estimate: openrouter network error", err);
+      throw new Error(FRIENDLY_ESTIMATE_ERROR);
     }
 
-    const json = await res.json();
-    const content = json?.choices?.[0]?.message?.content ?? "{}";
-    const parsed = JSON.parse(content) as EstimateResult;
-    return parsed;
-  });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      console.error("estimate: openrouter HTTP", res.status, txt.slice(0, 300));
+      if (res.status === 429) {
+        throw new Error("Limite de uso atingido. Tente novamente em alguns instantes.");
+      }
+      throw new Error(FRIENDLY_ESTIMATE_ERROR);
+    }
 
-const LeadSchema = z.object({
-  nome: z.string().trim().min(1).max(120),
-  email: z.string().trim().email().max(255),
-  telefone: z.string().trim().min(6).max(40),
-  contexto: z.string().max(4000).optional(),
-});
-
-export const submitEstimateLead = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => LeadSchema.parse(d))
-  .handler(async ({ data }) => {
-    // Do not log PII (name/email/phone/context). Lead persistence should
-    // happen via the `leads` table (RLS-protected) instead of server logs.
-    void data;
-    return { ok: true };
+    try {
+      const json = await res.json();
+      const content = json?.choices?.[0]?.message?.content ?? "{}";
+      const parsed = JSON.parse(content) as EstimateResult;
+      return parsed;
+    } catch (err) {
+      console.error("estimate: parse error", err);
+      throw new Error(FRIENDLY_ESTIMATE_ERROR);
+    }
   });

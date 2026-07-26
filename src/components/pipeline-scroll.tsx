@@ -100,13 +100,18 @@ function CodeCard() {
     };
   }, []);
 
-  // very light "highlight"
-  const highlight = (s: string) =>
-    s
+  // Escape HTML first, then apply color spans (never inject raw <>& into the DOM).
+  const highlight = (s: string) => {
+    const escaped = s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    return escaped
       .replace(/\b(export|async|function|const|return|await)\b/g, '<span style="color:#AF66F9">$1</span>')
       .replace(/\b(true|false)\b/g, '<span style="color:#F0D071">$1</span>')
       .replace(/(['"`].*?['"`])/g, '<span style="color:#F0D071">$1</span>')
       .replace(/(\/\/[^\n]*)/g, '<span style="color:#B8A8D4">$1</span>');
+  };
 
   return (
     <div ref={ref} className="h-full flex items-center">

@@ -114,6 +114,7 @@ function ContatoPage() {
                   defaultValue="app"
                   className="mt-2 w-full min-h-11 rounded-lg border border-border bg-background/60 px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
+                  <option value="landing">Landing page / site institucional</option>
                   <option value="app">App mobile</option>
                   <option value="web">Sistema web / SaaS</option>
                   <option value="automacao">Automação com IA</option>

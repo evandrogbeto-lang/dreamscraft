@@ -11,7 +11,8 @@ import process from "node:process";
 //   - .server.ts module (this file): server-only helpers reused across
 //     handlers. Wrap reads in a function so they run per-request.
 //   - inline process.env inside a createServerFn handler: one-off reads
-//     not reused elsewhere (e.g. LOVABLE_API_KEY, SUPABASE_SERVICE_ROLE_KEY).
+//     not reused elsewhere (e.g. OPENROUTER_API_KEY, OPENROUTER_MODEL,
+//     RESEND_API_KEY, SUPABASE_SERVICE_ROLE_KEY).
 //   - import.meta.env.VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY:
 //     PUBLIC config readable from the client. Define in .env with the VITE_
 //     prefix. Never put secrets here — they ship to the browser.

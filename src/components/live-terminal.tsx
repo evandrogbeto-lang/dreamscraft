@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
-const COMMAND = "./deploy --env=production --stack=react,supabase";
+const COMMAND = "./deploy --env=production --stack=react,supabase,cloudflare";
 const RESULTS = [
-  "✓ Build successful in 2.3s",
-  "✓ 42 modules compiled",
-  "✓ LCP: 0.9s | CLS: 0.00",
+  "✓ Deploy pipeline ready",
+  "✓ Stack: react · supabase · cloudflare",
+  "✓ Target: production",
 ];
 
 type Phase = "typing" | "progress" | "results" | "done";

@@ -31,3 +31,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local-only brand PDF (exceeds GitHub 100MB limit; keep on disk, do not version)
+/docs/brand/Linguagem_Visual_Dreamscraft.pdf

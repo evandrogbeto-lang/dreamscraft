@@ -15,6 +15,7 @@ import { Route as StackRouteImport } from './routes/stack'
 import { Route as SolucoesRouteImport } from './routes/solucoes'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ProcessoRouteImport } from './routes/processo'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PrecosRouteImport } from './routes/precos'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
@@ -56,6 +57,11 @@ const SobreRoute = SobreRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProcessoRoute = ProcessoRouteImport.update({
+  id: '/processo',
+  path: '/processo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/processo': typeof ProcessoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/solucoes': typeof SolucoesRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/portfolio': typeof PortfolioRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/processo': typeof ProcessoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/solucoes': typeof SolucoesRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/processo': typeof ProcessoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/solucoes': typeof SolucoesRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/precos'
     | '/privacidade'
+    | '/processo'
     | '/sitemap.xml'
     | '/sobre'
     | '/solucoes'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/precos'
     | '/privacidade'
+    | '/processo'
     | '/sitemap.xml'
     | '/sobre'
     | '/solucoes'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/precos'
     | '/privacidade'
+    | '/processo'
     | '/sitemap.xml'
     | '/sobre'
     | '/solucoes'
@@ -255,6 +267,7 @@ export interface RootRouteChildren {
   PortfolioRoute: typeof PortfolioRoute
   PrecosRoute: typeof PrecosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
+  ProcessoRoute: typeof ProcessoRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
   SolucoesRoute: typeof SolucoesRoute
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/processo': {
+      id: '/processo'
+      path: '/processo'
+      fullPath: '/processo'
+      preLoaderRoute: typeof ProcessoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacidade': {
@@ -416,6 +436,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortfolioRoute: PortfolioRoute,
   PrecosRoute: PrecosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
+  ProcessoRoute: ProcessoRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
   SolucoesRoute: SolucoesRoute,

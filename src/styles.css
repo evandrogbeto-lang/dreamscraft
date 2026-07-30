@@ -125,10 +125,10 @@
     border-color: var(--color-border);
   }
 
-  /* Consistent, accessible focus ring across the entire app */
+  /* Focus ring — Code Rosa sobre fundo Code Roxo (contraste oficial) */
   :focus { outline: none; }
   :focus-visible {
-    outline: 2px solid oklch(0.68 0.25 305);
+    outline: 2px solid var(--color-brand-rosa);
     outline-offset: 3px;
     border-radius: 6px;
   }
@@ -154,35 +154,18 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-weight: 400;
-    font-feature-settings: "ss01", "cv11";
     font-feature-settings: "ss01", "cv11", "kern", "liga";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     line-height: 1.65;
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in oklab, var(--primary) 35%, transparent), transparent 60%),
-      radial-gradient(ellipse 60% 40% at 100% 100%, color-mix(in oklab, var(--primary-glow) 18%, transparent), transparent 60%),
-      radial-gradient(ellipse 120% 100% at 50% 50%, var(--surface) 0%, var(--background) 60%, oklch(0.18 0.08 285) 100%);
-    background-attachment: fixed;
+    /* Fundação: chão Code Roxo — sem glow/grain de template */
+    background-color: var(--background);
   }
 
   /* Corpo/parágrafos/UI usam SEMPRE Cascadia Code. */
   p, li, span, a, button, input, textarea, select, label, dd, dt, blockquote, figcaption {
     font-family: var(--font-sans);
-  }
-
-  /* Noise grain overlay */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 200px 200px;
   }
 
   h1, h2, h3, h4 {

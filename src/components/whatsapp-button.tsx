@@ -2,8 +2,7 @@ import { MessageCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocation } from "@tanstack/react-router";
-
-const PHONE = "5561991748651";
+import { whatsappHref } from "@/lib/contact";
 
 const MESSAGES: Record<string, string> = {
   "/": "Olá! Quero saber sobre desenvolvimento de software",
@@ -43,7 +42,7 @@ export function WhatsAppButton() {
     };
   }, [visible]);
 
-  const href = `https://wa.me/${PHONE}?text=${encodeURIComponent(getMessage(pathname))}`;
+  const href = whatsappHref(getMessage(pathname));
 
   return (
     <AnimatePresence>

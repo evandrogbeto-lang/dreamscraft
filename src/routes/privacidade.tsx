@@ -110,17 +110,41 @@ function PrivacidadePage() {
         </p>
       </Section>
 
-      <Section title="9. Canais de atendimento (DPO)">
+      <Section id="dpo" title="9. Canais de atendimento (DPO)">
         <p>
-          📧 dpo@dreamscraftcode.com
+          Para questões relacionadas à proteção de dados pessoais (LGPD), use o canal do Encarregado
+          pelo Tratamento de Dados (DPO):
+        </p>
+        <p>
+          <a href="mailto:dpo@dreamscraftcode.com" className="text-primary hover:underline">
+            dpo@dreamscraftcode.com
+          </a>
+        </p>
+        <p>
+          Telefone: (61) 99174-8651
           <br />
-          📞 (61) 99174-8651
-          <br />
-          📍 Brasília/DF
+          Local: Brasília/DF
         </p>
       </Section>
 
-      <Section title="10. Atualizações desta política">
+      <Section id="acessibilidade" title="10. Acessibilidade">
+        <p>
+          Nos comprometemos a manter o site utilizável por teclado, com contraste adequado, foco
+          visível e respeito a preferências como redução de movimento, dentro do que a tecnologia
+          e o conteúdo atual permitem.
+        </p>
+        <p>
+          Se encontrar uma barreira de acesso, descreva o problema e a página em que ocorreu pelo
+          e-mail:
+        </p>
+        <p>
+          <a href="mailto:contato@dreamscraftcode.com" className="text-primary hover:underline">
+            contato@dreamscraftcode.com
+          </a>
+        </p>
+      </Section>
+
+      <Section title="11. Atualizações desta política">
         <p>
           Esta política pode ser atualizada periodicamente. A versão mais recente estará sempre
           disponível em nosso site. Alterações substanciais serão comunicadas por e-mail.
@@ -140,9 +164,17 @@ function PrivacidadePage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+  id,
+}: {
+  title: string;
+  children: React.ReactNode;
+  id?: string;
+}) {
   return (
-    <section className="mt-10">
+    <section id={id} className="mt-10 scroll-mt-24">
       <h2 className="text-xl font-semibold border-l-2 border-primary pl-3">{title}</h2>
       <div className="mt-4 space-y-3 text-muted-foreground [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1.5 [&_strong]:text-foreground">
         {children}

@@ -1,13 +1,14 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 /**
- * TEMPORARY (Fase 1 — Fundação):
- * A página /processo ainda não foi implementada (fase de páginas essenciais).
- * Não há conteúdo fictício aqui: o link do Header/Footer aponta para esta rota
- * e redireciona para a Home até a página real existir — evita 404.
+ * TEMPORARY:
+ * A página completa /processo ainda não foi implementada (próxima fase).
+ * Header aponta temporariamente para /#processo na Home.
+ * Esta rota permanece e redireciona para a âncora até a página real existir.
+ * Será substituída na fase de páginas essenciais — não inventar conteúdo aqui.
  */
 export const Route = createFileRoute("/processo")({
   beforeLoad: () => {
-    throw redirect({ to: "/" });
+    throw redirect({ to: "/", hash: "processo" });
   },
 });

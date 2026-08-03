@@ -5,8 +5,24 @@ import { useServerFn } from "@tanstack/react-start";
 import { estimateProject, type EstimateResult } from "@/lib/estimate.functions";
 import { submitLead } from "@/lib/leads.functions";
 import { CodeRainBackground } from "@/components/code-rain-background";
+import {
+  DIAGNOSTIC_CATEGORY_LABELS,
+  loadDiagnosticContext,
+  parseDiagnosticCategory,
+} from "@/lib/diagnostic-context";
 
 export const Route = createFileRoute("/estimar")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const categoria = parseDiagnosticCategory(search.categoria);
+    const descricao =
+      typeof search.descricao === "string" && search.descricao.trim()
+        ? search.descricao.slice(0, 480)
+        : undefined;
+    return {
+      ...(categoria ? { categoria } : {}),
+      ...(descricao ? { descricao } : {}),
+    };
+  },
   head: () => {
     const title = "Estimar projeto · Dreamscraft Code";
     const description =
@@ -69,6 +85,7 @@ type Phase =
 
 // ─────────────────────────────────────────────────────────────
 function EstimarPage() {
+  const search = Route.useSearch();
   const [phase, setPhase] = useState<Phase>("intro");
   const [description, setDescription] = useState("");
   const [projectType, setProjectType] = useState<ProjectType | "">("");
@@ -76,9 +93,23 @@ function EstimarPage() {
   const [result, setResult] = useState<EstimateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [compileLog, setCompileLog] = useState<string[]>([]);
+  const seededRef = useRef(false);
 
   const estimate = useServerFn(estimateProject);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Contexto do Diagnostic Tester (search params + sessionStorage com TTL)
+  useEffect(() => {
+    if (seededRef.current) return;
+    seededRef.current = true;
+    const stored = loadDiagnosticContext();
+    const cat = search.categoria ?? stored?.category;
+    const raw = (search.descricao ?? stored?.description ?? "").trim();
+    if (!raw) return;
+    const prefix = cat ? `[${DIAGNOSTIC_CATEGORY_LABELS[cat]}] ` : "";
+    setDescription(`${prefix}${raw}`);
+    setPhase("ask_desc");
+  }, [search.categoria, search.descricao]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });

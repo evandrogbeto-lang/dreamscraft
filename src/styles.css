@@ -22,6 +22,10 @@
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
+  /* Controles da Home / CTAs — raio moderado, sem pill */
+  --radius-control: 0.625rem; /* ~10px — campos e categorias */
+  --radius-button: 0.75rem; /* ~12px — botões principais */
+  --radius-panel: 0.875rem; /* ~14px — tester e painéis funcionais */
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

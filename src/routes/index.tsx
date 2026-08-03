@@ -1,21 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useSpring, useTransform, useMotionTemplate } from "framer-motion";
-import { Clock, Zap, MessageSquare, Mail, Calendar, CircleDot } from "lucide-react";
-import { LiveTerminal } from "@/components/live-terminal";
-import { PipelineScroll } from "@/components/pipeline-scroll";
-import { ProjectStory } from "@/components/project-story";
-import { ProofOfWork } from "@/components/proof-of-work";
-import { MagneticButton } from "@/components/MagneticButton";
-import { TiltCard } from "@/components/TiltCard";
-import { CodeRainBackground } from "@/components/code-rain-background";
-import { EditorWindow } from "@/components/editor-window";
+import { Reveal, RevealGroup, RevealItem } from "@/components/reveal";
+import { DiagnosticTester } from "@/components/home/diagnostic-tester";
+import { HeroGraphism } from "@/components/home/hero-graphism";
 
 export const Route = createFileRoute("/")({
   head: () => {
-    const title = "Dreamscraft Code — Codificamos sua visão";
+    const title = "Dreamscraft Code — Sistemas que eliminam o improviso";
     const description =
-      "Engenharia digital de elite: apps, sistemas web, SaaS e automação com IA. Codificamos sua visão da arquitetura ao deploy.";
+      "Projetamos sites, plataformas e automações para empresas que cresceram além das planilhas, mensagens soltas e processos manuais.";
     const url = "https://dreamscraftcode.com/";
     const image = "https://dreamscraftcode.com/og-image.png";
     return {
@@ -36,452 +28,505 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-const services = [
+const principles = [
   {
-    name: "Apps Mobile",
-    desc: "iOS e Android com design focado em conversão e publicação nas lojas.",
-    stack: ["React Native", "Expo", "Swift", "Kotlin"],
+    num: "01",
+    title: "Diagnóstico antes do código",
+    desc: "Entendemos o processo antes de propor a tecnologia.",
   },
   {
-    name: "Sistemas Web",
-    desc: "SaaS, painéis e plataformas robustas que escalam com o seu negócio.",
-    stack: ["React", "TypeScript", "Node", "Postgres"],
+    num: "02",
+    title: "Decisão sem telefone sem fio",
+    desc: "Você conversa diretamente com quem projeta e desenvolve.",
   },
   {
-    name: "Automação com IA",
-    desc: "Agentes, chatbots e fluxos que reduzem custo operacional.",
-    stack: ["OpenAI", "n8n", "LangChain", "Supabase"],
+    num: "03",
+    title: "Processo visível",
+    desc: "Escopo, decisões e entregas documentados do início ao fim.",
+  },
+] as const;
+
+const problems = [
+  {
+    num: "01",
+    title: "Operação na memória",
+    desc: "Mensagens, planilhas e conhecimento solto sustentam o dia a dia — até alguém sair ou o volume crescer.",
   },
   {
-    name: "Consultoria",
-    desc: "Auditoria técnica, integração de legados e migração de dados.",
-    stack: ["Arquitetura", "DevOps", "Cloud", "Mentoria"],
-  },
-];
-
-const pioneiroBenefits = [
-  {
-    title: "Preço de fundador",
-    desc: "Escopo travado com condição pioneira — vale apenas para os primeiros contratos assinados em 2026.",
+    num: "02",
+    title: "Atendimento que não escala",
+    desc: "Respostas improvisadas funcionam no começo e viram gargalo quando a operação precisa de consistência.",
   },
   {
-    title: "Prioridade absoluta na fila",
-    desc: "Seu projeto entra na frente. Sprint dedicada, sem dividir foco com carteira antiga.",
+    num: "03",
+    title: "Ideia que precisa virar produto",
+    desc: "Há hipótese e urgência, mas falta um caminho verificável da conversa ao primeiro uso real.",
   },
   {
-    title: "Case coautorado",
-    desc: "Publicamos o processo, os números e as decisões técnicas — com sua aprovação. Você vira referência junto.",
+    num: "04",
+    title: "Site abaixo do nível da empresa",
+    desc: "A presença digital não comunica clareza, processo nem confiança — e atrapalha a conversão.",
+  },
+] as const;
+
+const processSteps = [
+  "Diagnóstico",
+  "Arquitetura",
+  "Construção",
+  "Validação",
+  "Entrega e evolução",
+] as const;
+
+const projects = [
+  {
+    num: "01",
+    label: "Produto próprio · em evolução",
+    title: "Secretária.Code",
+    desc: "Atendimento pelo WhatsApp com interpretação, contexto simples e resposta — produto real da Dreamscraft.",
+    to: "/portfolio" as const,
   },
   {
-    title: "Suporte estendido",
-    desc: "60 dias de acompanhamento pós-deploy inclusos. Ajuste fino, correções e handoff completo.",
+    num: "02",
+    label: "Produto em construção",
+    title: "SaaS de gestão financeira",
+    desc: "Sistema próprio em evolução. Nome definitivo sujeito a verificação — aqui mostramos o estado atual, não uma marca fechada.",
+    to: "/portfolio" as const,
   },
-];
+  {
+    num: "03",
+    label: "Produto em construção",
+    title: "Plataforma de gestão de leads",
+    desc: "Construção interna em andamento, apresentada com o mesmo critério: estado real, sem case inventado.",
+    to: "/portfolio" as const,
+  },
+  {
+    num: "04",
+    label: "Prova de processo · este site",
+    title: "Dreamscraft.Code",
+    desc: "Design system, estimador, responsividade e handoff — o próprio site como demonstração do processo.",
+    to: "/portfolio" as const,
+  },
+] as const;
 
-function BrasiliaCard() {
-  const [time, setTime] = useState("");
-  const [isBusinessHours, setIsBusinessHours] = useState(false);
-
-  useEffect(() => {
-    const update = () => {
-      const now = new Date();
-      const bsb = new Date(now.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-      const h = bsb.getHours();
-      const m = bsb.getMinutes();
-      const pad = (n: number) => String(n).padStart(2, "0");
-      setTime(`${pad(h)}:${pad(m)}`);
-      const day = bsb.getDay();
-      setIsBusinessHours(day >= 1 && day <= 5 && h >= 9 && h < 19);
-    };
-    update();
-    const interval = setInterval(update, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <TiltCard maxTilt={6} className="glass-card rounded-2xl border border-border/60 p-8 space-y-8">
-      {/* Relógio */}
-      <div>
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-primary-glow font-mono">
-          <Clock className="h-3.5 w-3.5" />
-          Brasília, DF — UTC-3
-        </div>
-        <div className="mt-3 text-5xl sm:text-6xl font-bold font-mono text-soft-glow tabular-nums">
-          {time || "--:--"}
-        </div>
-      </div>
-
-      {/* Disponibilidade */}
-      <div className="flex items-start gap-3">
-        <span
-          className={`mt-1.5 h-2.5 w-2.5 rounded-full ${
-            isBusinessHours ? "bg-brand-amarelo node-pulse" : "bg-brand-amarelo"
-          }`}
-        />
-        <div>
-          <p className="text-sm font-semibold text-foreground">
-            {isBusinessHours ? "Disponível agora" : "Fora do horário comercial"}
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {isBusinessHours ? "Seg–Sex, 09h–19h" : "Respondemos no próximo dia útil"}
-          </p>
-        </div>
-      </div>
-
-      {/* Tempo médio de resposta */}
-      <div className="border-t border-border/60 pt-6">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-primary-glow font-mono">
-          <Zap className="h-3.5 w-3.5" />
-          Tempo médio de resposta
-        </div>
-        <p className="mt-2 text-3xl font-light tracking-[-0.03em] text-brand-amber font-mono">~20 min</p>
-        <p className="text-xs text-muted-foreground">durante o horário comercial</p>
-      </div>
-
-      {/* Badge projeto */}
-      <div className="inline-flex items-center gap-2 rounded-full border border-brand-amarelo/40 bg-brand-amarelo/10 px-3 py-1.5 text-xs font-mono text-brand-amarelo">
-        <CircleDot className="h-3.5 w-3.5" />
-        Aceitando novos projetos
-      </div>
-    </TiltCard>
-  );
-}
-
-function Hero() {
-  const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-
-  // Smooth spring for the zoom-in dot grid
-  const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 20, mass: 0.4 });
-
-  const dotSize = useTransform(smooth, [0, 1], [22, 90]);
-  const dotBgSize = useMotionTemplate`${dotSize}px ${dotSize}px`;
-
-  const titleOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const titleScale = useTransform(scrollYProgress, [0, 1], [1, 0.85]);
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, -60]);
-
-  return (
-    <section ref={heroRef} className="relative min-h-[82vh] flex items-center pt-6 overflow-hidden">
-      {/* brand "chuva de colunas" */}
-      <CodeRainBackground
-        count={56}
-        palette="rosa"
-        className="opacity-60 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_85%)]"
-      />
-      {/* dot grid (zoom parallax) */}
-      <motion.div
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, hsl(var(--primary) / 0.18) 0.5px, transparent 0.5px)",
-          backgroundSize: dotBgSize,
-          maskImage:
-            "radial-gradient(ellipse at center, black 55%, transparent 100%)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse at center, black 55%, transparent 100%)",
-        }}
-        aria-hidden
-      />
-      {/* noise grain */}
-      <div
-        className="pointer-events-none absolute inset-0 mix-blend-overlay"
-        style={{
-          opacity: 0.03,
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
-        }}
-        aria-hidden
-      />
-
-      <motion.div
-        style={{ y: contentY }}
-        className="mx-auto max-w-3xl px-6 py-12 lg:py-16 relative w-full text-center"
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.15 }}
-        >
-          <LiveTerminal />
-        </motion.div>
-
-        <motion.h1
-          style={{ opacity: titleOpacity, scale: titleScale }}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-8 text-[clamp(2rem,5.5vw,4.5rem)] font-light leading-[0.95] text-soft-glow tracking-[-0.03em] font-mono"
-        >
-          <span className="block">SMALL TEAM,</span>
-          <span className="block text-gradient">BIG SYSTEMS</span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="mt-5 text-base sm:text-lg text-muted-foreground"
-        >
-          Engenharia que você pode ver.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.65 }}
-          className="mt-8 flex flex-wrap justify-center gap-3"
-        >
-          <a
-            href="#proof-of-work"
-            className="btn-glow inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground font-mono uppercase tracking-wider"
-          >
-            → Ver código em ação
-          </a>
-          <MagneticButton>
-            <Link
-              to="/estimar"
-              className="btn-glow inline-flex items-center gap-2 rounded-lg border border-primary-glow/60 bg-primary/10 backdrop-blur px-6 py-3.5 text-sm font-semibold text-primary-glow hover:bg-primary/20 font-mono uppercase tracking-wider"
-            >
-              ← Estimar projeto
-            </Link>
-          </MagneticButton>
-        </motion.div>
-      </motion.div>
-    </section>
-  );
-}
+const founders = [
+  {
+    name: "Gabrielle",
+    role: "Co-fundadora · Backend, arquitetura e negócios",
+  },
+  {
+    name: "Evandro",
+    role: "Co-fundador · Frontend, automação e relacionamento",
+  },
+] as const;
 
 function HomePage() {
   return (
-    <div className="relative overflow-x-clip">
-      <Hero />
+    <div className="overflow-x-clip bg-background">
+      {/* 1–2. Hero + Diagnostic Tester */}
+      <section className="relative overflow-x-clip bg-background pt-6 sm:pt-8 lg:pt-10">
+        {/* Grafismo oficial — sangramento superior direito (desktop) */}
+        <HeroGraphism variant="desktop" />
 
-      {/* SERVIÇOS — lista editorial */}
-      <section className="mx-auto max-w-5xl px-6 pt-6 pb-10 lg:pt-10 lg:pb-14">
-        <div className="mb-8">
-          <p className="text-[11px] uppercase tracking-[0.32em] text-brand-azul font-mono">// services</p>
-          <h2 className="mt-3 text-4xl sm:text-5xl font-light tracking-[-0.03em] text-soft-glow">O que construímos</h2>
-        </div>
+        <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end lg:gap-10">
+            <div className="min-w-0 lg:col-span-7">
+              <p className="max-w-full text-[10px] uppercase leading-relaxed tracking-[0.08em] text-brand-branco sm:text-[12px] sm:tracking-[0.16em]">
+                Software sob medida · Automação · Produtos digitais
+              </p>
+              <h1 className="mt-4 max-w-[18ch] text-[clamp(1.75rem,5vw,3.5rem)] font-light uppercase leading-[1.12] tracking-[-0.03em] text-brand-branco sm:mt-5">
+                <span className="block">Sistemas que eliminam</span>
+                <span className="mt-1 block bg-gradient-to-r from-brand-rosa to-brand-azul bg-clip-text text-transparent">
+                  o improviso da sua operação.
+                </span>
+              </h1>
+              <p className="mt-5 max-w-xl text-sm leading-relaxed text-brand-branco/85 sm:mt-6 sm:text-base">
+                Projetamos sites, plataformas e automações para empresas que cresceram além das
+                planilhas, mensagens soltas e processos manuais.
+              </p>
 
-        <ul className="border-t border-border/60">
-          {services.map((s, i) => (
-            <motion.li
-              key={s.name}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ delay: i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              data-cursor="code"
-              className="group border-b border-border/60"
-            >
-              <TiltCard maxTilt={4} className="rounded-lg transition-colors hover:bg-primary/5">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 py-6 md:py-7 px-2 md:px-4 relative z-[2]">
-                  <div className="md:col-span-5">
-                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
-                      <span className="bg-gradient-to-r from-primary-glow to-primary-glow bg-[length:0%_2px] bg-no-repeat bg-left-bottom transition-[background-size] duration-500 group-hover:bg-[length:100%_2px]">
-                        {s.name}
-                      </span>
-                    </h3>
-                  </div>
-                  <p className="md:col-span-4 text-base text-muted-foreground leading-relaxed self-center">
-                    {s.desc}
-                  </p>
-                  <div className="md:col-span-3 flex flex-wrap gap-1.5 self-center md:justify-end">
-                    {s.stack.map((t) => (
-                      <span
-                        key={t}
-                        className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-background/60 text-primary-glow/80 border border-border/60"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </TiltCard>
-            </motion.li>
-          ))}
-        </ul>
-      </section>
-
-      {/* PIONEIRO — honesto, sem cliente fake */}
-      <section id="proof-of-work" className="mx-auto max-w-5xl px-6 pt-8 pb-12 lg:pt-10 lg:pb-16 scroll-mt-24">
-        <div className="mb-10">
-          <p className="text-[11px] uppercase tracking-[0.32em] text-brand-amarelo font-mono">// pacote.pioneiro</p>
-          <h2 className="mt-3 text-4xl sm:text-5xl font-light tracking-[-0.03em] text-soft-glow">
-            Você pode ser nosso primeiro case.
-          </h2>
-          <p className="mt-5 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Somos uma casa nova por escolha — e por isso ainda não temos vitrine de
-            clientes para expor. O que temos é senioridade real e uma janela curta com
-            condições que não se repetem: <span className="text-foreground">Pacote Pioneiro</span>,
-            vagas limitadas, preço de fundador.
-          </p>
-        </div>
-
-        {/* Mobile: lista — evita paredão de caixas */}
-        <ul className="divide-y divide-border/50 border-y border-border/50 sm:hidden">
-          {pioneiroBenefits.map((b, i) => (
-            <li key={b.title} className="flex items-start gap-4 py-5">
-              <span className="shrink-0 pt-0.5 font-mono text-xs text-brand-amarelo">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h3 className="text-base font-semibold tracking-tight">{b.title}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
-                  {b.desc}
-                </p>
+              <div className="mt-7 hidden lg:block">
+                <Link
+                  to="/estimar"
+                  className="inline-flex min-h-11 items-center rounded-button bg-brand-rosa px-5 text-sm font-medium text-brand-roxo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-branco"
+                >
+                  Solicitar diagnóstico
+                </Link>
               </div>
-            </li>
-          ))}
-        </ul>
 
-        {/* Desktop: janelas de editor */}
-        <div className="hidden gap-4 sm:grid sm:grid-cols-2">
-          {pioneiroBenefits.map((b, i) => (
-            <motion.div
-              key={b.title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ delay: i * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <EditorWindow
-                as="article"
-                filename={`pioneiro-0${i + 1}.md`}
-                filenameClassName="text-brand-amarelo/90"
-                className="h-full"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="grid h-8 w-8 place-items-center rounded-md border border-brand-amarelo/40 bg-brand-amarelo/10 font-mono text-xs text-brand-amarelo">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="text-lg font-semibold tracking-tight">{b.title}</h3>
-                </div>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                  {b.desc}
-                </p>
-              </EditorWindow>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <MagneticButton>
-            <Link
-              to="/estimar"
-              className="btn-glow inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground font-mono uppercase tracking-wider"
-            >
-              → Reservar vaga pioneiro
-            </Link>
-          </MagneticButton>
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-amarelo">
-            vagas limitadas · condição de fundador
-          </span>
-        </div>
-      </section>
-
-
-      {/* PIPELINE — horizontal scroll */}
-      <PipelineScroll />
-
-      {/* PROJECT STORY */}
-      <ProjectStory />
-
-      {/* PROOF OF WORK — live demo */}
-      <ProofOfWork />
-
-      {/* CTA FINAL — "A conversa começa aqui" */}
-      <section className="relative mx-auto max-w-7xl px-6 py-10 lg:py-14 overflow-hidden">
-        <CodeRainBackground
-          count={44}
-          seed={7}
-          palette="rosa-azul"
-          className="opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_80%)]"
-        />
-        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-10 lg:gap-16 items-start">
-          {/* COLUNA ESQUERDA — 60% */}
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.32em] text-brand-rosa font-mono">
-              // a_conversa_começa_aqui
-            </p>
-            <h2 className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-light tracking-[-0.03em] text-soft-glow leading-[1.05]">
-              Próximo
-              <br />
-              projeto.
-              <br />
-              <span className="text-gradient">Quem faz?</span>
-            </h2>
-            <p className="mt-6 text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Time pequeno, resposta na hora.
-              <br />
-              Sem gerente de projeto no meio.
-            </p>
-
-            {/* Contatos estilo terminal */}
-            <div className="mt-10 rounded-xl border border-border/60 bg-background/70 backdrop-blur p-5 font-mono text-sm">
-              <div className="flex items-center gap-2 pb-3 border-b border-border/50 mb-3">
-                <span className="h-2.5 w-2.5 rounded-full bg-brand-rosa/80" />
-                <span className="h-2.5 w-2.5 rounded-full bg-brand-amber/80" />
-                <span className="h-2.5 w-2.5 rounded-full bg-brand-amarelo/80" />
-                <span className="ml-2 text-xs text-muted-foreground">dreamscraft@contact:~$</span>
-              </div>
-              <div className="space-y-2.5" data-cursor="contact">
-                <a
-                  href="https://wa.me/5561991748651?text=Ol%C3%A1%2C%20vim%20pelo%20site%20e%20quero%20conversar%20sobre%20um%20projeto"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-neutral-300 hover:text-primary-glow transition-colors group"
-                >
-                  <span className="text-primary-glow select-none">$</span>
-                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">whatsapp</span>
-                  <span className="text-brand-amarelo group-hover:underline underline-offset-4">
-                    +55 61 99174-8651
-                  </span>
-                </a>
-                <a
-                  href="mailto:contato@dreamscraftcode.com"
-                  className="flex items-center gap-3 text-neutral-300 hover:text-primary-glow transition-colors group"
-                >
-                  <span className="text-primary-glow select-none">$</span>
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">email</span>
-                  <span className="text-brand-azul group-hover:underline underline-offset-4">
-                    contato@dreamscraftcode.com
-                  </span>
-                </a>
-                <a
-                  href="https://cal.com/dreamscraftcode"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-neutral-300 hover:text-primary-glow transition-colors group"
-                >
-                  <span className="text-primary-glow select-none">$</span>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">cal.com</span>
-                  <span className="text-brand-azul group-hover:underline underline-offset-4">
-                    Agendar 30 min gratuito →
-                  </span>
-                </a>
+              {/* Mobile: faixa curta do grafismo oficial, depois tester */}
+              <div className="mt-6 space-y-5 lg:hidden">
+                <HeroGraphism variant="strip" />
+                <DiagnosticTester />
               </div>
             </div>
 
-            <div className="mt-6">
-              <Link
-                to="/contato"
-                className="text-sm text-muted-foreground hover:text-primary-glow transition-colors"
-              >
-                Ou use o formulário →
-              </Link>
+            <div className="relative z-10 hidden min-w-0 lg:col-span-5 lg:block">
+              <DiagnosticTester />
             </div>
           </div>
+        </div>
 
-          {/* COLUNA DIREITA — 40% */}
-          <BrasiliaCard />
+        {/* Transição limpa para a próxima seção */}
+        <div className="mt-10 border-t border-brand-branco/10 lg:mt-14" aria-hidden />
+      </section>
+
+      {/* 3. Princípios */}
+      <section className="bg-surface px-5 py-16 sm:px-6 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-brand-rosa">
+            {"// princípios"}
+          </p>
+          <RevealGroup className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
+            {principles.map((p) => (
+              <RevealItem key={p.num} className="border-t border-brand-branco/20 pt-6">
+                <p className="text-sm text-brand-azul">{p.num}</p>
+                <h2 className="mt-3 text-xl font-light tracking-tight text-brand-branco sm:text-2xl">
+                  {p.title}
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-brand-branco/70">{p.desc}</p>
+              </RevealItem>
+            ))}
+          </RevealGroup>
+        </div>
+      </section>
+
+      {/* 4. Secretária.Code */}
+      <section className="px-5 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <Reveal>
+            <p className="text-[11px] uppercase tracking-[0.28em] text-brand-azul">
+              Produto real · em evolução
+            </p>
+            <h2 className="mt-4 max-w-3xl text-3xl font-light tracking-[-0.03em] text-brand-branco sm:text-4xl lg:text-5xl">
+              Atendimento pelo WhatsApp,
+              <br />
+              sem depender de respostas improvisadas.
+            </h2>
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-brand-branco/75">
+              A Secretária.Code interpreta mensagens, mantém o contexto da conversa e responde pelo
+              WhatsApp seguindo as regras definidas para o negócio.
+            </p>
+          </Reveal>
+
+          <Reveal
+            delay={0.08}
+            className="mt-10 overflow-hidden rounded-2xl border border-brand-branco/15 bg-surface"
+          >
+            <div className="grid gap-0 md:grid-cols-4">
+              {["Mensagem", "Interpretação", "Contexto", "Resposta"].map((step, i) => (
+                <div
+                  key={step}
+                  className="border-b border-brand-branco/10 px-5 py-6 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+                >
+                  <p className="text-xs text-brand-rosa">{String(i + 1).padStart(2, "0")}</p>
+                  <p className="mt-3 text-sm text-brand-branco">
+                    {step}
+                    {i < 3 && (
+                      <span className="ml-2 hidden text-brand-azul md:inline" aria-hidden>
+                        →
+                      </span>
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <p className="border-t border-brand-branco/10 px-5 py-3 text-[11px] text-brand-branco/55">
+              Fluxo real: mensagem → interpretação → contexto → resposta
+            </p>
+          </Reveal>
+
+          <div className="mt-10 grid gap-10 md:grid-cols-2">
+            <Reveal>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-brand-azul">
+                O que faz hoje
+              </p>
+              <ul className="mt-4 space-y-3 text-sm text-brand-branco/80">
+                {[
+                  "recebe mensagens pelo WhatsApp;",
+                  "interpreta a solicitação;",
+                  "mantém memória simples da conversa;",
+                  "gera e envia a resposta.",
+                ].map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <span className="text-brand-rosa" aria-hidden>
+                      [✓]
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+            <Reveal delay={0.06}>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-brand-azul">
+                Próximos passos
+              </p>
+              <ul className="mt-4 space-y-3 text-sm text-brand-branco/80">
+                {[
+                  "memória persistente;",
+                  "integrações específicas;",
+                  "automações definidas por operação.",
+                ].map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <span className="text-brand-azul" aria-hidden>
+                      →
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </div>
+
+          <Reveal delay={0.1} className="mt-10">
+            <Link
+              to="/portfolio"
+              className="inline-flex min-h-11 items-center rounded-lg bg-brand-rosa px-5 text-sm font-medium text-brand-roxo transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-branco"
+            >
+              Conhecer a Secretária.Code
+            </Link>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* 5. Problemas */}
+      <section className="border-t border-brand-branco/10 bg-brand-branco px-5 py-16 text-brand-roxo sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-brand-rosa">
+            {"// problemas que travam a operação"}
+          </p>
+          <h2 className="mt-4 max-w-3xl text-3xl font-light tracking-[-0.03em] sm:text-4xl">
+            Escolha a dor. Não a stack.
+          </h2>
+          <RevealGroup className="mt-12 grid gap-0 sm:grid-cols-2">
+            {problems.map((p) => (
+              <RevealItem
+                key={p.num}
+                className="border-t border-brand-roxo/15 px-0 py-8 sm:px-6 sm:odd:pl-0 sm:even:pr-0"
+              >
+                <div className="flex gap-4">
+                  <span className="text-sm text-brand-azul">{p.num}</span>
+                  <div>
+                    <h3 className="text-lg font-medium tracking-tight">{p.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-brand-roxo/75">{p.desc}</p>
+                  </div>
+                </div>
+              </RevealItem>
+            ))}
+          </RevealGroup>
+        </div>
+      </section>
+
+      {/* 6. Processo resumido */}
+      <section id="processo" className="scroll-mt-24 px-5 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-brand-azul">{"// processo"}</p>
+          <h2 className="mt-4 max-w-3xl text-3xl font-light tracking-[-0.03em] text-brand-branco sm:text-4xl">
+            Diagnóstico → arquitetura → construção → validação → entrega.
+          </h2>
+          <div className="mt-12 hidden items-start lg:flex">
+            {processSteps.map((step, i) => (
+              <div key={step} className="relative flex-1">
+                {i < processSteps.length - 1 && (
+                  <div
+                    className="absolute left-4 top-4 h-px w-full bg-brand-branco/25"
+                    aria-hidden
+                  />
+                )}
+                <div className="relative z-[1] flex h-8 w-8 items-center justify-center rounded-full border border-brand-rosa bg-background text-[11px] text-brand-rosa">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <p className="mt-4 max-w-[10rem] text-sm text-brand-branco">{step}</p>
+              </div>
+            ))}
+          </div>
+          <ol className="mt-8 space-y-4 lg:hidden">
+            {processSteps.map((step, i) => (
+              <li key={step} className="flex items-center gap-4 text-sm text-brand-branco">
+                <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand-rosa text-[11px] text-brand-rosa">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                {step}
+              </li>
+            ))}
+          </ol>
+          <p className="mt-8 max-w-2xl text-sm leading-relaxed text-brand-branco/70">
+            Cada etapa tem entrega verificável. Sem telefone sem fio entre quem decide e quem
+            constrói.
+          </p>
+          <a
+            href="#processo"
+            className="mt-8 inline-flex min-h-11 items-center text-sm text-brand-rosa underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa"
+          >
+            Processo resumido nesta página
+          </a>
+        </div>
+      </section>
+
+      {/* 7. Projetos reais */}
+      <section className="border-t border-brand-branco/10 bg-surface px-5 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-brand-rosa">
+            {"// projetos reais"}
+          </p>
+          <h2 className="mt-4 max-w-3xl text-3xl font-light tracking-[-0.03em] text-brand-branco sm:text-4xl">
+            Produtos próprios, demonstrações e construções em evolução.
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm text-brand-branco/70">
+            Sem cliente inventado, sem resultado maquiado e sem nome definitivo antes da hora.
+          </p>
+          <ul className="mt-12 divide-y divide-brand-branco/15 border-y border-brand-branco/15">
+            {projects.map((p) => (
+              <li key={p.num}>
+                <Link
+                  to={p.to}
+                  className="group grid gap-3 py-7 transition-colors hover:bg-brand-branco/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa sm:grid-cols-[4rem_1fr_auto] sm:items-start sm:gap-6"
+                >
+                  <span className="text-sm text-brand-azul">{p.num}</span>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-brand-branco/55">
+                      {p.label}
+                    </p>
+                    <h3 className="mt-2 text-xl text-brand-branco group-hover:text-brand-rosa">
+                      {p.title}
+                    </h3>
+                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-brand-branco/70">
+                      {p.desc}
+                    </p>
+                  </div>
+                  <span className="text-sm text-brand-rosa sm:pt-6">Abrir →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* 8. Fundadores — seção compacta */}
+      <section className="px-5 py-16 sm:px-6 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-brand-azul">
+            {"// fundadores"}
+          </p>
+          <h2 className="mt-4 text-2xl font-light tracking-[-0.03em] text-brand-branco sm:text-3xl">
+            Uma dupla complementar.
+          </h2>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-6">
+            {founders.map((f) => (
+              <article
+                key={f.name}
+                className="flex gap-4 rounded-xl border border-brand-branco/15 bg-surface p-4 sm:p-5"
+              >
+                <div
+                  className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-surface-elevated text-[10px] uppercase tracking-[0.12em] text-brand-branco/40"
+                  data-placeholder="founder-photo"
+                  aria-label={`Espaço reservado para fotografia de ${f.name}`}
+                >
+                  Foto
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-light text-brand-branco">{f.name}</h3>
+                  <p className="mt-1 text-sm text-brand-rosa">{f.role}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+          <Link
+            to="/sobre"
+            className="mt-6 inline-flex min-h-11 items-center text-sm text-brand-rosa underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa"
+          >
+            Sobre a Dreamscraft →
+          </Link>
+        </div>
+      </section>
+
+      {/* 9. Manifesto */}
+      <section className="border-y border-brand-branco/10 bg-surface px-5 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-brand-rosa">
+            {"// manifesto"}
+          </p>
+          <blockquote className="mt-8 text-3xl font-light leading-tight tracking-[-0.03em] text-brand-branco sm:text-4xl lg:text-5xl">
+            Processo que não se esconde nas entrelinhas.
+          </blockquote>
+          <Link
+            to="/manifesto"
+            className="mt-10 inline-flex min-h-11 items-center text-sm text-brand-azul underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa"
+          >
+            Ler o manifesto →
+          </Link>
+        </div>
+      </section>
+
+      {/* 10. Pioneiro */}
+      <section className="px-5 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-brand-amarelo">
+            {"// programa pioneiro"}
+          </p>
+          <h2 className="mt-4 max-w-3xl text-3xl font-light tracking-[-0.03em] text-brand-branco sm:text-4xl">
+            Condições de fundador para os primeiros contratos.
+          </h2>
+          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-brand-branco/75">
+            Somos uma casa nova por escolha. O Programa Pioneiro concentra prioridade e condições de
+            fundador nos primeiros engajamentos — sem countdown inventado e sem promessa absoluta.
+            Valores e descontos de serviço são fechados após diagnóstico.
+          </p>
+          <ul className="mt-10 max-w-2xl divide-y divide-brand-branco/15 border-y border-brand-branco/15">
+            {[
+              "Prioridade na fila de projetos.",
+              "Condições de fundador combinadas na proposta.",
+              "Badge de Cliente Fundador, quando aplicável ao contrato.",
+              "Para a Secretária.Code, setup e mensalidade pioneiros estão definidos no catálogo do produto.",
+            ].map((item, i) => (
+              <li key={item} className="flex gap-4 py-5 text-sm text-brand-branco/85">
+                <span className="text-brand-amarelo">{String(i + 1).padStart(2, "0")}</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              to="/estimar"
+              className="inline-flex min-h-11 items-center rounded-lg bg-brand-amarelo px-5 text-sm font-medium text-brand-roxo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-branco"
+            >
+              Solicitar diagnóstico
+            </Link>
+            <Link
+              to="/contato"
+              className="inline-flex min-h-11 items-center rounded-lg border border-brand-branco/25 px-5 text-sm text-brand-branco focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa"
+            >
+              Falar sobre um projeto
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 11. CTA final */}
+      <section className="border-t border-brand-branco/10 bg-surface px-5 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-brand-rosa">
+            {"// próximo passo"}
+          </p>
+          <h2 className="mt-4 max-w-3xl text-3xl font-light tracking-[-0.03em] text-brand-branco sm:text-5xl">
+            Um projeto começa com contexto — não com resposta pronta.
+          </h2>
+          <p className="mt-5 max-w-2xl text-base text-brand-branco/75">
+            Diagnóstico, estimador ou conversa direta. Você fala com quem projeta e desenvolve.
+          </p>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Link
+              to="/estimar"
+              className="inline-flex min-h-11 items-center rounded-lg bg-brand-branco px-5 text-sm font-medium text-brand-roxo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa"
+            >
+              Solicitar diagnóstico
+            </Link>
+            <Link
+              to="/contato"
+              className="inline-flex min-h-11 items-center rounded-lg border border-brand-branco/30 px-5 text-sm text-brand-branco focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa"
+            >
+              Entrar em contato
+            </Link>
+          </div>
         </div>
       </section>
     </div>

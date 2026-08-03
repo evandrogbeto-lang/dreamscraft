@@ -68,12 +68,13 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <a
-                  href="mailto:dpo@dreamscraftcode.com"
+                <Link
+                  to="/privacidade"
+                  hash="dpo"
                   className="inline-flex min-h-11 items-center text-sm text-brand-branco/75 transition-colors hover:text-brand-branco focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   DPO
-                </a>
+                </Link>
               </li>
               <li>
                 {/* Âncora futura em /privacidade — conteúdo da página não alterado nesta fase. */}

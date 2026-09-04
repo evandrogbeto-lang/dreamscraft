@@ -345,9 +345,9 @@ function QuestionDesc({
   return (
     <div className="space-y-2">
       <Line prompt="?">
-        <span className="text-foreground">
+        <label htmlFor="estimate-idea" className="text-foreground">
           Descreva sua ideia em até 200 caracteres:
-        </span>
+        </label>
       </Line>
       <div className="pl-4">
         {locked ? (
@@ -355,6 +355,8 @@ function QuestionDesc({
         ) : (
           <>
             <textarea
+              id="estimate-idea"
+              name="description"
               ref={ref}
               value={value}
               maxLength={200}
@@ -662,25 +664,41 @@ function LeadCapture({
     <form onSubmit={onSubmit} className="pt-2 space-y-2 text-sm">
       <div className="text-primary">$ save.estimate --send-to-email</div>
       <div className="grid sm:grid-cols-2 gap-2">
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="seu@email.com"
-          maxLength={320}
-          disabled={status === "loading"}
-          className="bg-background/60 border border-border rounded px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-        />
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Seu nome (opcional)"
-          maxLength={200}
-          disabled={status === "loading"}
-          className="bg-background/60 border border-border rounded px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-        />
+        <div>
+          <label htmlFor="estimate-email" className="sr-only">
+            E-mail
+          </label>
+          <input
+            id="estimate-email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="seu@email.com"
+            maxLength={320}
+            disabled={status === "loading"}
+            className="w-full bg-background/60 border border-border rounded px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+          />
+        </div>
+        <div>
+          <label htmlFor="estimate-name" className="sr-only">
+            Nome
+          </label>
+          <input
+            id="estimate-name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Seu nome (opcional)"
+            maxLength={200}
+            disabled={status === "loading"}
+            className="w-full bg-background/60 border border-border rounded px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+          />
+        </div>
       </div>
       <div className="flex items-center gap-3 flex-wrap">
         <button

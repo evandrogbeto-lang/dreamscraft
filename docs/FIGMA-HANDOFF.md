@@ -52,6 +52,57 @@ https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=130-246
 - Desktop: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=103-313
 - Mobile: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=103-377
 
+### Diagnóstico inicial (`/estimar`) — canônico V3.13
+Página Figma: **V3.13 — Diagnóstico V2 · Web Flow** (`211:2`)
+
+Arquivo: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ
+
+A V3.13 substitui V3.12/V3.11/V3.10 como referência canônica de arquitetura e direção visual de `/estimar`.
+
+**Figma representa arquitetura e direção visual. A implementação responsiva não deve reproduzir coordenadas, percentuais ou alturas literalmente.**
+
+Quatro capítulos reais (estados temporários são inline):
+
+| Capítulo | 1440 | 1024 | 390 |
+|---|---|---|---|
+| Entrada (+ interpretando inline) | `211:3` | `211:101` | `211:192` |
+| Entendimento (+ ajuste inline) | `211:26` | `211:120` | `211:209` |
+| Contexto (+ sintetizando inline) | `211:50` | `211:144` | `211:231` |
+| Resultado (+ e-mail inline) | `211:74` | `211:165` | `211:250` |
+
+Não há páginas independentes para Interpretando, Ajuste, Sintetizando ou Captura de e-mail.
+
+Estados extraordinários também são **inline** no capítulo em que ocorrem:
+
+- Timeout / indisponibilidade na interpretação → banner na **Entrada** (relato preservado)
+- Timeout / indisponibilidade na síntese → banner no **Contexto** (respostas preservadas)
+- Rate limit → mensagem calma; CTA principal WhatsApp (sem retry agressivo)
+- Retomada de sessão válida → restaura o capítulo salvo + aviso “Continuamos de onde você parou.”
+- Sessão expirada → volta à Entrada + aviso discreto (sem página própria)
+
+**Decisões de implementação (fechamento V2):**
+
+- 4 capítulos reais apenas
+- Estados temporários inline (interpretando, ajuste, sintetizando, e-mail)
+- Estados extraordinários inline (erro, timeout, rate limit, retomada, expirada)
+- Figma = direção visual, não coordenadas/percentuais/alturas literais
+- Superfícies secundárias (lavanda) exigem motivo + âncora + enquadramento no canvas roxo
+- CodeRain / AccentBars genéricos **removidos** de `/estimar`
+
+Motion spec (ainda válido): `183:162`
+
+Regras da rota:
+- Título público: Diagnóstico inicial | Dreamscraft
+- Container ~1180–1240px; superfícies lavanda ancoradas ao conteúdo (sem split 50vw)
+- Direção/Resultado: superfície ~1040–1160px; parágrafos com medida de leitura ~680–780px
+- CTA disabled: lavanda + borda rosa + texto roxo legível (sem opacity baixa)
+- Progresso de contexto discreto (`1 / 3`), não headline “PERGUNTA N DE 3”
+- Sem WhatsApp flutuante na jornada; CTAs de WA só em resultado/erro/timeout/rate limit
+- Sem terminal, CLI, stack, preço ou prazo automáticos
+- Máximo 2 chamadas ao modelo (interpret + synthesize)
+- Ajuste/rejeição usam perguntas neutras locais (sem nova interpretação OpenRouter)
+- E-mail: stub UI transparente — sem “e-mail enviado” falso; Resend ainda desconectado
+
 ### Manifesto
 - Desktop: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=118-3
 - Mobile: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=118-46

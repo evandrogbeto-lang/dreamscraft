@@ -21,7 +21,16 @@ export function WhatsAppButton() {
   const [visible, setVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
+  // Diagnóstico V2: sem flutuante — CTAs de WhatsApp ficam na própria jornada
+  // (resultado / erro / sucesso).
+  const hideOnDiagnostic = pathname === "/estimar" || pathname.startsWith("/estimar/");
+
   useEffect(() => {
+    if (hideOnDiagnostic) {
+      setVisible(false);
+      setExpanded(false);
+      return;
+    }
     if (visible) return;
 
     const checkScroll = () => {
@@ -40,9 +49,11 @@ export function WhatsAppButton() {
       window.clearTimeout(timer);
       window.removeEventListener("scroll", checkScroll);
     };
-  }, [visible]);
+  }, [hideOnDiagnostic, visible]);
 
   const href = whatsappHref(getMessage(pathname));
+
+  if (hideOnDiagnostic) return null;
 
   return (
     <AnimatePresence>

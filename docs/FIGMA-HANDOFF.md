@@ -22,9 +22,48 @@ https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=130-246
 
 ## Frames por rota
 
-### Home
-- Desktop: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=98-3
-- Mobile: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=98-54
+### Home — canônica V6G
+Frame: **HOME V6G · BRAND SIGNATURE · MOTION READY** (`270:2`)
+
+Arquivo: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=270-2
+
+Hero: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=270-3
+
+Motion + comportamento: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=262-41
+
+**Figma é direção visual / intenção / gesto. A implementação web preserva composição e hierarquia, não coordenadas literais.**
+
+Seções canônicas:
+
+| Seção | Node | Gesto protagonista |
+|---|---|---|
+| 01 Hero | `270:3` | Construção Problema → Contexto → Sistema + pictograma Fluxo · Sistema |
+| 02 Diagnóstico / dores (+ única entrada) | `270:37` | Rail → sinais → ação |
+| 03 Soluções | `270:65` | Editorial stagger + hover de rail |
+| 04 Secretária.Code | `270:88` | Sinal percorre as 4 etapas |
+| 05 Processo | `270:120` | Progresso scroll-linked no rail |
+| 06 Projetos | `270:142` | Entrada defasada; hover discreto |
+| 07 Small Team + Manifesto | `270:165` | Tipografia em sequência espaçada |
+| 08 Fechamento | `270:174` | Desaceleração; seta no link |
+
+Regras de implementação (Home V6G):
+- Presença e hierarquia; sem slides empilhados nem pixel-copy do Figma
+- Excesso de `/` e `//` como muleta visual: removido. Labels no estilo V6G (`01 · PROBLEMA`, `Como o problema ganha forma`, `O problema vem primeiro`, `Diagnóstico inicial`). `/` e `//` só como pontuação ocasional
+- Pictograma **Fluxo · Sistema** (Figma `273:2`): aprovado **somente no Hero**, junto de “Como o problema ganha forma”. Vetor exacto em `src/assets/home/fluxo-sistema.svg`. **Ainda A VALIDAR** como asset oficial global da marca — não adicionar ao sistema completo de pictogramas sem governança
+- Pictogramas **não** são decoração: sem lupa no Diagnóstico, sem celular na Secretária, sem tabela/documento em Projetos
+- Hero sem formulário; estrutura Problema → Contexto → Sistema
+- Única entrada de diagnóstico no conteúdo: após os sinais, handoff para `/estimar` (sem IA na Home)
+- Processo: sequência horizontal clara — sem constelação / diagonais / zig-zag; desktop com progresso ligado ao scroll
+- Projetos: composição limpa; classificação factual
+- Fechamento narrativo — sem CTA “Solicitar diagnóstico” duplicado no conteúdo
+- Motion: **um gesto protagonista por seção**; fades/translates só como apoio
+- `prefers-reduced-motion`: conteúdo visível; sem scroll-linked relevante nem opacity 0 preso
+
+Frames legado (não canônicos):
+- V6E `250:2`
+- V4.2 `168:3` e explorações V5/V6A/B/C
+- Desktop antigo: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=98-3
+- Mobile antigo: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=98-54
 
 ### Projetos / Portfólio
 - Desktop: https://www.figma.com/design/uxUOzOWlB1HIcqtvdfNxMQ?node-id=98-86

@@ -16,6 +16,17 @@ const nav: NavItem[] = [
   { kind: "route", to: "/sobre", label: "Sobre" },
 ];
 
+/**
+ * Rotas que já possuem CTA local de diagnóstico
+ * devem esconder o CTA equivalente do header
+ * para evitar duplicação de ação.
+ */
+const routesWithLocalDiagnosticCta = new Set([
+  "/estimar",
+  "/contato",
+  "/solucoes",
+]);
+
 function navKey(item: NavItem) {
   return item.kind === "hash" ? `${item.to}#${item.hash}` : item.to;
 }
@@ -26,7 +37,7 @@ export function SiteHeader() {
   const { location } = useRouterState();
   const reduce = useReducedMotion();
   const menuId = useId();
-
+  const showDiagnosticCta = !routesWithLocalDiagnosticCta.has(location.pathname);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -110,12 +121,14 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Link
-            to="/estimar"
-            className="hidden min-h-11 items-center rounded-button bg-brand-branco px-4 py-2.5 text-sm font-medium tracking-tight text-brand-roxo transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:inline-flex"
-          >
-            Solicitar diagnóstico
-          </Link>
+          {showDiagnosticCta && (
+            <Link
+              to="/estimar"
+              className="hidden min-h-11 items-center rounded-button bg-brand-branco px-4 py-2.5 text-sm font-medium tracking-tight text-brand-roxo transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:inline-flex"
+            >
+              Solicitar diagnóstico
+            </Link>
+          )}
 
           <button
             type="button"
@@ -182,13 +195,15 @@ export function SiteHeader() {
                     </Link>
                   );
                 })}
-                <Link
-                  to="/estimar"
-                  onClick={close}
-                  className="mt-3 inline-flex min-h-11 items-center justify-center rounded-button bg-brand-branco px-4 py-2.5 text-sm font-medium text-brand-roxo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  Solicitar diagnóstico
-                </Link>
+                {showDiagnosticCta && (
+                  <Link
+                    to="/estimar"
+                    onClick={close}
+                    className="mt-3 inline-flex min-h-11 items-center justify-center rounded-button bg-brand-branco px-4 py-2.5 text-sm font-medium text-brand-roxo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    Solicitar diagnóstico
+                  </Link>
+                )}
               </nav>
             </motion.div>
           </>

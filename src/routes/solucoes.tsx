@@ -1,38 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
-import { Check, ArrowRight, ChevronDown } from "lucide-react";
-import { useState } from "react";
-import { RoiCalculator } from "@/components/roi-calculator";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CodeRainBackground } from "@/components/code-rain-background";
-import { EditorWindow } from "@/components/editor-window";
+import { useRef } from "react";
 import {
-  BrandPictogram,
-  type PictogramName,
-} from "@/components/brand-pictogram";
-
-const solucoesFaqs = [
-  {
-    q: "Vocês usam IA para escrever código?",
-    a: "Sim, usamos IA como assistente — como qualquer engenheiro moderno. Mas todo código é revisado, testado e entendido pelo nosso time. IA não substitui arquitetura, ela acelera execução.",
-  },
-  {
-    q: "E se eu quiser trocar de empresa depois?",
-    a: "Todo código entregue é 100% seu. Documentamos tudo, o repositório fica na sua conta, e fazemos handoff técnico completo. Não criamos dependência.",
-  },
-  {
-    q: "Vocês atendem fora de Brasília?",
-    a: "Somos de Brasília mas atendemos 100% remoto em todo o Brasil. Reuniões por videochamada, entregas pelo GitHub, comunicação pelo WhatsApp ou Slack.",
-  },
-  {
-    q: "Quanto tempo leva para começar meu projeto?",
-    a: "Após a proposta aprovada, em geral iniciamos em 1-2 semanas. Projetos urgentes podem começar em 3-5 dias úteis mediante disponibilidade.",
-  },
-  {
-    q: "Vocês fazem manutenção depois do lançamento?",
-    a: "Sim. Temos planos de manutenção mensal desde R$800/mês. Nenhum sistema é lançado e abandonado.",
-  },
-];
+  motion,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import { HOME_SPRING, HOME_SPRING_SOFT } from "@/components/home/home-motion";
 
 export const Route = createFileRoute("/solucoes")({
   head: () => ({
@@ -41,348 +16,429 @@ export const Route = createFileRoute("/solucoes")({
       {
         name: "description",
         content:
-          "Apps mobile, sistemas web e SaaS, automação com IA e consultoria. Conheça cada serviço da Dreamscraft Code.",
+          "Automação, sistemas sob medida, produtos digitais e sites institucionais — sempre partindo do problema, do contexto e do que precisa mudar.",
       },
       { property: "og:title", content: "Soluções — Dreamscraft Code" },
       {
         property: "og:description",
         content:
-          "Apps mobile, sistemas web e SaaS, automação com IA e consultoria. Conheça cada serviço da Dreamscraft Code.",
+          "Automação, sistemas sob medida, produtos digitais e sites institucionais — sempre partindo do problema, do contexto e do que precisa mudar.",
       },
       { property: "og:url", content: "https://dreamscraftcode.com/solucoes" },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: solucoesFaqs.map((f) => ({
-            "@type": "Question",
-            name: f.q,
-            acceptedAnswer: { "@type": "Answer", text: f.a },
-          })),
-        }),
-      },
     ],
   }),
   component: SolucoesPage,
 });
 
-const services: {
-  icon: PictogramName;
-  tag: string;
+type PathItem = {
+  num: string;
+  eyebrow: string;
   title: string;
-  para: string;
-  delivers: string[];
-  examples: string[];
-}[] = [
+  body: string;
+  involves: string[];
+  surface: "dark" | "lavanda";
+  accent: "rosa" | "azul";
+};
+
+const PATHS: PathItem[] = [
   {
-    icon: "celular",
-    tag: "Mobile",
-    title: "Apps mobile (iOS + Android)",
-    para: "Para empresas que querem ampliar alcance e estar no bolso do cliente.",
-    delivers: ["Design UI/UX", "Desenvolvimento nativo ou híbrido", "Publicação nas lojas", "Manutenção e updates"],
-    examples: ["App de fretes", "Apps de delivery", "Programas de fidelidade"],
+    num: "01",
+    eyebrow: "Operação manual ou repetitiva",
+    title: "Automação e atendimento",
+    body: "Para fluxos que dependem de copiar informação, responder sempre a mesma coisa, mover dados entre ferramentas ou executar tarefas repetitivas manualmente.",
+    involves: [
+      "automações",
+      "integrações",
+      "atendimento assistido",
+      "agentes/IA quando fizer sentido",
+      "fluxos entre ferramentas existentes",
+    ],
+    surface: "dark",
+    accent: "rosa",
   },
   {
-    icon: "tabela",
-    tag: "Web",
-    title: "Sistemas web e SaaS",
-    para: "Para empresas que querem digitalizar processos e escalar operações.",
-    delivers: ["Sistema completo end-to-end", "Painel administrativo", "Integrações com APIs", "Hospedagem e CI/CD"],
-    examples: ["ERP customizado", "Dashboards analíticos", "Gestão de pedidos"],
+    num: "02",
+    eyebrow: "Operação sem ferramenta adequada",
+    title: "Sistema sob medida",
+    body: "Quando planilhas, mensagens ou ferramentas genéricas já não acompanham a operação e o processo precisa ganhar uma estrutura própria.",
+    involves: [
+      "painéis",
+      "fluxos internos",
+      "permissões",
+      "integrações",
+      "regras de negócio",
+      "APIs",
+    ],
+    surface: "lavanda",
+    accent: "azul",
   },
   {
-    icon: "link",
-    tag: "IA",
-    title: "Automação com IA e bots",
-    para: "Para empresas com muito atendimento manual e processos repetitivos.",
-    delivers: ["Chatbots inteligentes", "Automação de processos", "Integração com modelos de IA", "Treinamento da equipe"],
-    examples: ["Bot WhatsApp", "Automação de email", "Agentes IA personalizados"],
+    num: "03",
+    eyebrow: "Ideia que precisa virar produto",
+    title: "Produtos digitais",
+    body: "Para transformar uma hipótese ou necessidade em algo que possa ser testado, usado e evoluído.",
+    involves: [
+      "discovery",
+      "protótipo",
+      "MVP",
+      "aplicação web",
+      "app quando realmente necessário",
+      "arquitetura para evolução",
+    ],
+    surface: "dark",
+    accent: "rosa",
   },
   {
-    icon: "cadeado",
-    tag: "Consultoria",
-    title: "Consultoria e integração",
-    para: "Para empresas com sistemas legados que precisam conversar entre si.",
-    delivers: ["Análise técnica", "Recomendação de stack", "Integração entre sistemas", "Migração de dados"],
-    examples: ["E-commerce ↔ ERP", "Migração para a nuvem", "Refatoração de código legado"],
+    num: "04",
+    eyebrow: "Marca que precisa existir melhor na internet",
+    title: "Sites institucionais",
+    body: "Para transformar presença digital dispersa em uma casa própria da marca — clara, responsiva e construída para representar o negócio com identidade.",
+    involves: [
+      "landing pages",
+      "sites institucionais",
+      "páginas de campanha",
+      "integrações simples",
+      "formulários/captação",
+      "SEO técnico básico quando aplicável",
+    ],
+    surface: "lavanda",
+    accent: "azul",
   },
 ];
 
+const DECIDE = [
+  { num: "01", title: "Problema" },
+  { num: "02", title: "Contexto" },
+  { num: "03", title: "Restrições" },
+  { num: "04", title: "Prioridade" },
+] as const;
+
+const HERO_FLOW = ["Problema", "Contexto", "Caminho", "Construção"] as const;
+
 function SolucoesPage() {
+  const reduce = useReducedMotion();
+  const pathsRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: pathsRef,
+    offset: ["start 75%", "end 35%"],
+  });
+  const railProgress = useSpring(scrollYProgress, HOME_SPRING);
+  const railScale = useTransform(railProgress, (v) => (reduce ? 1 : v));
+
+  const spring = { type: "spring" as const, ...HOME_SPRING };
+  const springSoft = { type: "spring" as const, ...HOME_SPRING_SOFT };
+
+  const heroStart = reduce ? { opacity: 1, y: 0 } : { opacity: 0.55, y: 18 };
+  const heroSettle = reduce
+    ? { opacity: 1, y: 0 }
+    : { opacity: 1, y: 0, transition: spring };
+
   return (
-    <div>
-      <section className="relative overflow-hidden mx-auto max-w-7xl px-6 pt-20 pb-12">
-        <CodeRainBackground seed={5} palette="rosa-azul" className="opacity-30" />
-        <p className="text-sm font-mono text-brand-azul">// solucoes</p>
-        <h1 className="mt-2 text-5xl sm:text-6xl font-light tracking-[-0.03em] max-w-3xl text-gradient">
-          Tecnologia que se adapta ao seu negócio
-        </h1>
-        <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
-          Cada empresa é única. Por isso, montamos a solução certa pra cada momento —
-          do MVP enxuto ao sistema corporativo completo.
-        </p>
+    <div className="overflow-x-clip">
+      {/* Hero */}
+      <section
+        aria-labelledby="solucoes-hero-heading"
+        className="px-5 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-12 lg:pb-20 lg:pt-14"
+      >
+        <div className="mx-auto grid max-w-[1240px] gap-12 lg:grid-cols-12 lg:items-start lg:gap-10">
+          <motion.div
+            className="min-w-0 lg:col-span-7"
+            initial={heroStart}
+            animate={heroSettle}
+          >
+            <p className="text-[11px] uppercase tracking-[0.22em] text-brand-rosa sm:text-[12px]">
+              Soluções
+            </p>
+            <h1
+              id="solucoes-hero-heading"
+              className="mt-5 max-w-[20ch] text-[clamp(1.75rem,1.1rem+2.6vw,3.25rem)] font-light uppercase leading-[1.1] tracking-[-0.03em] text-brand-branco sm:max-w-[22ch]"
+            >
+              A solução começa
+              <br />
+              antes da tecnologia.
+            </h1>
+            <p className="mt-6 max-w-[38rem] text-sm leading-relaxed text-brand-azul sm:text-base sm:leading-7">
+              Entendemos o problema, o contexto, as restrições e o que precisa mudar. Só depois
+              definimos o que vale construir.
+            </p>
+            <div className="mt-10">
+              <Link
+                to="/estimar"
+                className="inline-flex min-h-12 items-center justify-center rounded-button bg-brand-rosa px-6 text-sm font-medium text-brand-roxo transition-[transform,filter] duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa motion-reduce:transform-none"
+              >
+                Solicitar diagnóstico
+              </Link>
+            </div>
+          </motion.div>
+
+          <aside
+            className="lg:col-span-5 lg:pt-3"
+            aria-label="Fluxo da solução"
+          >
+            <motion.ol
+              className="border-t border-brand-branco/20 pt-6 lg:border-t-0 lg:border-l lg:pl-10 lg:pt-0"
+              initial={reduce ? { opacity: 1 } : { opacity: 0.5 }}
+              animate={
+                reduce
+                  ? { opacity: 1 }
+                  : { opacity: 1, transition: { ...spring, delay: 0.14 } }
+              }
+            >
+              {HERO_FLOW.map((label, index) => (
+                <li key={label} className="relative pb-6 last:pb-0">
+                  <p className="text-sm font-light uppercase tracking-[-0.01em] text-brand-branco">
+                    {label}
+                  </p>
+                  {index < HERO_FLOW.length - 1 && (
+                    <span
+                      className="mt-3 block text-brand-rosa/80"
+                      aria-hidden
+                    >
+                      ↓
+                    </span>
+                  )}
+                </li>
+              ))}
+            </motion.ol>
+          </aside>
+        </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-20 space-y-6">
-        {services.map((s, i) => (
-          <motion.article
-            key={s.title}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5 }}
-            className="glass-card rounded-3xl p-8 lg:p-12 grid lg:grid-cols-12 gap-8"
+      {/* Caminhos — rail progressivo */}
+      <section
+        aria-labelledby="solucoes-paths-heading"
+        className="px-5 pb-6 sm:px-6 lg:pb-8"
+      >
+        <div className="mx-auto max-w-[1240px]">
+          <motion.h2
+            id="solucoes-paths-heading"
+            className="max-w-[18ch] text-[clamp(1.4rem,1rem+1.7vw,2.25rem)] font-light uppercase leading-[1.12] tracking-[-0.03em] text-brand-branco sm:max-w-[20ch]"
+            initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0.55, y: 16 }}
+            whileInView={
+              reduce
+                ? { opacity: 1, y: 0 }
+                : { opacity: 1, y: 0, transition: spring }
+            }
+            viewport={{ once: true, amount: 0.6 }}
           >
-            <div className="lg:col-span-4">
-              <BrandPictogram name={s.icon} color="azul" size={40} />
+            O que precisa mudar?
+          </motion.h2>
+        </div>
 
-              <p className="mt-6 text-xs uppercase tracking-widest text-muted-foreground">
-                0{i + 1} · {s.tag}
+        <div ref={pathsRef} className="relative mx-auto mt-10 max-w-[1240px] lg:mt-14">
+          {/* Rail progressivo */}
+          <div
+            className="pointer-events-none absolute bottom-8 left-0 top-2 hidden w-px bg-brand-branco/15 lg:block"
+            aria-hidden
+          >
+            <motion.div
+              className="h-full w-px origin-top bg-brand-rosa"
+              style={{ scaleY: railScale }}
+            />
+          </div>
+
+          <div className="space-y-6 lg:space-y-8 lg:pl-10">
+            {PATHS.map((path, index) => (
+              <PathBlock
+                key={path.num}
+                path={path}
+                reduce={!!reduce}
+                delay={index * 0.04}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Como decidimos */}
+      <section
+        aria-labelledby="solucoes-decide-heading"
+        className="px-5 pt-14 pb-8 sm:px-6 sm:pt-16 sm:pb-10 lg:pt-20 lg:pb-10"
+      >
+        <motion.div
+          className="mx-auto max-w-[1240px]"
+          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0.55, y: 18 }}
+          whileInView={
+            reduce
+              ? { opacity: 1, y: 0 }
+              : { opacity: 1, y: 0, transition: springSoft }
+          }
+          viewport={{ once: true, amount: 0.35 }}
+        >
+          <h2
+            id="solucoes-decide-heading"
+            className="max-w-[20ch] text-[clamp(1.35rem,1rem+1.5vw,2.1rem)] font-light uppercase leading-[1.14] tracking-[-0.03em] text-brand-branco sm:max-w-[22ch]"
+          >
+            Não começamos
+            <br />
+            escolhendo a stack.
+          </h2>
+          <ol className="mt-10 grid gap-6 border-t border-brand-branco/15 pt-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            {DECIDE.map((item) => (
+              <li key={item.num}>
+                <p
+                  className={`text-[11px] tracking-[0.18em] ${
+                    item.num === "01" || item.num === "03"
+                      ? "text-brand-rosa"
+                      : "text-brand-azul"
+                  }`}
+                >
+                  {item.num}
+                </p>
+                <p className="mt-2 text-sm font-light uppercase tracking-[-0.01em] text-brand-branco sm:text-[15px]">
+                  {item.title}
+                </p>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-8 max-w-xl text-sm leading-relaxed text-brand-azul sm:text-base sm:leading-7">
+            Essas respostas definem o primeiro recorte. Tecnologia, escopo, cronograma e
+            investimento vêm depois.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* Fechamento — conclusão compacta */}
+      <section
+        aria-labelledby="solucoes-cta-heading"
+        className="px-5 pt-8 pb-16 sm:px-6 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-24"
+      >
+        <motion.div
+          className="mx-auto max-w-[1240px] border-t border-brand-branco/15 pt-8 sm:pt-10"
+          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0.55, y: 14 }}
+          whileInView={
+            reduce
+              ? { opacity: 1, y: 0 }
+              : { opacity: 1, y: 0, transition: spring }
+          }
+          viewport={{ once: true, amount: 0.4 }}
+        >
+          <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-10">
+            <div className="lg:col-span-7">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-brand-rosa">
+                Próximo passo
               </p>
-              <h2 className="mt-2 text-3xl font-light tracking-[-0.03em]">{s.title}</h2>
-              <p className="mt-4 text-muted-foreground">{s.para}</p>
+              <h2
+                id="solucoes-cta-heading"
+                className="mt-4 max-w-[16ch] text-[clamp(1.35rem,1rem+1.4vw,2.15rem)] font-light uppercase leading-[1.14] tracking-[-0.03em] text-brand-branco sm:max-w-[18ch]"
+              >
+                O problema vem
+                <br />
+                antes da solução.
+              </h2>
             </div>
-
-            <div className="lg:col-span-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                O que entregamos
-              </h3>
-              <ul className="mt-4 space-y-3">
-                {s.delivers.map((d) => (
-                  <li key={d} className="flex items-start gap-3 text-sm">
-                    <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" strokeWidth={1.5} />
-                    <span>{d}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="lg:col-span-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Exemplos
-              </h3>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {s.examples.map((e) => (
-                  <span
-                    key={e}
-                    className="rounded-full border border-border bg-background/50 px-3 py-1.5 text-xs"
-                  >
-                    {e}
-                  </span>
-                ))}
+            <div className="lg:col-span-5">
+              <div className="h-px w-12 bg-brand-rosa/70" aria-hidden />
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-brand-azul sm:text-[15px] sm:leading-7">
+                Se você sabe o que precisa mudar, mas ainda não qual caminho seguir, o
+                diagnóstico organiza o primeiro recorte.
+              </p>
+              <div className="mt-6">
+                <Link
+                  to="/estimar"
+                  className="inline-flex min-h-12 items-center justify-center rounded-button bg-brand-rosa px-6 text-sm font-medium text-brand-roxo transition-[transform,filter] duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa motion-reduce:transform-none"
+                >
+                  Solicitar diagnóstico
+                </Link>
               </div>
             </div>
-          </motion.article>
-        ))}
-      </section>
-
-      <RoiCalculator />
-
-      <ComoTrabalhamos />
-
-      <FaqSection />
-
-      <section className="mx-auto max-w-7xl px-6 pb-16">
-        <div className="glass-card rounded-3xl p-10 text-center">
-          <h2 className="text-3xl sm:text-4xl font-light tracking-[-0.03em]">Não sabe qual serviço escolher?</h2>
-          <p className="mt-3 text-muted-foreground">A gente conversa, entende o problema e indica o caminho.</p>
-          <Link
-            to="/contato"
-            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition glow-ring"
-          >
-            Falar com a equipe <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+          </div>
+        </motion.div>
       </section>
     </div>
   );
 }
 
-const modelos: {
-  icon: PictogramName;
-  tag: string;
-  title: string;
-  bullets: string[];
-  bestWhen: string;
-}[] = [
-  {
-    icon: "documento",
-    tag: "Modelo A",
-    title: "Projeto fechado",
-    bullets: [
-      "Escopo definido, prazo fixo, preço fixo",
-      "Ideal para: MVP, produto novo, funcionalidade específica",
-      "Você sabe exatamente o que vai pagar",
-    ],
-    bestWhen: "você tem uma ideia clara do que quer",
-  },
-  {
-    icon: "seta",
-    tag: "Modelo B",
-    title: "Retainer mensal",
-    bullets: [
-      "Horas mensais dedicadas, prioridade garantida",
-      "Escopo flexível mês a mês",
-      "Evolução contínua do produto",
-    ],
-    bestWhen: "você tem produto no ar e quer evoluir rápido",
-  },
-];
+function PathBlock({
+  path,
+  reduce,
+  delay,
+}: {
+  path: PathItem;
+  reduce: boolean;
+  delay: number;
+}) {
+  const isLavanda = path.surface === "lavanda";
+  const accentClass = path.accent === "rosa" ? "text-brand-rosa" : "text-brand-azul";
+  const spring = { type: "spring" as const, ...HOME_SPRING };
 
-const diagnostico = [
-  {
-    q: "Você já sabe exatamente o que quer construir?",
-    a: "Sim, é uma lista clara → Projeto fechado. Ainda estou descobrindo → Retainer mensal.",
-  },
-  {
-    q: "Seu produto já está no ar com usuários?",
-    a: "Sim, e precisa evoluir continuamente → Retainer mensal. Ainda não existe → Projeto fechado para o MVP.",
-  },
-  {
-    q: "Você prefere previsibilidade total ou flexibilidade?",
-    a: "Previsibilidade de custo e prazo → Projeto fechado. Flexibilidade para pivotar → Retainer mensal.",
-  },
-];
-
-function ComoTrabalhamos() {
-  const [open, setOpen] = useState(false);
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-20">
-      <div className="mb-10 text-center">
-        <p className="text-sm text-brand-azul font-medium font-mono uppercase tracking-wider">// modelos</p>
-        <h2 className="mt-2 text-4xl sm:text-5xl font-light tracking-[-0.03em] text-gradient">Como trabalhamos</h2>
-        <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-          Dois modelos de engajamento. Escolha o que faz sentido pro momento do seu produto.
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        {modelos.map((m, i) => (
-          <motion.div
-            key={m.title}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
+    <motion.article
+      aria-labelledby={`solucoes-path-${path.num}`}
+      className={
+        isLavanda
+          ? "border border-brand-roxo/15 bg-brand-branco text-brand-roxo"
+          : "border border-brand-branco/12 bg-transparent text-brand-branco"
+      }
+      initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0.55, y: 22 }}
+      whileInView={
+        reduce
+          ? { opacity: 1, y: 0 }
+          : { opacity: 1, y: 0, transition: { ...spring, delay } }
+      }
+      viewport={{ once: true, amount: 0.28 }}
+    >
+      <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-12 lg:gap-10 lg:p-10">
+        <div className="lg:col-span-5">
+          <div className="flex items-baseline gap-4">
+            <p className={`text-[clamp(2rem,1.5rem+2vw,3rem)] font-light tracking-[-0.04em] ${accentClass}`}>
+              {path.num}
+            </p>
+            <div
+              className={`h-px flex-1 ${isLavanda ? "bg-brand-roxo/20" : "bg-brand-branco/20"}`}
+              aria-hidden
+            />
+          </div>
+          <p
+            className={`mt-5 text-[11px] uppercase tracking-[0.18em] ${
+              isLavanda ? "text-brand-azul" : accentClass
+            }`}
           >
-            <EditorWindow
-              as="article"
-              filename={i === 0 ? "modelo-a.md" : "modelo-b.md"}
-              className="h-full"
-              contentClassName="flex flex-col p-8 lg:p-10"
-            >
-              <div className="flex items-center gap-3">
-                <BrandPictogram name={m.icon} color="azul" size={36} />
-                <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
-                  {m.tag}
-                </span>
-              </div>
-              <h3 className="mt-5 text-2xl font-bold">{m.title}</h3>
-              <ul className="mt-5 space-y-3 flex-1">
-                {m.bullets.map((b) => (
-                  <li key={b} className="flex items-start gap-3 text-sm">
-                    <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" strokeWidth={1.5} />
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6 pt-5 border-t border-border/60 text-sm">
-                <span className="text-primary-glow font-mono mr-2">→</span>
-                <span className="text-muted-foreground">Melhor quando: </span>
-                <span className="font-medium">{m.bestWhen}</span>
-              </div>
-            </EditorWindow>
-          </motion.div>
-        ))}
-      </div>
+            {path.eyebrow}
+          </p>
+          <h3
+            id={`solucoes-path-${path.num}`}
+            className={`mt-3 max-w-[18ch] text-[clamp(1.3rem,1rem+1vw,1.75rem)] font-light leading-[1.15] tracking-[-0.02em] ${
+              isLavanda ? "text-brand-roxo" : "text-brand-branco"
+            }`}
+          >
+            {path.title}
+          </h3>
+        </div>
 
-      <div className="mt-8 glass-card rounded-2xl overflow-hidden">
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-background/40 transition"
-          aria-expanded={open}
-        >
-          <span className="flex items-center gap-3">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 border border-primary/30 text-primary font-mono text-sm">
-              ?
-            </span>
-            <span className="font-semibold">Qual é melhor para mim?</span>
-          </span>
-          <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
-        </button>
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              key="diag"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden border-t border-border/60"
+        <div className="lg:col-span-7">
+          <p
+            className={`max-w-xl text-sm leading-relaxed sm:text-[15px] sm:leading-7 ${
+              isLavanda ? "text-brand-roxo/80" : "text-brand-azul"
+            }`}
+          >
+            {path.body}
+          </p>
+          <div className="mt-7">
+            <p
+              className={`text-[11px] uppercase tracking-[0.16em] ${
+                isLavanda ? "text-brand-roxo/55" : "text-brand-branco/55"
+              }`}
             >
-              <ol className="px-6 py-6 space-y-5">
-                {diagnostico.map((d, i) => (
-                  <motion.li
-                    key={d.q}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.08 }}
-                    className="flex gap-4"
-                  >
-                    <span className="font-mono text-xs text-primary-glow shrink-0 mt-1">
-                      0{i + 1}
-                    </span>
-                    <div>
-                      <p className="font-medium text-foreground">{d.q}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{d.a}</p>
-                    </div>
-                  </motion.li>
-                ))}
-              </ol>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </section>
-  );
-}
-
-function FaqSection() {
-  const faqs = solucoesFaqs;
-  return (
-    <section className="mx-auto max-w-3xl px-6 pb-20">
-      <div className="mb-10 text-center">
-        <p className="text-sm text-primary font-medium font-mono uppercase tracking-wider">// faq</p>
-        <h2 className="mt-2 text-4xl sm:text-5xl font-light tracking-[-0.03em] text-gradient">Perguntas frequentes</h2>
-        <p className="mt-4 text-muted-foreground">As dúvidas que mais escutamos antes do "vamos começar".</p>
-      </div>
-
-      <div className="glass-card rounded-3xl p-2 sm:p-4">
-        <Accordion type="single" collapsible className="w-full">
-          {faqs.map((f, i) => (
-            <AccordionItem
-              key={f.q}
-              value={`item-${i}`}
-              className="border-b border-border/60 last:border-0 px-4"
+              Pode envolver
+            </p>
+            <ul
+              className={`mt-3 flex flex-wrap gap-x-4 gap-y-2 border-t pt-3 text-sm ${
+                isLavanda
+                  ? "border-brand-roxo/15 text-brand-roxo/85"
+                  : "border-brand-branco/15 text-brand-branco/85"
+              }`}
             >
-              <AccordionTrigger className="text-left text-base font-semibold hover:no-underline py-5">
-                <span className="flex items-start gap-3">
-                  <span className="font-mono text-xs text-primary-glow mt-1 shrink-0">
-                    0{i + 1}
-                  </span>
-                  {f.q}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-sm leading-relaxed pl-8 pb-5">
-                {f.a}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+              {path.involves.map((item) => (
+                <li key={item} className="before:mr-2 before:text-brand-rosa before:content-['·']">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
-    </section>
+    </motion.article>
   );
 }

@@ -1,802 +1,998 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ClientOnly } from "@tanstack/react-router";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import {
-  ArrowRight,
-  ChevronDown,
-  Clock,
-  MessageCircle,
-} from "lucide-react";
-import { Reveal } from "@/components/reveal";
-import { CodeRainBackground } from "@/components/code-rain-background";
-import { EditorWindow } from "@/components/editor-window";
-import {
-  BrandPictogram,
-  type PictogramName,
-} from "@/components/brand-pictogram";
+  motion,
+  useInView,
+  useMotionValue,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionValue,
+  type TargetAndTransition,
+  type Transition,
+} from "framer-motion";
+import { HOME_SPRING, HOME_SPRING_SOFT, homeEase } from "@/components/home/home-motion";
 
-const MonacoEditor = lazy(() => import("@monaco-editor/react"));
+const SEO_TITLE = "Projetos — Dreamscraft Code";
+const SEO_DESCRIPTION =
+  "Cuidadim, Café Orquestra e Secretária.Code: produtos e projetos apresentados com contexto, estado atual e evidências reais.";
 
 export const Route = createFileRoute("/portfolio")({
-  head: () => {
-    const title = "Portfolio — Produtos próprios em construção · Dreamscraft Code";
-    const description =
-      "Os 4 SaaS que estamos construindo internamente: Secretária Virtual com IA, NutrIAprova, FYNK e OURleads. Nada de case de cliente inventado — só o que a gente está de fato codando.";
-    const url = "https://dreamscraftcode.com/portfolio";
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:url", content: url },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: description },
-      ],
-    };
-  },
+  head: () => ({
+    meta: [
+      { title: SEO_TITLE },
+      { name: "description", content: SEO_DESCRIPTION },
+      { property: "og:title", content: SEO_TITLE },
+      { property: "og:description", content: SEO_DESCRIPTION },
+      { property: "og:url", content: "https://dreamscraftcode.com/portfolio" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: SEO_TITLE },
+      { name: "twitter:description", content: SEO_DESCRIPTION },
+    ],
+  }),
   component: PortfolioPage,
 });
 
-// ---------- Types ----------
+type Accent = "rosa" | "azul";
 
-type Decision = { kind: "+" | "-"; tech: string; reason: string };
-type ArchNode = { id: string; x: number; y: number; label: string; sub: string };
-type ArchEdge = { from: string; to: string; label?: string };
-type Product = {
-  icon: PictogramName;
-  slug: string;
-  name: string;
-  tagline: string;
-  status: "Em desenvolvimento" | "Em escopo";
-  statusTone: "dev" | "scope";
-  stage: string;
-  nextMilestone: string;
-  problem: string;
-  arch: { nodes: ArchNode[]; edges: ArchEdge[]; note?: string; viewBox?: string };
-  decisions: Decision[];
-  code: {
-    lang: string;
-    filename: string;
-    body: string;
-    /** Rótulo honesto no chrome do viewer (ex.: nó n8n real vs rascunho). */
-    badge?: string;
-  };
+const accentText: Record<Accent, string> = {
+  rosa: "text-brand-rosa",
+  azul: "text-brand-azul",
 };
 
-// ---------- Data (produtos PRÓPRIOS Dreamscraft — nenhum cliente) ----------
+const INDEX = [
+  { id: "cuidadim", num: "01", name: "Cuidadim", status: "Em desenvolvimento" },
+  { id: "cafe-orquestra", num: "02", name: "Café Orquestra", status: "Protótipo em validação" },
+  { id: "secretaria-code", num: "03", name: "Secretária.Code", status: "Em validação" },
+] as const;
 
-const products: Product[] = [
-  {
-      icon: "celular",
-      slug: "recepcionista-ia",
-      name: "Secretária Virtual com IA",
-      tagline:
-        "Atendimento no WhatsApp com IA — responde 24/7 com memória de conversa.",
-      status: "Em desenvolvimento",
-      statusTone: "dev",
-      stage: "Fluxo n8n no ar: WhatsApp Cloud API + agente OpenRouter + memória",
-      nextMilestone: "Agenda (Google/iCal) e handoff humano — ainda no plano",
-      problem:
-        "Clínicas, consultórios, prestadores e pequenos escritórios perdem cliente porque não têm quem atenda fora do horário — e chatbot de fluxo fixo irrita mais do que resolve. Hoje a Secretária Virtual roda num fluxo n8n real: recebe mensagem via WhatsApp Cloud API, parseia o webhook, passa por um agente de IA (modelo via OpenRouter) com memória simples de conversa e devolve a resposta no WhatsApp. Agenda, Web, voz, banco e tool calling ainda não entram neste fluxo — estão no roadmap.",
-      arch: {
-        note: "// fluxo n8n real — o que roda hoje",
-        viewBox: "0 0 640 300",
-        nodes: [
-          { id: "wa", x: 16, y: 36, label: "WhatsApp", sub: "Cloud API" },
-          { id: "wh", x: 168, y: 36, label: "webhook", sub: "verificação + msg" },
-          { id: "js", x: 320, y: 36, label: "código JS", sub: "parse + dedupe" },
-          { id: "if", x: 472, y: 36, label: "condicional", sub: "skip se inválido" },
-          { id: "ai", x: 320, y: 176, label: "Agente IA", sub: "OpenRouter + memória" },
-          { id: "out", x: 168, y: 176, label: "resposta", sub: "envio WhatsApp" },
-        ],
-        edges: [
-          { from: "wa", to: "wh" },
-          { from: "wh", to: "js" },
-          { from: "js", to: "if" },
-          { from: "if", to: "ai" },
-          { from: "ai", to: "out" },
-        ],
-      },
-      decisions: [
-        {
-          kind: "+",
-          tech: "WhatsApp Cloud API primeiro",
-          reason: "canal com maior ROI para o público-alvo; webhook de verificação + recebimento já no fluxo",
-        },
-        {
-          kind: "+",
-          tech: "n8n como orquestrador",
-          reason: "parse JS, condicional, agente e envio de volta no mesmo workflow — sem app própria ainda",
-        },
-        {
-          kind: "+",
-          tech: "OpenRouter + memória de conversa",
-          reason: "modelo trocável; contexto simples entre mensagens sem Postgres",
-        },
-        {
-          kind: "+",
-          tech: "Agenda e handoff (plano)",
-          reason: "próximo passo: Google/iCal e transferência explícita para humano — ainda não implementados",
-        },
-        {
-          kind: "-",
-          tech: "Árvore de decisão fixa descartada",
-          reason: "custo de manutenção alto e experiência ruim; agente com IA rende mais no atendimento aberto",
-        },
-      ],
-      code: {
-        lang: "javascript",
-        filename: "n8n-parse-whatsapp.js",
-        badge: "// nó de código n8n — fluxo real",
-        body: `let from = '';
-let msg_body = '';
-let msg_id = '';
+const HERO_LINES = ["Problemas diferentes.", "O mesmo cuidado", "para construir."] as const;
 
-try {
-  const entry = $json.body.entry?.[0];
-  const change = entry?.changes?.[0];
-  const value = change?.value;
+const CUIDADIM_MODULES = [
+  "Pets da família",
+  "Registros de saúde",
+  "Neonatal",
+  "Agenda e rotinas",
+  "Plano de saúde",
+  "Compras e despesas",
+  "Memórias e fotos",
+] as const;
 
-  if (value) {
-    const contact = value.contacts?.[0];
-    from = contact?.wa_id || '';
+const CAFE_LAYERS = [
+  { title: "Contexto operacional", note: "talhões, lotes e recursos" },
+  { title: "Decision Engine", note: "prioriza o que precisa acontecer primeiro" },
+  { title: "Execução por lotes", note: "acompanha o que foi decidido" },
+  { title: "Quality Flow", note: "registra a qualidade ao longo do processo" },
+  { title: "Evidence Layer", note: "guarda as evidências de cada etapa" },
+  { title: "Passaporte público", note: "verificador aberto para consulta" },
+] as const;
 
-    const message = value.messages?.[0];
-    msg_body = message?.text?.body || '';
-    msg_id = message?.id || '';
-  }
-} catch (error) {
-  // mantém vazio
+const SECRETARIA_FLOW = [
+  { num: "01", title: "Mensagem", note: "chega pelo WhatsApp" },
+  { num: "02", title: "Interpretação", note: "entende o pedido" },
+  { num: "03", title: "Contexto", note: "usa memória simples" },
+  { num: "04", title: "Resposta", note: "gerada com o contexto" },
+  { num: "05", title: "Retorno", note: "devolvida pelo WhatsApp" },
+] as const;
+
+const SECRETARIA_NOT_YET = [
+  "agenda",
+  "encaminhamento humano",
+  "banco de dados próprio",
+  "voz",
+  "canal web",
+  "tool calling",
+  "memória persistente avançada",
+] as const;
+
+const secondaryCta =
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-button border border-brand-branco/25 px-5 text-sm text-brand-branco transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-brand-rosa/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transform-none";
+
+const spring = { type: "spring" as const, ...HOME_SPRING };
+const springSoft = { type: "spring" as const, ...HOME_SPRING_SOFT };
+
+/* ---------- Motion helpers ---------- */
+
+/**
+ * Progresso de scroll que só avança: etapas alcançadas permanecem ativas
+ * ao rolar de volta (ENTRY → SCROLL RESPONSE → SETTLE → HOLD).
+ */
+function useLatchedProgress(
+  target: RefObject<HTMLElement | null>,
+  offset: NonNullable<Parameters<typeof useScroll>[0]>["offset"],
+  reduce: boolean,
+  completeAtPageEnd = false,
+) {
+  const { scrollYProgress } = useScroll({ target, offset });
+  const { scrollYProgress: pageProgress } = useScroll();
+  const latched = useMotionValue(0);
+  const smooth = useSpring(latched, HOME_SPRING);
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    if (!reduce && v > latched.get()) latched.set(v);
+  });
+
+  // Em viewports altas o fim do intervalo pode não ser alcançável: o fim da página conclui o fluxo.
+  useMotionValueEvent(pageProgress, "change", (v) => {
+    if (completeAtPageEnd && !reduce && v > 0.995) latched.set(1);
+  });
+
+  useEffect(() => {
+    if (reduce) {
+      latched.set(1);
+      smooth.jump(1);
+      return;
+    }
+    const v = scrollYProgress.get();
+    if (v > latched.get()) latched.set(v);
+  }, [reduce, latched, smooth, scrollYProgress]);
+
+  return smooth;
 }
 
-const cleanedFrom = from.replace(/[^0-9]/g, '');
+/** Índice da última etapa alcançada pelo progresso (nunca regride). */
+function useReachedStep(progress: MotionValue<number>, count: number, reduce: boolean) {
+  const [reached, setReached] = useState(-1);
 
-if (!cleanedFrom || !msg_body) {
-  return { skip: true };
+  useMotionValueEvent(progress, "change", (v) => {
+    // Tolerância: a mola sobreamortecida se aproxima de 1 lentamente.
+    const step = Math.min(count - 1, Math.floor(v * (count - 1) + 0.08));
+    setReached((prev) => (step > prev ? step : prev));
+  });
+
+  // Aplicado após a montagem para que o HTML do servidor e a hidratação coincidam.
+  useEffect(() => {
+    if (reduce) setReached(count - 1);
+  }, [reduce, count]);
+
+  return reached;
 }
 
-const $node = $getWorkflowStaticData('global');
-const processedIds = $node.processedIds || [];
-
-if (processedIds.includes(msg_id)) {
-  return { skip: true };
+/**
+ * Entrada com o mesmo estado inicial no servidor e no cliente.
+ * Com reduced motion, o estado final é aplicado imediatamente, sem transição.
+ */
+function enter(
+  reduce: boolean,
+  initial: TargetAndTransition,
+  final: TargetAndTransition,
+  transition: Transition,
+  viewport?: { once: boolean; amount: number },
+) {
+  if (reduce) return { initial, animate: final, transition: { duration: 0 } };
+  if (viewport) return { initial, whileInView: final, transition, viewport };
+  return { initial, animate: final, transition };
 }
 
-processedIds.push(msg_id);
-$node.processedIds = processedIds;
+type Track = { axis: "x" | "y"; points: number[]; cross: number };
 
-return {
-  from: cleanedFrom,
-  msg_body: msg_body,
-  msg_id: msg_id
-};
-`,
-      },
-    },
-  {
-      icon: "documento",
-      slug: "nutriaprova",
-      name: "NutrIAprova",
-      tagline: "Nutricionistas validam receitas de IA em segundos, não em horas.",
-      status: "Em desenvolvimento",
-      statusTone: "dev",
-      stage: "MVP fechado, em iteração com nutricionistas",
-      nextMilestone: "Fluxo de aprovação em lote + export para prontuário",
-      problem:
-        "Nutricionistas recebem centenas de receitas geradas por IA e precisam checar cada uma: macros batem? substituições fazem sentido clínico? contraindicações estão cobertas? Fazer isso manualmente é caro e lento. O NutrIAprova coloca a receita, o parecer da IA e os alertas nutricionais lado a lado — a aprovação vira 1 clique, e o que não bate volta com justificativa.",
-      arch: {
-        note: "// rascunho — topologia a confirmar",
-        nodes: [
-          { id: "web", x: 40, y: 50, label: "Web", sub: "React 19 · TS" },
-          { id: "edge", x: 230, y: 50, label: "Server Fn", sub: "TanStack Start" },
-          { id: "ai", x: 420, y: 50, label: "IA", sub: "Lovable AI Gateway" },
-          { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
-        ],
-        edges: [
-          { from: "web", to: "edge" },
-          { from: "edge", to: "ai" },
-          { from: "edge", to: "db" },
-        ],
-      },
-      decisions: [
-        { kind: "+", tech: "Lovable AI Gateway", reason: "sem API key própria e permite trocar modelo sem redeploy" },
-        { kind: "+", tech: "Postgres + RLS", reason: "isolamento por nutricionista feito no banco, não no client" },
-        { kind: "+", tech: "TanStack Start server functions", reason: "chamada de IA fica no edge, prompt nunca vaza para o browser" },
-        { kind: "-", tech: "LangChain descartado", reason: "abstração cara para um caso de uso de 1 chamada + validação estruturada" },
-      ],
-      code: {
-        lang: "typescript",
-        filename: "validateRecipe.functions.ts",
-        badge: "// rascunho interno — em construção",
-        body: `// src/lib/nutri/validate.functions.ts
-  import { createServerFn } from "@tanstack/react-start";
-  import { z } from "zod";
-  
-  const Input = z.object({ recipeId: z.string().uuid() });
-  
-  export const validateRecipe = createServerFn({ method: "POST" })
-    .inputValidator((d) => Input.parse(d))
-    .handler(async ({ data }) => {
-      // 1. carrega receita + restrições do paciente
-      // 2. dispara modelo com schema estruturado (macros, alergênicos, alertas)
-      // 3. persiste parecer e devolve para revisão da nutri
-      return { recipeId: data.recipeId, verdict: "needs_review" };
-    });
-  `,
-      },
-    },
-  {
-      icon: "dinheiro",
-      slug: "fynk",
-      name: "FYNK",
-      tagline: "Sua vida financeira num painel só — com uma IA sarcástica te chamando à realidade.",
-      status: "Em desenvolvimento",
-      statusTone: "dev",
-      stage: "Núcleo de imposto de renda + cartões em construção",
-      nextMilestone: "Importação de fatura + primeiro roast de gastos",
-      problem:
-        "Imposto de renda, empréstimos, faturas de cartão, gastos do mês, planejamento — tudo espalhado em planilha, banco e app de fintech. O FYNK unifica isso e coloca um copiloto de IA que não é gentil: ele confronta o usuário sobre onde o dinheiro vai. A ideia é o oposto do dashboard bonitinho que ninguém abre.",
-      arch: {
-        note: "// rascunho — topologia a confirmar",
-        nodes: [
-          { id: "app", x: 40, y: 50, label: "Web/App", sub: "React 19" },
-          { id: "edge", x: 230, y: 50, label: "Edge", sub: "Server Fn" },
-          { id: "ai", x: 420, y: 50, label: "IA", sub: "modelo com persona" },
-          { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
-        ],
-        edges: [
-          { from: "app", to: "edge" },
-          { from: "edge", to: "ai" },
-          { from: "edge", to: "db" },
-        ],
-      },
-      decisions: [
-        { kind: "+", tech: "Ingest CSV/OFX próprio", reason: "não depender de Open Finance no MVP; libera o produto sem convênio bancário" },
-        { kind: "+", tech: "Persona sarcástica travada em system prompt", reason: "tom é o produto — não pode variar entre sessões" },
-        { kind: "+", tech: "Categorização por regras + IA", reason: "regras cobrem 80% barato; IA só resolve os casos ambíguos" },
-        { kind: "-", tech: "Pluggy/Belvo no MVP descartado", reason: "custo por conta inviabiliza o preço de entrada" },
-      ],
-      code: {
-        lang: "typescript",
-        filename: "roast.ts",
-        badge: "// rascunho interno — em construção",
-        body: `// src/lib/fynk/roast.ts
-  export const ROAST_SYSTEM = \`
-  Você é o copiloto financeiro do FYNK. Personalidade: sarcástico,
-  direto, sem paciência para desculpa. Nunca xinga. Sempre confronta
-  o gasto com a meta declarada do usuário. Fecha com uma ação de 1 linha.
-  \`;
-  
-  export function buildRoastPrompt(input: {
-    monthTotal: number;
-    topCategory: { name: string; amount: number };
-    goal: string;
-  }) {
-    return \`Mês fechou em R$ \${input.monthTotal}. Maior categoria:
-  \${input.topCategory.name} (R$ \${input.topCategory.amount}).
-  Meta declarada: "\${input.goal}". Comente.\`;
-  }
-  `,
-      },
-    },
-  {
-      icon: "usuario",
-      slug: "ourleads",
-      name: "OURleads",
-      tagline: "Gestão de leads para quem cansou de CRM inchado — de qualquer nicho, não só imobiliária.",
-      status: "Em desenvolvimento",
-      statusTone: "dev",
-      stage: "Pipeline, distribuição e integrações-base em construção",
-      nextMilestone: "Distribuição round-robin com SLA de resposta",
-      problem:
-        "Ferramentas como C2S resolvem bem gestão de leads — mas só para imobiliária. Fora desse nicho, quem quer organizar lead vai parar em CRM genérico caro e configurável demais. O OURleads pega o núcleo bom (captura → distribuição → follow-up → conversão) e entrega enxuto para clínicas, escolas, prestadores de serviço, agências — qualquer negócio que roda em cima de lead frio.",
-      arch: {
-        note: "// rascunho — topologia a confirmar",
-        nodes: [
-          { id: "web", x: 40, y: 50, label: "Web", sub: "React 19" },
-          { id: "api", x: 230, y: 50, label: "API", sub: "Server Fn · Edge" },
-          { id: "wh", x: 420, y: 50, label: "Webhooks", sub: "Meta · Google · WA" },
-          { id: "db", x: 230, y: 200, label: "DB", sub: "Postgres · RLS" },
-        ],
-        edges: [
-          { from: "web", to: "api" },
-          { from: "api", to: "db" },
-          { from: "wh", to: "api" },
-        ],
-      },
-      decisions: [
-        { kind: "+", tech: "Webhooks em /api/public/*", reason: "endpoints públicos verificados por assinatura, sem auth de app" },
-        { kind: "+", tech: "Motor de distribuição em Postgres", reason: "SLA e round-robin em transação — não em fila externa" },
-        { kind: "+", tech: "RLS por conta + role", reason: "vendedor só enxerga o próprio funil sem lógica no client" },
-        { kind: "-", tech: "Multi-tenant por schema descartado", reason: "explosão de migrations; RLS resolve com custo menor" },
-      ],
-      code: {
-        lang: "sql",
-        filename: "leads_rls.sql",
-        badge: "// rascunho interno — em construção",
-        body: `-- policies/leads.sql
-  alter table public.leads enable row level security;
-  
-  create policy "vendedor ve seus leads"
-    on public.leads for select
-    to authenticated
-    using (owner_id = auth.uid());
-  
-  create policy "gestor ve tudo da conta"
-    on public.leads for select
-    to authenticated
-    using (public.has_role(auth.uid(), 'gestor'));
-  `,
-      },
-    },
-]
+/** Mede o centro de cada nó do fluxo para que linha e marcador alcancem cada nó com precisão. */
+function useNodeTrack(containerRef: RefObject<HTMLElement | null>, count: number) {
+  const nodeRefs = useRef<(HTMLElement | null)[]>([]);
+  const [track, setTrack] = useState<Track | null>(null);
 
-const toneStyle: Record<Product["statusTone"], string> = {
-  dev: "bg-primary/15 text-primary-glow border-primary/30",
-  scope: "bg-brand-amarelo/10 text-brand-amarelo border-brand-amarelo/30",
-};
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-// ---------- Page ----------
+    const measure = () => {
+      const base = container.getBoundingClientRect();
+      const centers = nodeRefs.current.slice(0, count).map((node) => {
+        if (!node) return null;
+        const r = node.getBoundingClientRect();
+        return { x: r.left + r.width / 2 - base.left, y: r.top + r.height / 2 - base.top };
+      });
+      if (centers.length < count || centers.some((c) => !c)) return;
+      const first = centers[0]!;
+      const last = centers[count - 1]!;
+      const axis = Math.abs(last.y - first.y) > Math.abs(last.x - first.x) ? "y" : "x";
+      setTrack({
+        axis,
+        points: centers.map((c) => (axis === "x" ? c!.x : c!.y)),
+        cross: axis === "x" ? first.y : first.x,
+      });
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [containerRef, count]);
+
+  return { nodeRefs, track };
+}
+
+/** Posição do marcador e tamanho do preenchimento ao longo dos nós medidos. */
+function useTrackPosition(progress: MotionValue<number>, track: Track | null) {
+  const pos = useMotionValue(0);
+  const fill = useMotionValue(0);
+
+  useEffect(() => {
+    if (!track) return;
+    const { points } = track;
+    const segments = points.length - 1;
+    const update = (v: number) => {
+      const t = Math.min(Math.max(v, 0), 1) * segments;
+      const i = Math.min(Math.floor(t), segments - 1);
+      const p = points[i] + (points[i + 1] - points[i]) * (t - i);
+      pos.set(p);
+      fill.set(p - points[0]);
+    };
+    update(progress.get());
+    return progress.on("change", update);
+  }, [progress, track, pos, fill]);
+
+  return { pos, fill };
+}
+
+/* ---------- Página ---------- */
 
 function PortfolioPage() {
-  const [openSlug, setOpenSlug] = useState<string | null>(products[0]?.slug ?? null);
+  const reduce = !!useReducedMotion();
+  const chaptersRef = useRef<HTMLDivElement>(null);
+  const [activeChapter, setActiveChapter] = useState(-1);
+  const [railNodes, setRailNodes] = useState<number[]>([]);
+
+  const { scrollYProgress } = useScroll({
+    target: chaptersRef,
+    offset: ["start center", "end center"],
+  });
+  const railProgress = useSpring(scrollYProgress, HOME_SPRING);
+  const markerTop = useTransform(railProgress, (v) => `${Math.min(Math.max(v, 0), 1) * 100}%`);
+
+  // Posição de cada número de capítulo dentro do bloco de capítulos (sem efeito de transforms).
+  useEffect(() => {
+    const container = chaptersRef.current;
+    if (!container) return;
+    const measure = () => {
+      const offsets = INDEX.map((item) => {
+        let el = container.querySelector<HTMLElement>(`[data-chapter-num="${item.id}"]`);
+        if (!el) return 0;
+        const half = el.offsetHeight / 2;
+        let top = 0;
+        while (el && el !== container) {
+          top += el.offsetTop;
+          el = el.offsetParent as HTMLElement | null;
+        }
+        return top + half;
+      });
+      setRailNodes(offsets);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, []);
+
+  // Capítulo dominante: o último cujo número já cruzou o meio da viewport.
+  useEffect(() => {
+    const container = chaptersRef.current;
+    if (!container || railNodes.length === 0) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const top = container.getBoundingClientRect().top;
+      const mid = window.innerHeight * 0.5;
+      let next = -1;
+      railNodes.forEach((offset, i) => {
+        if (top + offset <= mid) next = i;
+      });
+      setActiveChapter((prev) => (prev === next ? prev : next));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [railNodes]);
+
+  // railNodes só existe após a montagem: o estado estático não altera o HTML hidratado.
+  const railStatic = reduce && railNodes.length > 0;
+
+  const heroIn = (delay: number, y = 20) =>
+    enter(reduce, { opacity: 0, y }, { opacity: 1, y: 0 }, { ...spring, delay });
 
   return (
-    <div>
-      <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-12">
-        <CodeRainBackground seed={4} palette="rosa-azul" className="opacity-40" />
-        <Reveal>
-          <p className="text-sm text-primary-glow font-medium font-mono uppercase tracking-wider">
-            // portfolio.produtos_proprios
-          </p>
-        </Reveal>
-        <Reveal delay={0.05}>
-          <h1 className="mt-2 text-5xl sm:text-6xl font-light tracking-[-0.03em] max-w-3xl text-gradient">
-            O que estamos construindo por conta própria
-          </h1>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
-            Não temos case de cliente para mostrar ainda — e a gente não vai inventar.
-            O que temos são 4 produtos SaaS próprios que estamos codando agora, com
-            problema real, arquitetura escolhida a dedo e trechos do que já roda —
-            o que ainda for plano, a gente rotula como plano.
-            Ficha técnica aberta.
-          </p>
-        </Reveal>
-        <Reveal delay={0.15}>
-          <p className="mt-4 text-xs font-mono text-muted-foreground">
-            // status: nenhum destes é produto de cliente. É Dreamscraft construindo Dreamscraft.
-          </p>
-        </Reveal>
+    <div className="overflow-x-clip">
+      {/* Hero */}
+      <section
+        aria-labelledby="projetos-hero-heading"
+        className="px-5 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-12 lg:pb-20 lg:pt-14"
+      >
+        <div className="mx-auto grid max-w-[1240px] gap-12 lg:grid-cols-12 lg:items-end lg:gap-10">
+          <div className="min-w-0 lg:col-span-8">
+            <motion.p
+              className="text-[11px] uppercase tracking-[0.22em] text-brand-rosa sm:text-[12px]"
+              {...heroIn(0.05, 10)}
+            >
+              Projetos
+            </motion.p>
+            <h1
+              id="projetos-hero-heading"
+              className="mt-5 text-[clamp(1.75rem,1.1rem+2.6vw,3.25rem)] font-light uppercase leading-[1.1] tracking-[-0.03em] text-brand-branco"
+            >
+              {HERO_LINES.map((line, index) => (
+                <span key={line} className="-mb-[0.12em] block overflow-hidden pb-[0.12em]">
+                  <motion.span
+                    className="block"
+                    {...enter(
+                      reduce,
+                      { opacity: 0, y: "70%" },
+                      { opacity: 1, y: "0%" },
+                      { ...spring, delay: 0.16 + index * 0.11 },
+                    )}
+                  >
+                    {line}
+                  </motion.span>
+                </span>
+              ))}
+            </h1>
+            <motion.p
+              className="mt-6 max-w-[40rem] text-sm leading-relaxed text-brand-azul sm:text-base sm:leading-7"
+              {...heroIn(0.58, 16)}
+            >
+              Produtos e projetos que transformam contexto, regras e necessidades reais em
+              experiências utilizáveis. Cada um aparece aqui no estado em que realmente está.
+            </motion.p>
+          </div>
+
+          <nav aria-label="Projetos nesta página" className="lg:col-span-4">
+            <ol className="border-t border-brand-branco/20 pt-6 lg:border-t-0 lg:border-l lg:pl-10 lg:pt-0">
+              {INDEX.map((item, index) => (
+                <motion.li key={item.id} {...heroIn(0.74 + index * 0.07, 12)}>
+                  <a
+                    href={`#${item.id}`}
+                    className="group grid min-h-11 grid-cols-[2.25rem_1fr] items-baseline gap-x-3 rounded-md py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <span className="text-[11px] tracking-[0.18em] text-brand-rosa">
+                      {item.num}
+                    </span>
+                    <span className="text-sm font-light uppercase tracking-[-0.01em] text-brand-branco transition-colors group-hover:text-brand-rosa">
+                      {item.name}
+                    </span>
+                    <span className="col-start-2 mt-1 text-[11px] uppercase tracking-[0.14em] text-brand-branco/50">
+                      {item.status}
+                    </span>
+                  </a>
+                </motion.li>
+              ))}
+            </ol>
+          </nav>
+        </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 pb-20 space-y-4">
-        {products.map((p, i) => (
-          <ProductCard
-            key={p.slug}
-            product={p}
-            index={i}
-            open={openSlug === p.slug}
-            onToggle={() => setOpenSlug(openSlug === p.slug ? null : p.slug)}
+      {/* Capítulos — rail narrativo */}
+      <div ref={chaptersRef} className="relative mx-auto max-w-[1240px] px-5 sm:px-6">
+        <div
+          className="pointer-events-none absolute bottom-0 left-6 top-0 hidden w-px bg-brand-branco/15 lg:block"
+          aria-hidden
+        >
+          <motion.div
+            className="h-full w-px origin-top bg-brand-rosa/70"
+            style={{ scaleY: railStatic ? 1 : railProgress }}
           />
-        ))}
-      </section>
 
-      <section className="relative mx-auto max-w-7xl px-6 pb-16">
-        <CodeRainBackground seed={9} palette="azul" className="opacity-30" />
-        <Reveal>
-          <div className="relative rounded-3xl border border-primary/30 bg-gradient-to-br from-surface to-surface-elevated p-10 text-center">
-            <p className="text-[11px] font-mono uppercase tracking-[0.28em] text-primary-glow">
-              // primeiro_cliente = null
-            </p>
-            <h2 className="mt-4 text-3xl sm:text-4xl font-light tracking-[-0.03em]">
-              Quer ser o primeiro case real?
-            </h2>
-            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-              A gente ainda não entregou projeto para cliente externo. Se você topa
-              construir junto com um time enxuto de engenharia séria, sua vaga é essa.
-            </p>
-            <Link
-              to="/contato"
-              className="btn-glow mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground glow-ring font-mono uppercase tracking-wider"
-            >
-              Conversar agora <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </div>
-        </Reveal>
-      </section>
-    </div>
-  );
-}
+          {railNodes.map((offset, i) => {
+            const active = i === activeChapter;
+            return (
+              <span
+                key={INDEX[i].id}
+                className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
+                style={{ top: offset }}
+              >
+                <span
+                  className={`block h-[7px] w-[7px] border transition-colors duration-300 motion-reduce:transition-none ${
+                    active
+                      ? "border-brand-rosa bg-brand-rosa"
+                      : "border-brand-branco/35 bg-background"
+                  }`}
+                />
+                <span
+                  className={`absolute right-full top-1/2 mr-2.5 -translate-y-1/2 text-[10px] tracking-[0.16em] transition-colors duration-300 motion-reduce:transition-none ${
+                    active ? "text-brand-branco" : "text-brand-branco/40"
+                  }`}
+                >
+                  {INDEX[i].num}
+                </span>
+              </span>
+            );
+          })}
 
-// ---------- Product Card (accordion + tabs) ----------
-
-type TabKey = "problema" | "arquitetura" | "decisoes" | "codigo";
-
-const TABS: { id: TabKey; label: string }[] = [
-  { id: "problema", label: "Problema" },
-  { id: "arquitetura", label: "Arquitetura" },
-  { id: "decisoes", label: "Decisões" },
-  { id: "codigo", label: "Código" },
-];
-
-function ProductCard({
-  product,
-  index,
-  open,
-  onToggle,
-}: {
-  product: Product;
-  index: number;
-  open: boolean;
-  onToggle: () => void;
-}) {
-  const [tab, setTab] = useState<TabKey>("problema");
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, delay: index * 0.05 }}
-      data-cursor="view"
-    >
-      <EditorWindow
-        as="article"
-        filename={`$ products/${product.slug}`}
-        contentClassName="p-0"
-      >
-      <button
-        onClick={onToggle}
-        className="w-full text-left p-5 md:p-6 hover:bg-surface-elevated/50 transition flex items-start gap-5"
-        aria-expanded={open}
-      >
-        <BrandPictogram name={product.icon} color="azul" size={40} className="shrink-0 mt-1" />
-
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="text-2xl md:text-3xl font-light tracking-[-0.02em] font-mono">
-              {product.name}
-            </h2>
-            <span
-              className={`text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-sm border ${toneStyle[product.statusTone]}`}
-            >
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-current mr-1.5 align-middle" />
-              {product.status}
-            </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-sm border border-primary/25 text-primary-glow/80">
-              produto próprio
-            </span>
-          </div>
-
-          <p className="mt-2 text-sm text-foreground/80 leading-relaxed">{product.tagline}</p>
-
-          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1.5 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5 font-mono text-xs">
-              <span className="text-primary-glow">{`// stage`}</span>
-              <span>{product.stage}</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 font-mono text-xs">
-              <span className="text-primary-glow">{`// next`}</span>
-              <span className="text-foreground">{product.nextMilestone}</span>
-            </span>
-          </div>
+          {railNodes.length > 0 && !reduce && (
+            <motion.span
+              className="absolute left-1/2 h-[2px] w-[11px] -translate-x-1/2 -translate-y-1/2 bg-brand-rosa"
+              style={{ top: markerTop }}
+            />
+          )}
         </div>
 
-        <ChevronDown
-          className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 mt-2 ${
-            open ? "rotate-180" : ""
-          }`}
-          aria-hidden
-        />
-      </button>
+        <div className="lg:pl-10">
+          <CuidadimChapter reduce={reduce} active={activeChapter === 0} />
+          <CafeChapter reduce={reduce} active={activeChapter === 1} />
+          <SecretariaChapter reduce={reduce} active={activeChapter === 2} />
+        </div>
+      </div>
 
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            key="content"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="border-t border-primary/20 overflow-hidden"
-          >
-            <div className="p-5 md:p-6">
-              <div role="tablist" className="flex flex-wrap gap-1 border-b border-primary/20 mb-6">
-                {TABS.map((t) => (
-                  <button
-                    key={t.id}
-                    role="tab"
-                    aria-selected={tab === t.id}
-                    onClick={() => setTab(t.id)}
-                    className={`inline-flex items-center px-4 min-h-11 text-sm font-mono rounded-none transition relative ${
-                      tab === t.id
-                        ? "text-primary-glow"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {t.label}
-                    {tab === t.id && (
-                      <motion.span
-                        layoutId={`tab-underline-${product.slug}`}
-                        className="absolute left-0 right-0 -bottom-px h-0.5 bg-primary"
-                      />
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={tab}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {tab === "problema" && (
-                    <p className="text-base leading-relaxed text-foreground/90 max-w-3xl">
-                      {product.problem}
-                    </p>
-                  )}
-                  {tab === "arquitetura" && <MiniArchitecture arch={product.arch} />}
-                  {tab === "decisoes" && <DecisionList decisions={product.decisions} />}
-                  {tab === "codigo" && <CodeViewer code={product.code} />}
-                </motion.div>
-              </AnimatePresence>
-
-              <div className="mt-8 pt-5 border-t border-border/60 flex flex-wrap items-center justify-between gap-4 text-sm">
-                <span className="text-muted-foreground font-mono text-xs">
-                  <Clock className="inline h-3 w-3 mr-1" />
-                  em construção · sem cliente final ainda
-                </span>
+      {/* Fechamento */}
+      <section
+        aria-labelledby="projetos-cta-heading"
+        className="px-5 pt-8 pb-16 sm:px-6 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-24"
+      >
+        <motion.div
+          className="mx-auto max-w-[1240px] border-t border-brand-branco/15 pt-8 sm:pt-10"
+          {...enter(reduce, { opacity: 0.4, y: 20 }, { opacity: 1, y: 0 }, springSoft, {
+            once: true,
+            amount: 0.4,
+          })}
+        >
+          <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-10">
+            <div className="lg:col-span-7">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-brand-rosa">
+                Seu contexto
+              </p>
+              <h2
+                id="projetos-cta-heading"
+                className="mt-4 text-[clamp(1.35rem,1rem+1.4vw,2.15rem)] font-light uppercase leading-[1.14] tracking-[-0.03em] text-brand-branco"
+              >
+                <span className="block">O próximo projeto</span>
+                <span className="block">começa pelo problema.</span>
+              </h2>
+            </div>
+            <div className="lg:col-span-5">
+              <div className="h-px w-12 bg-brand-rosa/70" aria-hidden />
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-brand-azul sm:text-[15px] sm:leading-7">
+                Conte o que precisa mudar. O diagnóstico organiza contexto, restrições e o primeiro
+                recorte.
+              </p>
+              <div className="mt-6">
                 <Link
-                  to="/contato"
-                  className="inline-flex items-center gap-1.5 text-primary-glow hover:text-primary transition"
+                  to="/estimar"
+                  className="inline-flex min-h-12 items-center justify-center rounded-button bg-brand-rosa px-6 text-sm font-medium text-brand-roxo transition-[transform,filter] duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transform-none"
                 >
-                  <MessageCircle className="h-4 w-4" />
-                  Falar sobre {product.name}
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  Solicitar diagnóstico
                 </Link>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      </EditorWindow>
-    </motion.div>
+          </div>
+        </motion.div>
+      </section>
+    </div>
   );
 }
 
-// ---------- Tab contents ----------
+/* ---------- Estrutura comum de capítulo ---------- */
 
-function boxPort(
-  from: ArchNode,
-  to: ArchNode,
-  w: number,
-  h: number,
-): { x: number; y: number } {
-  const fx = from.x + w / 2;
-  const fy = from.y + h / 2;
-  const tx = to.x + w / 2;
-  const ty = to.y + h / 2;
-  const dx = tx - fx;
-  const dy = ty - fy;
-  const hw = w / 2;
-  const hh = h / 2;
-  const absDx = Math.abs(dx);
-  const absDy = Math.abs(dy);
-  if (absDx < 0.001 && absDy < 0.001) return { x: fx, y: fy };
-  const t = absDx * hh > absDy * hw ? hw / absDx : hh / absDy;
-  return { x: fx + dx * t, y: fy + dy * t };
+type ChapterInfo = {
+  id: string;
+  num: string;
+  name: string;
+  classification: string;
+  status: string;
+  problem: string;
+  exists: string;
+  stack: string[];
+  accent: Accent;
+};
+
+function ChapterIdentity({ info, active }: { info: ChapterInfo; active: boolean }) {
+  return (
+    <>
+      <div className="flex items-baseline gap-4">
+        <motion.p
+          data-chapter-num={info.id}
+          className={`text-[clamp(2rem,1.5rem+2vw,3rem)] font-light tracking-[-0.04em] ${accentText[info.accent]}`}
+          aria-hidden
+          initial={false}
+          animate={{ opacity: active ? 1 : 0.5 }}
+          transition={{ duration: 0.35, ease: homeEase }}
+        >
+          {info.num}
+        </motion.p>
+        <div className="h-px flex-1 bg-brand-branco/20" aria-hidden />
+      </div>
+      <h2
+        id={`${info.id}-heading`}
+        className="mt-5 text-[clamp(1.5rem,1.1rem+1.6vw,2.4rem)] font-light uppercase leading-[1.08] tracking-[-0.03em] text-brand-branco"
+      >
+        <span className="sr-only">{info.num} — </span>
+        {info.name}
+      </h2>
+      <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-5 gap-y-1.5 text-[11px] uppercase tracking-[0.16em]">
+        <dt className="text-brand-branco/50">Classificação</dt>
+        <dd className="text-brand-branco/85">{info.classification}</dd>
+        <dt className="text-brand-branco/50">Status</dt>
+        <dd className={accentText[info.accent]}>{info.status}</dd>
+      </dl>
+    </>
+  );
 }
 
-function MiniArchitecture({ arch }: { arch: Product["arch"] }) {
-  const reduce = useReducedMotion();
-  const pos = Object.fromEntries(arch.nodes.map((n) => [n.id, n]));
-  const nodeW = 128;
-  const nodeH = 56;
-  const viewBox = arch.viewBox ?? "0 0 560 290";
-  const markerId = `arch-arrow-${arch.note ?? "default"}`.replace(/[^a-zA-Z0-9_-]/g, "");
+function ChapterBody({ info, children }: { info: ChapterInfo; children?: ReactNode }) {
+  return (
+    <>
+      <div>
+        <p className="text-[11px] uppercase tracking-[0.16em] text-brand-branco/55">Problema</p>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-brand-branco/90 sm:text-[15px] sm:leading-7">
+          {info.problem}
+        </p>
+      </div>
+      <div className="mt-7">
+        <p className="text-[11px] uppercase tracking-[0.16em] text-brand-branco/55">
+          O que existe hoje
+        </p>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-brand-azul sm:text-[15px] sm:leading-7">
+          {info.exists}
+        </p>
+      </div>
+      <p className="mt-7 border-t border-brand-branco/12 pt-4 text-[12px] leading-relaxed text-brand-branco/70">
+        <span className="mr-3 uppercase tracking-[0.16em] text-brand-branco/50">Stack</span>
+        {info.stack.join(" · ")}
+      </p>
+      {children}
+    </>
+  );
+}
 
-  const edgeGeom = arch.edges
-    .map((e) => {
-      const a = pos[e.from];
-      const b = pos[e.to];
-      if (!a || !b) return null;
-      const start = boxPort(a, b, nodeW, nodeH);
-      const end = boxPort(b, a, nodeW, nodeH);
-      return { ...e, start, end, mx: (start.x + end.x) / 2, my: (start.y + end.y) / 2 };
-    })
-    .filter(Boolean) as Array<
-    ArchEdge & { start: { x: number; y: number }; end: { x: number; y: number }; mx: number; my: number }
-  >;
+function chapterTextMotion(reduce: boolean) {
+  return enter(reduce, { opacity: 0.3, y: 24 }, { opacity: 1, y: 0 }, spring, {
+    once: true,
+    amount: 0.25,
+  });
+}
+
+function evidenceMotion(reduce: boolean, from: { x?: number; y?: number }) {
+  return enter(
+    reduce,
+    { opacity: 0.35, x: from.x ?? 0, y: from.y ?? 0 },
+    { opacity: 1, x: 0, y: 0 },
+    { ...spring, delay: 0.08 },
+    { once: true, amount: 0.2 },
+  );
+}
+
+const chapterClass =
+  "scroll-mt-24 border-t border-brand-branco/12 py-14 first:border-t-0 first:pt-2 sm:py-16 lg:py-20";
+
+/* ---------- 01 — Cuidadim ---------- */
+
+const CUIDADIM: ChapterInfo = {
+  id: "cuidadim",
+  num: "01",
+  name: "Cuidadim",
+  classification: "Produto próprio",
+  status: "Em desenvolvimento",
+  problem:
+    "Organizar cuidados, saúde, rotina, finanças e memórias de pets quando a responsabilidade é dividida pela família.",
+  exists:
+    "App funcional com demo pública. Reúne pets, registros de saúde, agenda, despesas e memórias em um só lugar, com papéis diferentes para cada pessoa da família.",
+  stack: ["Next.js", "TypeScript", "React", "Supabase", "Vercel"],
+  accent: "rosa",
+};
+
+const MODULE_START = 0.28;
+const MODULE_STEP = 0.07;
+const FAMILY_DELAY = MODULE_START + CUIDADIM_MODULES.length * MODULE_STEP;
+
+function CuidadimChapter({ reduce, active }: { reduce: boolean; active: boolean }) {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(mapRef, { once: true, amount: 0.35 });
+  const on = reduce || inView;
+
+  const line = (delay: number) => ({
+    initial: { scaleX: 0 },
+    animate: on ? { scaleX: 1 } : {},
+    transition: reduce ? { duration: 0 } : { duration: 0.5, ease: homeEase, delay },
+  });
+
+  const settle = (delay: number, from = 0.5) => ({
+    initial: { opacity: from, y: 8 },
+    animate: on ? { opacity: 1, y: 0 } : {},
+    transition: reduce ? { duration: 0 } : { ...springSoft, delay },
+  });
 
   return (
-    <div className="overflow-hidden rounded-lg border border-brand-rosa/30 bg-surface">
-      <div className="flex items-center gap-2 border-b border-brand-rosa/20 bg-surface-elevated/80 px-4 py-2 font-mono text-[10px] text-muted-foreground sm:text-[11px]">
-        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-rosa/80" aria-hidden />
-        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-amarelo/80" aria-hidden />
-        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-azul/80" aria-hidden />
-        <span className="ml-2 truncate text-primary-glow/90">
-          {arch.note ?? "// architecture.diagram"}
-        </span>
-      </div>
+    <article id={CUIDADIM.id} aria-labelledby={`${CUIDADIM.id}-heading`} className={chapterClass}>
+      <div className="grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-12">
+        <motion.div className="min-w-0 lg:col-span-5" {...chapterTextMotion(reduce)}>
+          <ChapterIdentity info={CUIDADIM} active={active} />
+          <div className="mt-8">
+            <ChapterBody info={CUIDADIM}>
+              <div className="mt-7 flex gap-3">
+                <span className="mt-2 h-px w-6 shrink-0 bg-brand-rosa/70" aria-hidden />
+                <p className="max-w-md text-[13px] leading-relaxed text-brand-branco/65">
+                  Experiência pública em atualização de identidade.
+                </p>
+              </div>
+            </ChapterBody>
+          </div>
+        </motion.div>
 
-      <div className="bg-[#0A0620] p-4 sm:p-5">
-        <svg
-          viewBox={viewBox}
-          className="h-auto w-full"
-          role="img"
-          aria-label="Diagrama de arquitetura"
-        >
-          <defs>
-            <marker
-              id={markerId}
-              viewBox="0 0 10 10"
-              refX="9"
-              refY="5"
-              markerWidth="5"
-              markerHeight="5"
-              orient="auto"
-            >
-              <path d="M 0 1.5 L 8 5 L 0 8.5 Z" fill="var(--color-brand-rosa)" fillOpacity="0.75" />
-            </marker>
-          </defs>
-
-          {/* Linhas atrás das caixas */}
-          {edgeGeom.map((e, i) => (
-            <motion.line
-              key={`line-${e.from}-${e.to}-${i}`}
-              x1={e.start.x}
-              y1={e.start.y}
-              x2={e.end.x}
-              y2={e.end.y}
-              stroke="var(--color-brand-rosa)"
-              strokeOpacity={0.4}
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
-              markerEnd={`url(#${markerId})`}
-              initial={reduce ? { opacity: 1 } : { pathLength: 0, opacity: 0 }}
-              animate={reduce ? { opacity: 1 } : { pathLength: 1, opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.2 + i * 0.08 }}
-            />
-          ))}
-
-          {/* Caixas */}
-          {arch.nodes.map((n, i) => (
-            <motion.g
-              key={n.id}
-              initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.35, delay: 0.1 + i * 0.06 }}
-              style={{ transformOrigin: `${n.x + nodeW / 2}px ${n.y + nodeH / 2}px` }}
-            >
-              <rect
-                x={n.x}
-                y={n.y}
-                width={nodeW}
-                height={nodeH}
-                rx={6}
-                fill="var(--color-brand-roxo)"
-                stroke="var(--color-brand-rosa)"
-                strokeOpacity={0.4}
-                strokeWidth={1}
+        <motion.figure className="min-w-0 lg:col-span-7" {...evidenceMotion(reduce, { x: 28 })}>
+          <div ref={mapRef} className="border border-brand-branco/10 bg-surface p-6 sm:p-8">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-brand-rosa">
+                Mapa do produto
+              </p>
+              <p className="text-[11px] uppercase tracking-[0.14em] text-brand-branco/50">
+                módulos no app hoje
+              </p>
+            </div>
+            <ol className="mt-8 grid grid-cols-2 gap-x-5 gap-y-5 sm:gap-x-8">
+              {CUIDADIM_MODULES.map((label, index) => (
+                <li key={label} className="relative pt-3">
+                  <motion.span
+                    className="absolute inset-x-0 top-0 h-px origin-left bg-brand-branco/15"
+                    aria-hidden
+                    {...line(0.14 + index * 0.06)}
+                  />
+                  <motion.span
+                    className="block"
+                    {...settle(MODULE_START + index * MODULE_STEP)}
+                  >
+                    <span className="block text-[11px] tracking-[0.18em] text-brand-rosa/80">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="mt-1.5 block text-[13px] uppercase leading-snug tracking-[-0.01em] text-brand-branco sm:text-sm">
+                      {label}
+                    </span>
+                  </motion.span>
+                </li>
+              ))}
+            </ol>
+            <div className="relative mt-8 pt-4">
+              <motion.span
+                className="absolute inset-x-0 top-0 h-px origin-left bg-brand-rosa/50"
+                aria-hidden
+                {...line(FAMILY_DELAY - 0.08)}
               />
-              <text
-                x={n.x + nodeW / 2}
-                y={n.y + 22}
-                textAnchor="middle"
-                fill="var(--color-brand-branco)"
-                style={{ font: "500 11px 'Cascadia Code', ui-monospace, monospace" }}
-              >
-                {n.label}
-              </text>
-              <text
-                x={n.x + nodeW / 2}
-                y={n.y + 40}
-                textAnchor="middle"
-                fill="var(--color-brand-branco)"
-                fillOpacity={0.55}
-                style={{ font: "400 9px 'Cascadia Code', ui-monospace, monospace" }}
-              >
-                {n.sub}
-              </text>
-            </motion.g>
-          ))}
-
-          {/* Rótulos das setas — por cima das caixas (quando existirem) */}
-          {edgeGeom.map((e, i) =>
-            e.label ? (
-              <text
-                key={`label-${e.from}-${e.to}-${i}`}
-                x={e.mx}
-                y={e.my - 8}
-                textAnchor="middle"
-                fill="var(--color-brand-azul)"
-                style={{ font: "500 9px 'Cascadia Code', ui-monospace, monospace" }}
-              >
-                {e.label}
-              </text>
-            ) : null,
-          )}
-        </svg>
+              <motion.div {...settle(FAMILY_DELAY + 0.06, 0.45)}>
+                <p className="text-[11px] uppercase tracking-[0.18em] text-brand-rosa">Família</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-brand-branco/85 sm:text-sm">
+                  Papéis de responsável, cuidador e visualizador · convites
+                </p>
+              </motion.div>
+            </div>
+          </div>
+          <figcaption className="mt-3 text-[11px] leading-relaxed text-brand-branco/45">
+            Composição institucional a partir dos módulos existentes — não representa a identidade
+            final do produto.
+          </figcaption>
+        </motion.figure>
       </div>
-    </div>
+    </article>
   );
 }
 
-function DecisionList({ decisions }: { decisions: Decision[] }) {
+/* ---------- 02 — Café Orquestra ---------- */
+
+const CAFE: ChapterInfo = {
+  id: "cafe-orquestra",
+  num: "02",
+  name: "Café Orquestra",
+  classification: "Projeto próprio",
+  status: "Protótipo em validação",
+  problem:
+    "Na cafeicultura, várias frentes disputam os mesmos recursos. Falta inteligência operacional para priorizar o que precisa acontecer primeiro, considerando o contexto da operação.",
+  exists:
+    "Protótipo técnico demonstrável, com demo pública em modo demonstrativo e fluxo conectado ao Supabase. Desenvolvido no Programa de Pré-Aceleração Avança Café 2026 e em validação.",
+  stack: ["JavaScript modular", "Supabase", "Netlify"],
+  accent: "azul",
+};
+
+/** Progresso do Café = posição atual do scroll. Descer avança, subir reverte. */
+function useCafeScroll(target: RefObject<HTMLElement | null>, reduce: boolean) {
+  const { scrollYProgress } = useScroll({ target, offset: ["start 75%", "end 50%"] });
+  const settled = useMotionValue(1);
+  const [focus, setFocus] = useState(0);
+  const span = CAFE_LAYERS.length - 1;
+
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    if (reduce) return;
+    const next = Math.min(Math.max(value, 0), 1) * span;
+    setFocus((prev) => (Math.abs(prev - next) < 0.004 ? prev : next));
+  });
+
+  useEffect(() => {
+    if (reduce) return;
+    setFocus(Math.min(Math.max(scrollYProgress.get(), 0), 1) * span);
+  }, [reduce, scrollYProgress, span]);
+
+  return { motion: reduce ? settled : scrollYProgress, focus };
+}
+
+function CafeChapter({ reduce, active }: { reduce: boolean; active: boolean }) {
+  const layersRef = useRef<HTMLOListElement>(null);
+  const { motion: progress, focus } = useCafeScroll(layersRef, reduce);
+  const { nodeRefs, track } = useNodeTrack(layersRef, CAFE_LAYERS.length);
+  const { pos, fill } = useTrackPosition(progress, track);
+
   return (
-    <ul className="space-y-2 font-mono text-sm">
-      {decisions.map((d, i) => (
-        <motion.li
-          key={i}
-          initial={{ opacity: 0, x: -8 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.25, delay: i * 0.05 }}
-          className={`flex gap-3 rounded-lg border px-4 py-3 ${
-            d.kind === "+"
-              ? "border-brand-amarelo/25 bg-brand-amarelo/5"
-              : "border-brand-rosa/25 bg-brand-rosa/5"
-          }`}
+    <article id={CAFE.id} aria-labelledby={`${CAFE.id}-heading`} className={chapterClass}>
+      <div className="grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-12">
+        <motion.figure
+          className="order-2 min-w-0 lg:order-1 lg:col-span-7"
+          {...evidenceMotion(reduce, { x: -28 })}
         >
-          <span
-            className={`text-base leading-5 ${
-              d.kind === "+" ? "text-brand-amarelo" : "text-brand-rosa"
-            }`}
+          <div className="border border-brand-branco/10 bg-surface p-6 sm:p-8">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-brand-azul">
+                Camadas do protótipo
+              </p>
+              <p className="text-[11px] uppercase tracking-[0.14em] text-brand-branco/50">
+                modo demo · dados demonstrativos
+              </p>
+            </div>
+            <ol ref={layersRef} className="relative mt-8">
+              {track && (
+                <>
+                  <span
+                    className="pointer-events-none absolute w-px -translate-x-1/2 bg-brand-branco/15"
+                    style={{
+                      left: track.cross,
+                      top: track.points[0],
+                      height: track.points[track.points.length - 1] - track.points[0],
+                    }}
+                    aria-hidden
+                  />
+                  <motion.span
+                    className="pointer-events-none absolute w-px -translate-x-1/2 bg-brand-azul"
+                    style={{ left: track.cross, top: track.points[0], height: fill }}
+                    aria-hidden
+                  />
+                  {!reduce && (
+                    <motion.span
+                      className="pointer-events-none absolute z-20 h-[2px] w-[9px] bg-brand-azul"
+                      style={{ left: track.cross, top: pos, x: "-50%", y: "-50%" }}
+                      aria-hidden
+                    />
+                  )}
+                </>
+              )}
+              {CAFE_LAYERS.map((layer, index) => {
+                const weight = reduce ? 1 : Math.max(0, 1 - Math.abs(focus - index));
+                const opacity = reduce ? 1 : 0.72 + weight * 0.28;
+                const shift = reduce ? 0 : (1 - weight) * 4;
+                return (
+                  <li key={layer.title} className="relative grid grid-cols-[1.5rem_1fr] gap-x-3 py-3">
+                    <span
+                      ref={(el) => {
+                        nodeRefs.current[index] = el;
+                      }}
+                      className="relative z-10 mt-1.5 block h-2.5 w-2.5 border border-brand-azul bg-brand-azul"
+                      style={{
+                        opacity: reduce ? 1 : 0.45 + weight * 0.55,
+                        transform: `scale(${reduce ? 1 : 0.86 + weight * 0.14})`,
+                      }}
+                      aria-hidden
+                    />
+                    <span
+                      className="min-w-0"
+                      style={{ opacity, transform: shift ? `translateY(${shift}px)` : undefined }}
+                    >
+                      <span className="block text-[13px] uppercase tracking-[-0.01em] text-brand-branco sm:text-sm">
+                        {layer.title}
+                      </span>
+                      <span className="mt-1 block text-[12px] leading-relaxed text-brand-branco/60 sm:text-[13px]">
+                        {layer.note}
+                      </span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="mt-6 border-t border-brand-branco/12 pt-4 text-[12px] leading-relaxed text-brand-branco/60">
+              Recomendação não é prescrição agronômica. Protótipo não é implantação em produtor ou
+              cooperativa.
+            </p>
+          </div>
+        </motion.figure>
+
+        <motion.div
+          className="order-1 min-w-0 lg:order-2 lg:col-span-5"
+          {...chapterTextMotion(reduce)}
+        >
+          <ChapterIdentity info={CAFE} active={active} />
+          <div className="mt-8">
+            <ChapterBody info={CAFE}>
+              <div className="mt-8">
+                <a
+                  href="https://cafe-orquestra-mvp.netlify.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={secondaryCta}
+                >
+                  Explorar protótipo
+                  <span aria-hidden className="text-brand-azul">
+                    ↗
+                  </span>
+                  <span className="sr-only">(abre em nova aba)</span>
+                </a>
+              </div>
+            </ChapterBody>
+          </div>
+        </motion.div>
+      </div>
+    </article>
+  );
+}
+
+/* ---------- 03 — Secretária.Code ---------- */
+
+const SECRETARIA: ChapterInfo = {
+  id: "secretaria-code",
+  num: "03",
+  name: "Secretária.Code",
+  classification: "Produto próprio",
+  status: "Em validação",
+  problem:
+    "Atendimento no WhatsApp que precisa manter contexto sem depender de respostas manuais repetitivas.",
+  exists:
+    "Recebe a mensagem, interpreta o pedido, usa contexto e memória simples, gera a resposta e devolve pelo próprio WhatsApp.",
+  stack: ["WhatsApp Cloud API", "n8n", "OpenRouter"],
+  accent: "rosa",
+};
+
+function SecretariaChapter({ reduce, active }: { reduce: boolean; active: boolean }) {
+  const flowRef = useRef<HTMLOListElement>(null);
+  const progress = useLatchedProgress(flowRef, ["start 85%", "end 50%"], reduce, true);
+  const reached = useReachedStep(progress, SECRETARIA_FLOW.length, reduce);
+  const { nodeRefs, track } = useNodeTrack(flowRef, SECRETARIA_FLOW.length);
+  const { pos, fill } = useTrackPosition(progress, track);
+  const done = reached >= SECRETARIA_FLOW.length - 1;
+  const horizontal = track?.axis === "x";
+
+  return (
+    <article
+      id={SECRETARIA.id}
+      aria-labelledby={`${SECRETARIA.id}-heading`}
+      className={chapterClass}
+    >
+      <motion.div className="grid gap-8 lg:grid-cols-12 lg:gap-12" {...chapterTextMotion(reduce)}>
+        <div className="min-w-0 lg:col-span-5">
+          <ChapterIdentity info={SECRETARIA} active={active} />
+        </div>
+        <div className="min-w-0 lg:col-span-7 lg:pt-2">
+          <ChapterBody info={SECRETARIA}>
+            <div className="mt-8">
+              <Link to="/solucoes" className={secondaryCta}>
+                Entender a solução
+                <span aria-hidden className="text-brand-rosa">
+                  →
+                </span>
+              </Link>
+            </div>
+          </ChapterBody>
+        </div>
+      </motion.div>
+
+      <motion.figure className="mt-12 lg:mt-16" {...evidenceMotion(reduce, { y: 28 })}>
+        <div className="border border-brand-branco/10 bg-surface p-6 sm:p-8">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-brand-rosa">Fluxo atual</p>
+
+          <ol ref={flowRef} className="relative mt-8 grid gap-0 lg:grid-cols-5 lg:gap-6">
+            {track && (
+              <>
+                <span
+                  className={`pointer-events-none absolute bg-brand-branco/15 ${
+                    horizontal ? "h-px -translate-y-1/2" : "w-px -translate-x-1/2"
+                  }`}
+                  style={
+                    horizontal
+                      ? {
+                          top: track.cross,
+                          left: track.points[0],
+                          width: track.points[track.points.length - 1] - track.points[0],
+                        }
+                      : {
+                          left: track.cross,
+                          top: track.points[0],
+                          height: track.points[track.points.length - 1] - track.points[0],
+                        }
+                  }
+                  aria-hidden
+                />
+                <motion.span
+                  className={`pointer-events-none absolute ${
+                    horizontal
+                      ? "h-px -translate-y-1/2 bg-gradient-to-r from-brand-rosa to-brand-azul"
+                      : "w-px -translate-x-1/2 bg-gradient-to-b from-brand-rosa to-brand-azul"
+                  }`}
+                  style={
+                    horizontal
+                      ? { top: track.cross, left: track.points[0], width: fill }
+                      : { left: track.cross, top: track.points[0], height: fill }
+                  }
+                  aria-hidden
+                />
+                {!reduce && (
+                  <motion.span
+                    className={`pointer-events-none absolute z-20 block h-3 w-3 border-2 bg-brand-roxo transition-colors duration-300 ${
+                      done ? "border-brand-azul" : "border-brand-rosa"
+                    }`}
+                    style={
+                      horizontal
+                        ? { left: pos, top: track.cross, x: "-50%", y: "-50%" }
+                        : { top: pos, left: track.cross, x: "-50%", y: "-50%" }
+                    }
+                    initial={false}
+                    animate={{ scale: done ? [1, 1.4, 1] : 1 }}
+                    transition={{ duration: 0.55, ease: homeEase }}
+                    aria-hidden
+                  />
+                )}
+              </>
+            )}
+
+            {SECRETARIA_FLOW.map((step, index) => {
+              const isOn = index <= reached;
+              const tone = index < 2 ? "rosa" : "azul";
+              return (
+                <li
+                  key={step.num}
+                  className="relative grid grid-cols-[1.5rem_1fr] gap-x-3 pb-6 last:pb-0 lg:block lg:pb-0"
+                >
+                  <motion.span
+                    ref={(el) => {
+                      nodeRefs.current[index] = el;
+                    }}
+                    className={`relative z-10 block h-2.5 w-2.5 border transition-colors duration-300 motion-reduce:transition-none ${
+                      isOn
+                        ? tone === "rosa"
+                          ? "border-brand-rosa bg-brand-rosa"
+                          : "border-brand-azul bg-brand-azul"
+                        : "border-brand-branco/30 bg-surface"
+                    }`}
+                    aria-hidden
+                    initial={false}
+                    animate={{ scale: isOn ? 1 : 0.8 }}
+                    transition={reduce ? { duration: 0 } : springSoft}
+                  />
+                  <motion.span
+                    className="min-w-0 lg:mt-5 lg:block"
+                    initial={false}
+                    animate={{ opacity: isOn ? 1 : 0.45, y: isOn ? 0 : 6 }}
+                    transition={reduce ? { duration: 0 } : springSoft}
+                  >
+                    <span
+                      className={`block text-[11px] tracking-[0.18em] ${
+                        tone === "rosa" ? "text-brand-rosa" : "text-brand-azul"
+                      }`}
+                    >
+                      {step.num}
+                    </span>
+                    <span className="mt-1 block text-[13px] uppercase tracking-[-0.01em] text-brand-branco sm:text-sm">
+                      {step.title}
+                    </span>
+                    <span className="mt-1 block text-[12px] leading-relaxed text-brand-branco/60 sm:text-[13px]">
+                      {step.note}
+                    </span>
+                  </motion.span>
+                </li>
+              );
+            })}
+          </ol>
+
+          <motion.p
+            className="mt-8 border-t border-brand-branco/12 pt-4 text-[12px] leading-relaxed text-brand-branco/60"
+            initial={{ opacity: 0, y: 8 }}
+            animate={done ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+            transition={reduce ? { duration: 0 } : { ...springSoft, delay: 0.35 }}
           >
-            {d.kind}
-          </span>
-          <span className="text-foreground">
-            <span className="text-foreground">{d.tech}</span>
-            <span className="text-muted-foreground"> → {d.reason}</span>
-          </span>
-        </motion.li>
-      ))}
-    </ul>
-  );
-}
-
-function CodeViewer({ code }: { code: Product["code"] }) {
-  return (
-    <div className="rounded-2xl border border-border bg-[#0A0620] overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background/40">
-        <span className="font-mono text-xs text-muted-foreground">{code.filename}</span>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-primary-glow">
-          {code.badge ?? "// trecho"}
-        </span>
-      </div>
-      <ClientOnly fallback={<pre className="p-4 text-xs text-muted-foreground font-mono h-[260px] overflow-auto">{code.body}</pre>}>
-        <Suspense
-          fallback={
-            <pre className="p-4 text-xs text-muted-foreground font-mono h-[260px] overflow-auto">{code.body}</pre>
-          }
-        >
-          <MonacoEditor
-            height="260px"
-            language={code.lang}
-            value={code.body}
-            theme="vs-dark"
-            options={{
-              readOnly: true,
-              minimap: { enabled: false },
-              fontSize: 12,
-              fontFamily: "'Cascadia Code', ui-monospace, monospace",
-              scrollBeyondLastLine: false,
-              lineNumbers: "on",
-              renderLineHighlight: "none",
-              folding: false,
-              contextmenu: false,
-              scrollbar: { vertical: "auto", horizontal: "auto" },
-            }}
-          />
-        </Suspense>
-      </ClientOnly>
-    </div>
+            <span className="mr-3 uppercase tracking-[0.16em] text-brand-branco/50">
+              Ainda não inclui
+            </span>
+            {SECRETARIA_NOT_YET.join(" · ")}
+          </motion.p>
+        </div>
+      </motion.figure>
+    </article>
   );
 }

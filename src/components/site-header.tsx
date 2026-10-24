@@ -25,6 +25,7 @@ const routesWithLocalDiagnosticCta = new Set([
   "/estimar",
   "/contato",
   "/solucoes",
+  "/portfolio",
 ]);
 
 function navKey(item: NavItem) {

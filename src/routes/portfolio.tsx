@@ -96,61 +96,6 @@ const springSoft = { type: "spring" as const, ...HOME_SPRING_SOFT };
 /* ---------- Motion helpers ---------- */
 
 /**
- * Progresso de scroll que só avança: etapas alcançadas permanecem ativas
- * ao rolar de volta (ENTRY → SCROLL RESPONSE → SETTLE → HOLD).
- */
-function useLatchedProgress(
-  target: RefObject<HTMLElement | null>,
-  offset: NonNullable<Parameters<typeof useScroll>[0]>["offset"],
-  reduce: boolean,
-  completeAtPageEnd = false,
-) {
-  const { scrollYProgress } = useScroll({ target, offset });
-  const { scrollYProgress: pageProgress } = useScroll();
-  const latched = useMotionValue(0);
-  const smooth = useSpring(latched, HOME_SPRING);
-
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    if (!reduce && v > latched.get()) latched.set(v);
-  });
-
-  // Em viewports altas o fim do intervalo pode não ser alcançável: o fim da página conclui o fluxo.
-  useMotionValueEvent(pageProgress, "change", (v) => {
-    if (completeAtPageEnd && !reduce && v > 0.995) latched.set(1);
-  });
-
-  useEffect(() => {
-    if (reduce) {
-      latched.set(1);
-      smooth.jump(1);
-      return;
-    }
-    const v = scrollYProgress.get();
-    if (v > latched.get()) latched.set(v);
-  }, [reduce, latched, smooth, scrollYProgress]);
-
-  return smooth;
-}
-
-/** Índice da última etapa alcançada pelo progresso (nunca regride). */
-function useReachedStep(progress: MotionValue<number>, count: number, reduce: boolean) {
-  const [reached, setReached] = useState(-1);
-
-  useMotionValueEvent(progress, "change", (v) => {
-    // Tolerância: a mola sobreamortecida se aproxima de 1 lentamente.
-    const step = Math.min(count - 1, Math.floor(v * (count - 1) + 0.08));
-    setReached((prev) => (step > prev ? step : prev));
-  });
-
-  // Aplicado após a montagem para que o HTML do servidor e a hidratação coincidam.
-  useEffect(() => {
-    if (reduce) setReached(count - 1);
-  }, [reduce, count]);
-
-  return reached;
-}
-
-/**
  * Entrada com o mesmo estado inicial no servidor e no cliente.
  * Com reduced motion, o estado final é aplicado imediatamente, sem transição.
  */
@@ -840,13 +785,33 @@ const SECRETARIA: ChapterInfo = {
   accent: "rosa",
 };
 
+/** Progresso do fluxo da Secretária = posição atual do scroll. Descer avança, subir reverte. */
+function useSecretariaScroll(target: RefObject<HTMLElement | null>, reduce: boolean) {
+  const { scrollYProgress } = useScroll({ target, offset: ["start 85%", "end 50%"] });
+  const settled = useMotionValue(1);
+  const [focus, setFocus] = useState(0);
+  const span = SECRETARIA_FLOW.length - 1;
+
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    if (reduce) return;
+    const next = Math.min(Math.max(value, 0), 1) * span;
+    setFocus((prev) => (Math.abs(prev - next) < 0.004 ? prev : next));
+  });
+
+  useEffect(() => {
+    if (reduce) return;
+    setFocus(Math.min(Math.max(scrollYProgress.get(), 0), 1) * span);
+  }, [reduce, scrollYProgress, span]);
+
+  return { motion: reduce ? settled : scrollYProgress, focus };
+}
+
 function SecretariaChapter({ reduce, active }: { reduce: boolean; active: boolean }) {
   const flowRef = useRef<HTMLOListElement>(null);
-  const progress = useLatchedProgress(flowRef, ["start 85%", "end 50%"], reduce, true);
-  const reached = useReachedStep(progress, SECRETARIA_FLOW.length, reduce);
+  const { motion: progress, focus } = useSecretariaScroll(flowRef, reduce);
   const { nodeRefs, track } = useNodeTrack(flowRef, SECRETARIA_FLOW.length);
   const { pos, fill } = useTrackPosition(progress, track);
-  const done = reached >= SECRETARIA_FLOW.length - 1;
+  const atEnd = reduce || focus >= SECRETARIA_FLOW.length - 1 - 0.08;
   const horizontal = track?.axis === "x";
 
   return (
@@ -915,7 +880,7 @@ function SecretariaChapter({ reduce, active }: { reduce: boolean; active: boolea
                 {!reduce && (
                   <motion.span
                     className={`pointer-events-none absolute z-20 block h-3 w-3 border-2 bg-brand-roxo transition-colors duration-300 ${
-                      done ? "border-brand-azul" : "border-brand-rosa"
+                      atEnd ? "border-brand-azul" : "border-brand-rosa"
                     }`}
                     style={
                       horizontal
@@ -923,7 +888,7 @@ function SecretariaChapter({ reduce, active }: { reduce: boolean; active: boolea
                         : { top: pos, left: track.cross, x: "-50%", y: "-50%" }
                     }
                     initial={false}
-                    animate={{ scale: done ? [1, 1.4, 1] : 1 }}
+                    animate={{ scale: atEnd ? [1, 1.4, 1] : 1 }}
                     transition={{ duration: 0.55, ease: homeEase }}
                     aria-hidden
                   />
@@ -932,34 +897,40 @@ function SecretariaChapter({ reduce, active }: { reduce: boolean; active: boolea
             )}
 
             {SECRETARIA_FLOW.map((step, index) => {
-              const isOn = index <= reached;
+              const weight = reduce ? 1 : Math.max(0, 1 - Math.abs(focus - index));
+              const opacity = reduce ? 1 : 0.45 + weight * 0.55;
+              const shift = reduce ? 0 : (1 - weight) * 6;
+              const scale = reduce ? 1 : 0.8 + weight * 0.2;
               const tone = index < 2 ? "rosa" : "azul";
               return (
                 <li
                   key={step.num}
                   className="relative grid grid-cols-[1.5rem_1fr] gap-x-3 pb-6 last:pb-0 lg:block lg:pb-0"
                 >
-                  <motion.span
+                  <span
                     ref={(el) => {
                       nodeRefs.current[index] = el;
                     }}
-                    className={`relative z-10 block h-2.5 w-2.5 border transition-colors duration-300 motion-reduce:transition-none ${
-                      isOn
-                        ? tone === "rosa"
+                    className="relative z-10 block h-2.5 w-2.5"
+                    style={{ transform: `scale(${scale})` }}
+                    aria-hidden
+                  >
+                    <span className="absolute inset-0 border border-brand-branco/30 bg-surface" />
+                    <span
+                      className={`absolute inset-0 border ${
+                        tone === "rosa"
                           ? "border-brand-rosa bg-brand-rosa"
                           : "border-brand-azul bg-brand-azul"
-                        : "border-brand-branco/30 bg-surface"
-                    }`}
-                    aria-hidden
-                    initial={false}
-                    animate={{ scale: isOn ? 1 : 0.8 }}
-                    transition={reduce ? { duration: 0 } : springSoft}
-                  />
-                  <motion.span
+                      }`}
+                      style={{ opacity: weight }}
+                    />
+                  </span>
+                  <span
                     className="min-w-0 lg:mt-5 lg:block"
-                    initial={false}
-                    animate={{ opacity: isOn ? 1 : 0.45, y: isOn ? 0 : 6 }}
-                    transition={reduce ? { duration: 0 } : springSoft}
+                    style={{
+                      opacity,
+                      transform: shift ? `translateY(${shift}px)` : undefined,
+                    }}
                   >
                     <span
                       className={`block text-[11px] tracking-[0.18em] ${
@@ -974,7 +945,7 @@ function SecretariaChapter({ reduce, active }: { reduce: boolean; active: boolea
                     <span className="mt-1 block text-[12px] leading-relaxed text-brand-branco/60 sm:text-[13px]">
                       {step.note}
                     </span>
-                  </motion.span>
+                  </span>
                 </li>
               );
             })}
@@ -983,7 +954,7 @@ function SecretariaChapter({ reduce, active }: { reduce: boolean; active: boolea
           <motion.p
             className="mt-8 border-t border-brand-branco/12 pt-4 text-[12px] leading-relaxed text-brand-branco/60"
             initial={{ opacity: 0, y: 8 }}
-            animate={done ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+            animate={atEnd ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
             transition={reduce ? { duration: 0 } : { ...springSoft, delay: 0.35 }}
           >
             <span className="mr-3 uppercase tracking-[0.16em] text-brand-branco/50">
